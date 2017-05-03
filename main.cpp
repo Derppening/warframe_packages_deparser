@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "gui.h"
-#include "packages.h"
+#include "packages_legacy.h"
 
 using std::cout;
 using std::endl;
@@ -17,9 +17,9 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const std::string kBuildString = "0.1";
+const std::string kBuildString = "0.1.1";
 
-Packages ReadArgs(const vector<string>&);
+PackagesLegacy ReadArgs(const vector<string>&);
 void OutputVersionInfo();
 void OutputHelp(const string& s);
 
@@ -42,7 +42,7 @@ void OutputVersionInfo() {
   cout << message << endl;
 }
 
-Packages ReadArgs(const vector<string>& args) {
+PackagesLegacy ReadArgs(const vector<string>& args) {
   string file = "../Packages.txt";
 
   for (auto it = args.begin() + 1; it != args.end(); ++it) {
@@ -68,7 +68,7 @@ Packages ReadArgs(const vector<string>& args) {
     cout << file << ": File not found. Exiting." << endl;
   }
 
-  Packages p(file, move(file_stream));
+  PackagesLegacy p(file, move(file_stream));
   return p;
 }
 }  // namespace
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
   // read input arguments
   vector<string> argvec(argv, argv + argc);
 
-  Packages p = ReadArgs(argvec);
+  PackagesLegacy p = ReadArgs(argvec);
   Gui g(p);
   g.MainMenu();
 

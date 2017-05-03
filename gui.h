@@ -7,15 +7,15 @@
 
 #include <memory>
 
-#include "packages.h"
+#include "packages_legacy.h"
 
 class Gui {
  public:
-  Gui(Packages& package);
+  Gui(PackagesLegacy& package);
   void MainMenu();
 
  private:
-  Packages* package_;
+  PackagesLegacy* package_;
 };
 
 #endif  // WARFRAME_PACKAGES_DEPARSER_GUI_H_

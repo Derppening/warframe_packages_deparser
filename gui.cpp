@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-#include "packages.h"
+#include "packages_legacy.h"
 
 using std::cin;
 using std::cout;
@@ -20,7 +20,7 @@ using std::string;
 using std::vector;
 using std::unique_ptr;
 
-Gui::Gui(Packages& package) {
+Gui::Gui(PackagesLegacy& package) {
   package_ = &package;
 }
 
@@ -39,7 +39,7 @@ void Gui::MainMenu() {
     cout << '\n';
     cout << "> ";
 
-    string response;
+    string response{""};
     getline(cin, response);
     while (response.back() == ' ') {
       response.pop_back();
