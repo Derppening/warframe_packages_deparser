@@ -129,6 +129,7 @@ void PackagesLegacy::ParseFile(ifstream* fstream) {
   string buffer_line{};
   string category{};
   int indent_space = 0;
+  int error = 0;
   for (auto i = 0; getline(*fstream, buffer_line); ++i) {
     if (buffer_line == "") {
       continue;
@@ -139,6 +140,11 @@ void PackagesLegacy::ParseFile(ifstream* fstream) {
       header_line_->emplace(category, i);
       header_contents_->emplace(category, vector<string>());
       header_contents_->at(category).emplace_back(buffer_line.substr(end_of_category + 2));
+      if (indent_space != 0) {
+        ++error;
+        cout << "At line " << i << ": "
+             << category << ": Mismatching braces. Expected 0, got " << indent_space * 2 << endl;
+      }
       indent_space = 0;
     } else if (category == "") {
       continue;
@@ -146,7 +152,12 @@ void PackagesLegacy::ParseFile(ifstream* fstream) {
       if (buffer_line.find('}') != string::npos && buffer_line.find("={") == string::npos) {
         --indent_space;
       }
-      if (indent_space < 0) { indent_space = 0; }
+      if (indent_space < 0) {
+        ++error;
+        cout << "At line " << i << ": "
+             << category << ": Mismatching braces. Expected >=0, got " << indent_space * 2 << endl;
+        indent_space = 0;
+      }
       for (int s = 0; s < indent_space; ++s) {
         buffer_line = "  " + buffer_line;
       }
@@ -156,6 +167,12 @@ void PackagesLegacy::ParseFile(ifstream* fstream) {
         ++indent_space;
       }
     }
+  }
+
+  if (error > 0) {
+    cout << error << " error(s) found during read." << endl;
+    cout << "Press [ENTER] to continue..." << endl;
+    cin.ignore();
   }
 }
 

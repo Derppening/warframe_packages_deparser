@@ -1,0 +1,12 @@
+//
+// Created by david on 3/5/2017.
+//
+
+#ifndef WARFRAME_PACKAGES_DEPARSER_PACKAGES_H_
+#define WARFRAME_PACKAGES_DEPARSER_PACKAGES_H_
+
+class Packages {
+
+};
+
+#endif  // WARFRAME_PACKAGES_DEPARSER_PACKAGES_H_
