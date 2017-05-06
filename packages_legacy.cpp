@@ -170,7 +170,7 @@ void PackagesLegacy::ParseFile(ifstream* fstream) {
   }
 
   if (error > 0) {
-    cout << error << " error(s) found during read." << endl;
+    cout << endl << error << " error(s) found during read." << endl;
     cout << "Press [ENTER] to continue..." << endl;
     cin.ignore();
   }

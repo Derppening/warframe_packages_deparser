@@ -26,9 +26,9 @@ class PackagesLegacy {
   void ParseFile(std::ifstream*);
   std::ifstream& GotoLine(std::ifstream& file, unsigned int line);
 
-  std::string filename_;
-  std::unique_ptr<std::map<std::string, std::vector<std::string>>> header_contents_;
-  std::unique_ptr<std::map<std::string, unsigned int>> header_line_;
+  std::string filename_ = "";
+  std::unique_ptr<std::map<std::string, std::vector<std::string>>> header_contents_ = nullptr;
+  std::unique_ptr<std::map<std::string, unsigned int>> header_line_ = nullptr;
 };
 
 #endif  // WARFRAME_PACKAGES_DEPARSER_PACKAGES_LEGACY_H_
