@@ -34,7 +34,7 @@ void Gui::MainMenu() {
     cout << "Warframe Packages Deparser: Loaded " << GetFileName() << '\n';
     cout << "Found: " << GetSize() << " records" << '\n';
     cout << '\n';
-    cout << "find [-f] [max_count = 10] [string]: Find packages containing [string]." << '\n';
+    cout << "find [-f] [max_count = 50] [string]: Find packages containing [string]." << '\n';
     cout << "\tNotify user if there are more than max_count results." << '\n';
     cout << "\t[-f]: Only show results beginning with [string]." << '\n';
     cout << "view [package]: View the deparsed data of [package]" << '\n';
@@ -52,7 +52,7 @@ void Gui::MainMenu() {
     if (response == "exit") {
       break;
     } else if (response.substr(0, 8) == "find -f ") {
-      unsigned int count = 10;
+      unsigned int count = 50;
       response = response.substr(8);
       if (response.find(' ') != string::npos) {
         count = stoul(response.substr(0, response.find(' ')));
@@ -60,7 +60,7 @@ void Gui::MainMenu() {
       }
       FindFront(response, count);
     } else if (response.substr(0, 5) == "find ") {
-      unsigned int count = 10;
+      unsigned int count = 50;
       response = response.substr(5);
       if (response.find(' ') != string::npos) {
         count = stoul(response.substr(0, response.find(' ')));

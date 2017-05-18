@@ -3,7 +3,6 @@ project(warframe_packages_deparser)
 
 include(compile_flags.cmake)
 
-set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 14)
 
 file(GLOB SOURCE_FILES *.cpp)

@@ -4,6 +4,7 @@
 
 #include "packages.h"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -63,9 +64,12 @@ void Packages::OutputHeader(string header) {
 }
 
 void Packages::FindFront(std::string header, unsigned int max_size) {
+  std::transform(header.begin(), header.end(), header.begin(), ::tolower);
   unique_ptr<vector<string>> matches = make_unique<vector<string>>();
   for (auto&& p : *headers_) {
-    if (p.first.substr(0, header.size()) == header) {
+    string s{p.first};
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    if (s.substr(0, header.size()) == header) {
       matches->emplace_back(p.first);
     }
   }
@@ -85,9 +89,12 @@ void Packages::FindFront(std::string header, unsigned int max_size) {
 }
 
 void Packages::Find(std::string header, unsigned int max_size) {
+  std::transform(header.begin(), header.end(), header.begin(), ::tolower);
   unique_ptr<vector<string>> matches = make_unique<vector<string>>();
   for (auto&& p : *headers_) {
-    if (p.first.find(header) != string::npos) {
+    string s{p.first};
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    if (s.find(header) != string::npos) {
       matches->emplace_back(p.first);
     }
   }
