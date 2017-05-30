@@ -20,6 +20,7 @@ using std::getline;
 using std::ifstream;
 using std::make_unique;
 using std::map;
+using std::ofstream;
 using std::string;
 using std::unique_ptr;
 using std::vector;
@@ -30,7 +31,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs)
 }
 
 void Packages::OutputHeaderRaw(string header) {
-  auto search = headers_->find(header);
+  auto search{headers_->find(header)};
   if (search == headers_->end()) {
     cout << header << ": Header not found." << endl;
     return;
@@ -40,7 +41,7 @@ void Packages::OutputHeaderRaw(string header) {
   cout << "Package Name: " << header << endl;
   cout << "Line Number in File: " << search->second + 1 << endl;
 
-  auto contents = GetHeaderContents(header);
+  auto contents{GetHeaderContents(header)};
   for (auto&& l : *contents) {
     cout << l << endl;
   }
@@ -57,7 +58,7 @@ void Packages::OutputHeader(string header) {
   cout << "Package Name: " << header << endl;
   cout << "Line Number in File: " << search->second + 1 << endl;
 
-  auto contents = GetHeaderContents(header);
+  auto contents{GetHeaderContents(header)};
   for (auto&& l : *contents) {
     cout << l << endl;
   }
@@ -65,7 +66,7 @@ void Packages::OutputHeader(string header) {
 
 void Packages::FindFront(std::string header, unsigned int max_size) {
   std::transform(header.begin(), header.end(), header.begin(), ::tolower);
-  unique_ptr<vector<string>> matches = make_unique<vector<string>>();
+  unique_ptr<vector<string>> matches{make_unique<vector<string>>()};
   for (auto&& p : *headers_) {
     string s{p.first};
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -75,7 +76,7 @@ void Packages::FindFront(std::string header, unsigned int max_size) {
   }
   if (matches->size() > max_size) {
     cout << "Display all " << matches->size() << " possibilities? (y/n) ";
-    string response;
+    string response{};
     getline(cin, response);
     if (response != "y") {
       return;
@@ -113,6 +114,50 @@ void Packages::Find(std::string header, unsigned int max_size) {
   cout << matches->size() << " entries." << endl;
 }
 
+void Packages::SortFile(string outfile, unsigned int notify_count) {
+  unique_ptr<ifstream> instream = make_unique<ifstream>(filename_);
+  unique_ptr<map<string, vector<string>>> contents = make_unique<map<string, vector<string>>>();
+  unique_ptr<ofstream> outstream = make_unique<ofstream>(outfile);
+
+  cout << "Reading file, please wait..." << endl;
+
+  string category{};
+  string buffer_line{};
+  for (auto i = 0; getline(*instream, buffer_line); ++i) {
+    if (buffer_line == "") {
+      continue;
+    }
+    auto is_category = buffer_line.substr(0, 17) == "~FullPackageName=";
+    if (is_category) {
+      category = buffer_line.substr(17);
+      contents->emplace(category, vector<string>());
+      contents->at(category).emplace_back(buffer_line);
+    } else if (category == "") {
+      continue;
+    } else {
+      ConvertTabToSpace(buffer_line);
+      contents->at(category).emplace_back(buffer_line);
+    }
+  }
+
+  instream->close();
+
+  auto count{0};
+  const auto total{contents->size()};
+
+  for (auto&& p : *contents) {
+    if (++count % notify_count == 0) {
+      cout << "On header: " << count << "/" << total << endl;
+    }
+    for (auto&& l : p.second) {
+      *outstream << l << '\n';
+    }
+    outstream->flush();
+  }
+
+  outstream->close();
+}
+
 void Packages::ParseFile(ifstream* ifs) {
   cout << "Reading file, please wait..." << endl;
   string buffer_line{};
@@ -148,17 +193,17 @@ void Packages::ConvertTabToSpace(string& str) {
 unique_ptr<vector<string>> Packages::GetHeaderContents(string header, bool inc_header) {
   unique_ptr<vector<string>> content = make_unique<vector<string>>();
 
-  auto search = headers_->find(header);
+  auto search{headers_->find(header)};
   if (search == headers_->end()) {
     return content;
   }
 
-  auto index = search->second + 1 + static_cast<int>(!inc_header);
+  auto index{search->second + 1 + static_cast<int>(!inc_header)};
 
-  auto fs = GotoLine(index);
+  auto fs{GotoLine(index)};
 
   string line{};
-  for (auto it = index; getline(*fs, line); ++it) {
+  for (auto it{index}; getline(*fs, line); ++it) {
     if (it != index && line.substr(0, 17) == "~FullPackageName=") {
       break;
     }
