@@ -5,5 +5,7 @@ include(compile_flags.cmake)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -static")
+
 file(GLOB SOURCE_FILES *.cpp)
 add_executable(warframe_packages_deparser ${SOURCE_FILES})

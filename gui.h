@@ -17,8 +17,6 @@ class Gui {
     kCurrent = 1
   };
 
-  Gui(Packages& package);
-  Gui(PackagesLegacy& package);
   Gui(Packages* package);
   Gui(PackagesLegacy* package);
 
@@ -27,10 +25,10 @@ class Gui {
   std::string GetFileName() const;
   std::size_t GetSize() const;
 
-  void Find(const std::string substr, const unsigned int max_size) const;
-  void FindFront(const std::string header, const unsigned int max_size) const;
-  void OutputHeader(const std::string header) const;
-  void OutputHeaderRaw(const std::string header) const;
+  void Help();
+  void Find(const std::vector<std::string>& args) const;
+  void View(const std::vector<std::string>& args) const;
+  void Sort(const std::vector<std::string>& args) const;
 
  private:
   Packages* packages_ = nullptr;

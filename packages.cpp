@@ -115,11 +115,11 @@ void Packages::Find(std::string header, unsigned int max_size) {
 }
 
 void Packages::SortFile(string outfile, unsigned int notify_count) {
-  unique_ptr<ifstream> instream = make_unique<ifstream>(filename_);
-  unique_ptr<map<string, vector<string>>> contents = make_unique<map<string, vector<string>>>();
-  unique_ptr<ofstream> outstream = make_unique<ofstream>(outfile);
+  auto instream = make_unique<ifstream>(filename_);
+  auto contents = make_unique<map<string, vector<string>>>();
+  auto outstream = make_unique<ofstream>(outfile);
 
-  cout << "Reading file, please wait..." << endl;
+  cout << "Loading file, please wait..." << endl;
 
   string category{};
   string buffer_line{};
@@ -147,7 +147,7 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
 
   for (auto&& p : *contents) {
     if (++count % notify_count == 0) {
-      cout << "On header: " << count << "/" << total << endl;
+      cout << "Dumping header: " << count << "/" << total << endl;
     }
     for (auto&& l : p.second) {
       *outstream << l << '\n';
