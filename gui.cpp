@@ -61,7 +61,7 @@ void Gui::MainMenu() {
     }
 
     cout << "\nPress [ENTER] to continue..." << endl;
-    cin.ignore();
+    getline(cin, response);
   }
 }
 
@@ -209,7 +209,7 @@ void Gui::View(const vector<string>& args) const {
 void Gui::Sort(const vector<string>& args) const {
   // initialize all parameters
   unsigned int count{1024};
-  string filename{""};
+  string filename{"out.txt"};
 
   for (auto&& arg : args) {
     if (arg.substr(0, 6) == "count=") {

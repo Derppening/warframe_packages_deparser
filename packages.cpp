@@ -31,16 +31,21 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs)
 }
 
 void Packages::OutputHeaderRaw(string header) {
+  // find the header. return if we can't find it
   auto search{headers_->find(header)};
   if (search == headers_->end()) {
     cout << header << ": Header not found." << endl;
     return;
   }
+
   system("cls");
 
+  // provide some raw information
   cout << "Package Name: " << header << endl;
   cout << "Line Number in File: " << search->second + 1 << endl;
+  cout << endl;
 
+  // read from file, and display the contents
   auto contents{GetHeaderContents(header)};
   for (auto&& l : *contents) {
     cout << l << endl;
@@ -48,25 +53,47 @@ void Packages::OutputHeaderRaw(string header) {
 }
 
 void Packages::OutputHeader(string header) {
+  // find the header. return if we can't find it
   auto search = headers_->find(header);
   if (search == headers_->end()) {
     cout << header << ": Header not found." << endl;
     return;
   }
+
   system("cls");
 
-  cout << "Package Name: " << header << endl;
-  cout << "Line Number in File: " << search->second + 1 << endl;
-
+  // read from file first. we need the base package
+  cout << "Loading entry..." << endl;
   auto contents{GetHeaderContents(header)};
-  for (auto&& l : *contents) {
-    cout << l << endl;
+  system("cls");
+
+  // provide some raw information
+  cout << "Package Name: " << header << endl;
+  if (contents->at(0).substr(0, 12) == "BasePackage=") {
+    cout << "Base Package: " << contents->at(0).substr(12) << endl;
+    contents->erase(contents->begin());
+  }
+  cout << endl;
+  cout << "Line Number in File: " << search->second + 1 << endl;
+  cout << endl;
+
+  // display the header contents
+  for (auto& it : *contents) {
+    // replace some characters with their readable counterparts
+    if (it.find("=") != string::npos) { it.replace(it.find("="), 1, ": "); }
+    if (it.find("{}") != string::npos) { it.replace(it.find("{}"), 2, "(empty hash)"); }
+    if (it.find("[]") != string::npos) { it.replace(it.find("[]"), 2, "(empty array)"); }
+
+    cout << it << endl;
   }
 }
 
+// TODO: Merge FindFront and Find
 void Packages::FindFront(std::string header, unsigned int max_size) {
   std::transform(header.begin(), header.end(), header.begin(), ::tolower);
   unique_ptr<vector<string>> matches{make_unique<vector<string>>()};
+
+  // find all matches
   for (auto&& p : *headers_) {
     string s{p.first};
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -74,6 +101,8 @@ void Packages::FindFront(std::string header, unsigned int max_size) {
       matches->emplace_back(p.first);
     }
   }
+
+  // check if we have more matches than max_size
   if (matches->size() > max_size) {
     cout << "Display all " << matches->size() << " possibilities? (y/n) ";
     string response{};
@@ -82,6 +111,8 @@ void Packages::FindFront(std::string header, unsigned int max_size) {
       return;
     }
   }
+
+  // display all matches and total count
   for (auto&& e : *matches) {
     cout << e << '\n';
   }
@@ -92,6 +123,8 @@ void Packages::FindFront(std::string header, unsigned int max_size) {
 void Packages::Find(std::string header, unsigned int max_size) {
   std::transform(header.begin(), header.end(), header.begin(), ::tolower);
   unique_ptr<vector<string>> matches = make_unique<vector<string>>();
+
+  // find all matches
   for (auto&& p : *headers_) {
     string s{p.first};
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -99,6 +132,8 @@ void Packages::Find(std::string header, unsigned int max_size) {
       matches->emplace_back(p.first);
     }
   }
+
+  // check if we have more matches than max_size
   if (matches->size() > max_size) {
     cout << "Display all " << matches->size() << " possibilities? (y/n) ";
     string response;
@@ -107,6 +142,8 @@ void Packages::Find(std::string header, unsigned int max_size) {
       return;
     }
   }
+
+  // display all matches and total count
   for (auto&& e : *matches) {
     cout << e << '\n';
   }
@@ -115,12 +152,14 @@ void Packages::Find(std::string header, unsigned int max_size) {
 }
 
 void Packages::SortFile(string outfile, unsigned int notify_count) {
+  // initialize variables
   auto instream = make_unique<ifstream>(filename_);
   auto contents = make_unique<map<string, vector<string>>>();
   auto outstream = make_unique<ofstream>(outfile);
 
   cout << "Loading file, please wait..." << endl;
 
+  // re-read the whole file into RAM
   string category{};
   string buffer_line{};
   for (auto i = 0; getline(*instream, buffer_line); ++i) {
@@ -145,6 +184,7 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
   auto count{0};
   const auto total{contents->size()};
 
+  // dump map into new file
   for (auto&& p : *contents) {
     if (++count % notify_count == 0) {
       cout << "Dumping header: " << count << "/" << total << endl;
@@ -161,6 +201,8 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
 void Packages::ParseFile(ifstream* ifs) {
   cout << "Reading file, please wait..." << endl;
   string buffer_line{};
+
+  // read file and save with line numbers
   for (auto i = 0; getline(*ifs, buffer_line); ++i) {
     if (buffer_line == "") {
       continue;
@@ -176,6 +218,8 @@ void Packages::ParseFile(ifstream* ifs) {
 unique_ptr<ifstream> Packages::GotoLine(unsigned int line) {
   auto file = make_unique<ifstream>(filename_);
   file->seekg(std::ios::beg);
+
+  // skip line number of lines
   for (unsigned int it = 0; it < line - 1; ++it) {
     file->ignore(std::numeric_limits<std::streamsize>::max(), '\n');
   }
