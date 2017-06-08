@@ -151,6 +151,58 @@ void Packages::Find(std::string header, unsigned int max_size) {
   cout << matches->size() << " entries." << endl;
 }
 
+void Packages::Compare(std::string cmp_filename) {
+  unique_ptr<ifstream> cmp_filestream = make_unique<ifstream>(cmp_filename);
+  if (!cmp_filestream->good()) {
+    cout << cmp_filename << ": File not found." << endl;
+    return;
+  }
+  auto cmp_file = make_unique<Packages>(cmp_filename, std::move(cmp_filestream));
+
+  unique_ptr<vector<string>> has_current = make_unique<vector<string>>();
+  unique_ptr<vector<string>> has_compare = make_unique<vector<string>>();
+
+  const auto cmp_file_headers = cmp_file->GetHeaderPtr();
+
+  cout << "Searching for new keys in current file..." << endl;
+  for (auto&& h : *headers_) {
+    if (cmp_file_headers->find(h.first) == cmp_file_headers->cend()) {
+      has_current->emplace_back(h.first);
+    }
+  }
+
+  cout << "Searching for new keys in comparing file..." << endl;
+  for (auto&& h : *cmp_file_headers) {
+    if (headers_->find(h.first) == headers_->cend()) {
+      has_compare->emplace_back(h.first);
+    }
+  }
+
+  system("cls");
+
+  if (has_current->size() != 0) {
+    cout << "Headers which only exist in current version: " << endl;
+    for (auto&& h : *has_current) {
+      cout << h << '\n';
+    }
+    cout << endl;
+  }
+
+  if (has_compare->size() != 0) {
+    cout << "Headers which only exist in comparing version: " << endl;
+    for (auto&& h : *has_compare) {
+      cout << h << '\n';
+    }
+    cout << endl;
+  }
+
+  if (has_current->size() != 0 || has_compare->size() != 0) {
+    cout << has_compare->size() << " additions, " << has_current->size() << " deletions" << endl;
+  } else {
+    cout << "Headers are identical." << endl;
+  }
+}
+
 void Packages::SortFile(string outfile, unsigned int notify_count) {
   // initialize variables
   auto instream = make_unique<ifstream>(filename_);
@@ -181,7 +233,7 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
 
   instream->close();
 
-  auto count{0};
+  unsigned count{0};
   const auto total{contents->size()};
 
   // dump map into new file

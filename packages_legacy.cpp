@@ -178,7 +178,7 @@ void PackagesLegacy::ParseFile(ifstream* fstream) {
 
 ifstream& PackagesLegacy::GotoLine(ifstream& file, unsigned int line) {
   file.seekg(std::ios::beg);
-  for (auto it = 0; it < line - 1; ++it) {
+  for (unsigned it = 0; it < line - 1; ++it) {
     file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
   }
   return file;

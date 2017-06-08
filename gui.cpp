@@ -56,6 +56,8 @@ void Gui::MainMenu() {
       View(args);
     } else if (response == "sort") {
       Sort(args);
+    } else if (response == "compare") {
+      Compare(args);
     } else {
       cout << response << ": Not a valid command" << endl;
     }
@@ -226,12 +228,42 @@ void Gui::Sort(const vector<string>& args) const {
     }
   }
 
+  if (filename == "") {
+    cout << "Output filename cannot be empty" << endl;
+    return;
+  }
+
   switch (package_ver_) {
     case PackageVer::kLegacy:
       cout << "This mode is currently not supported with legacy packages." << endl;
       break;
     case PackageVer::kCurrent:
       packages_->SortFile(filename, count);
+      break;
+    default:
+      // all cases covered
+      break;
+  }
+}
+
+void Gui::Compare(const vector<string>& args) const {
+  string filename{""};
+
+  for (auto&& arg : args) {
+    filename = arg;
+  }
+
+  if (filename == "") {
+    cout << "Please supply a filename." << endl;
+    return;
+  }
+
+  switch (package_ver_) {
+    case PackageVer::kLegacy:
+      cout << "This mode is currently not supported with legacy packages." << endl;
+      break;
+    case PackageVer::kCurrent:
+      packages_->Compare(filename);
       break;
     default:
       // all cases covered
@@ -248,6 +280,7 @@ void Gui::Help() {
   cout << "sort [count=1024] [filename=out.txt]: Sort and output the file to out.txt" << '\n';
   cout << "\tShow progress every [count] headers dumped." << '\n';
   cout << "\tSorted file will be dumped to [filename]." << '\n';
+  cout << "compare [filename]: Compares the headers of the currently loaded file with [filename]" << '\n';
   cout << '\n';
   cout << "exit: Exit the application" << '\n';
 

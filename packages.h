@@ -21,9 +21,12 @@ class Packages {
   void FindFront(std::string header, unsigned int max_size = 10);
   void Find(std::string header, unsigned int max_size = 10);
 
+  void Compare(std::string);
+
   void SortFile(std::string = "out.txt", unsigned int = 1024);
 
   std::string GetFilename() const { return filename_; }
+  const std::map<std::string, unsigned int>* GetHeaderPtr() const { return headers_.get(); };
   std::size_t GetSize() const { return headers_->size(); }
  private:
   void ParseFile(std::ifstream *ifs);

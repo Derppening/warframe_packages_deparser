@@ -18,7 +18,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const std::string kBuildString = "0.4.1";
+const std::string kBuildString = "0.5.0";
 
 Gui::PackageVer ReadArgs(const vector<string>&, string& filename);
 void OutputVersionInfo();
@@ -28,7 +28,7 @@ void OutputHelp(const string& s) {
   string message{""};
   message += "Usage: " + s + " [OPTION]...\n";
   message += "  -f, --file=[FILE]\tread Packages.txt from [FILE]\n";
-  message += "    , --legacy\t\tread file with legacy format\n";
+  message += "      --legacy\t\tread file with legacy format\n";
   message += "      --help\t\tdisplay this help and exit\n";
   message += "      --version\t\toutput version information and exit\n\n";
 
@@ -73,6 +73,7 @@ Gui::PackageVer ReadArgs(const vector<string>& args, string& filename) {
   unique_ptr<ifstream> file_stream = make_unique<ifstream>(file);
   if (!file_stream->good()) {
     cout << file << ": File not found. Exiting." << endl;
+    exit(0);
   }
 
   filename = file;
@@ -89,6 +90,11 @@ int main(int argc, char* argv[]) {
   unique_ptr<ifstream> file_stream = make_unique<ifstream>(filename);
   unique_ptr<Packages> package = nullptr;
   unique_ptr<PackagesLegacy> package_legacy = nullptr;
+
+  if (!file_stream->good()) {
+    cout << filename << ": File not found. Exiting." << endl;
+    exit(0);
+  }
 
   switch (ver) {
     case Gui::PackageVer::kCurrent:
