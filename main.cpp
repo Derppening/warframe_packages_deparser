@@ -18,7 +18,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const std::string kBuildString = "0.5.0";
+const std::string kBuildString = "0.6.0-beta";
 
 Gui::PackageVer ReadArgs(const vector<string>&, string& filename);
 void OutputVersionInfo();

@@ -5,29 +5,109 @@
 #include "packages.h"
 
 #include <algorithm>
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <limits>
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
+using std::array;
 using std::cin;
 using std::cout;
 using std::endl;
 using std::getline;
 using std::ifstream;
+using std::make_pair;
 using std::make_unique;
 using std::map;
 using std::ofstream;
+using std::pair;
+using std::sort;
 using std::string;
 using std::unique_ptr;
 using std::vector;
 
+namespace {
+vector<pair<string, string>> NormVarReplaceSet = {
+    pair<string, string>("=", ": "),
+    pair<string, string>("{}", "(empty hash"),
+    pair<string, string>("[]", "(empty array)"),
+    pair<string, string>("SkipBuildTimePrice", "Rush Price (Platinum)"),
+    pair<string, string>("PrimeSellingPrice", "Selling Price (Ducats)"),
+    pair<string, string>("TradeCapability", "Can be Traded?"),
+    pair<string, string>("SellingPrice", "Selling Price (Credits)"),
+    pair<string, string>("PremiumPrice", "Price (Platinum)"),
+    pair<string, string>("RegularPrice", "Price (Credits)"),
+    pair<string, string>("BuildPrice", "Build Price (Platinum)"),
+    pair<string, string>("BuildTime", "Build Time (Seconds)"),
+    pair<string, string>("RO_ALWAYS", "Always"),
+    pair<string, string>("RO_NEVER", "Never")
+};
+
+vector<pair<string, string>> BoolVarReplaceSet = {
+    pair<string, string>("ShowInMarket", "Visible in Market?"),
+    pair<string, string>("Tradeable", "Is Tradeable?"),
+    pair<string, string>("Giftable", "Is Giftable?"),
+    pair<string, string>("ExcludeFromCodex", "Hide in Codex?"),
+    pair<string, string>("AvailableOnPvp", "Available in Conclave?"),
+    pair<string, string>("AlwaysAvailable", "Always Available?"),
+    pair<string, string>("CodexSecret", "Secret Entry in Codex?")
+};
+
+const array<pair<string, string>, 2> kBoolReplaceSet = {
+    pair<string, string>("0", "false"),
+    pair<string, string>("1", "true")
+};
+
+void PrettifyLine(std::string& s) {
+  // do replacement for normal variables
+  for (const auto& p_replace : NormVarReplaceSet) {
+    auto cmp = s.find(p_replace.first);
+    if (cmp != string::npos) {
+      s.replace(cmp, p_replace.first.length(), p_replace.second);
+
+      // quote absolute paths
+      if (s.find("/Lotus") != string::npos) {
+        s.replace(s.find("/Lotus"), 1, "\"/");
+        s.push_back('\"');
+      }
+    }
+  }
+
+  // do replacement for boolean variables
+  for (const auto& p_replace : BoolVarReplaceSet) {
+    auto cmp = s.find(p_replace.first);
+    if (cmp != string::npos) {
+      s.replace(cmp, p_replace.first.length(), p_replace.second);
+
+      // also replace the boolean values
+      for (const auto& p_bool : kBoolReplaceSet) {
+        auto val = s.find(p_bool.first);
+        if (val != string::npos) {
+          s.replace(val, p_bool.first.size(), p_bool.second);
+          break;
+        }
+      }
+    }
+  }
+}
+}  // namespace
+
 Packages::Packages(string n, unique_ptr<ifstream> ifs)
     : ifs_(std::move(ifs)), filename_(n), headers_(make_unique<map<string, unsigned int>>()) {
   ParseFile(ifs_.get());
+
+  // sort the vectors!
+  sort(NormVarReplaceSet.begin(), NormVarReplaceSet.end(), [](pair<string, string> a, pair<string, string> b) {
+    return b.first.length() < a.first.length();
+  });
+  sort(BoolVarReplaceSet.begin(), BoolVarReplaceSet.end(), [](pair<string, string> a, pair<string, string> b) {
+    return b.first.length() < a.first.length();
+  });
 }
 
 void Packages::OutputHeaderRaw(string header) {
@@ -46,7 +126,7 @@ void Packages::OutputHeaderRaw(string header) {
   cout << endl;
 
   // read from file, and display the contents
-  auto contents{GetHeaderContents(header)};
+  auto contents = GetHeaderContents(header);
   for (auto&& l : *contents) {
     cout << l << endl;
   }
@@ -64,7 +144,7 @@ void Packages::OutputHeader(string header) {
 
   // read from file first. we need the base package
   cout << "Loading entry..." << endl;
-  auto contents{GetHeaderContents(header)};
+  auto contents = GetHeaderContents(header);
   system("cls");
 
   // provide some raw information
@@ -79,10 +159,7 @@ void Packages::OutputHeader(string header) {
 
   // display the header contents
   for (auto& it : *contents) {
-    // replace some characters with their readable counterparts
-    if (it.find("=") != string::npos) { it.replace(it.find("="), 1, ": "); }
-    if (it.find("{}") != string::npos) { it.replace(it.find("{}"), 2, "(empty hash)"); }
-    if (it.find("[]") != string::npos) { it.replace(it.find("[]"), 2, "(empty array)"); }
+    PrettifyLine(it);
 
     cout << it << endl;
   }
