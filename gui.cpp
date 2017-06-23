@@ -136,10 +136,10 @@ void Gui::Find(const vector<string>& args) const {
     case PackageVer::kCurrent:
       switch (mode) {
         case SearchMode::kDefault:
-          packages_->Find(find_s, max_count);
+          packages_->Find(find_s, false, max_count);
           break;
         case SearchMode::kFront:
-          packages_->FindFront(find_s, max_count);
+          packages_->Find(find_s, true, max_count);
           break;
         default:
           cout << "This mode is currently not supported with current packages." << endl;

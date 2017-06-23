@@ -165,39 +165,7 @@ void Packages::OutputHeader(string header) {
   }
 }
 
-// TODO: Merge FindFront and Find
-void Packages::FindFront(std::string header, unsigned int max_size) {
-  std::transform(header.begin(), header.end(), header.begin(), ::tolower);
-  unique_ptr<vector<string>> matches{make_unique<vector<string>>()};
-
-  // find all matches
-  for (auto&& p : *headers_) {
-    string s{p.first};
-    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-    if (s.substr(0, header.size()) == header) {
-      matches->emplace_back(p.first);
-    }
-  }
-
-  // check if we have more matches than max_size
-  if (matches->size() > max_size) {
-    cout << "Display all " << matches->size() << " possibilities? (y/n) ";
-    string response{};
-    getline(cin, response);
-    if (response != "y") {
-      return;
-    }
-  }
-
-  // display all matches and total count
-  for (auto&& e : *matches) {
-    cout << e << '\n';
-  }
-  cout << endl;
-  cout << matches->size() << " entries." << endl;
-}
-
-void Packages::Find(std::string header, unsigned int max_size) {
+void Packages::Find(std::string header, bool search_front, unsigned int max_size) {
   std::transform(header.begin(), header.end(), header.begin(), ::tolower);
   unique_ptr<vector<string>> matches = make_unique<vector<string>>();
 
@@ -205,7 +173,9 @@ void Packages::Find(std::string header, unsigned int max_size) {
   for (auto&& p : *headers_) {
     string s{p.first};
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-    if (s.find(header) != string::npos) {
+    if (search_front && s.substr(0, header.size()) == header) {
+      matches->emplace_back(p.first);
+    } else if (!search_front && s.find(header) != string::npos) {
       matches->emplace_back(p.first);
     }
   }

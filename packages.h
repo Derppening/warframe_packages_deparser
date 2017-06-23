@@ -18,8 +18,7 @@ class Packages {
   void OutputHeader(std::string header);
   void OutputHeaderRaw(std::string header);
 
-  void FindFront(std::string header, unsigned int max_size = 10);
-  void Find(std::string header, unsigned int max_size = 10);
+  void Find(std::string header, bool search_front, unsigned int max_size = 10);
 
   void Compare(std::string);
 
@@ -28,6 +27,7 @@ class Packages {
   std::string GetFilename() const { return filename_; }
   const std::map<std::string, unsigned int>* GetHeaderPtr() const { return headers_.get(); };
   std::size_t GetSize() const { return headers_->size(); }
+
  private:
   void ParseFile(std::ifstream *ifs);
   std::unique_ptr<std::ifstream> GotoLine(unsigned int line);
