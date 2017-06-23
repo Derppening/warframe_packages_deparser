@@ -112,7 +112,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs)
 
 void Packages::OutputHeaderRaw(string header) {
   // find the header. return if we can't find it
-  auto search{headers_->find(header)};
+  auto search = headers_->find(header);
   if (search == headers_->end()) {
     cout << header << ": Header not found." << endl;
     return;
@@ -281,7 +281,7 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
   instream->close();
 
   unsigned count{0};
-  const auto total{contents->size()};
+  const auto total = contents->size();
 
   // dump map into new file
   for (auto&& p : *contents) {
@@ -336,14 +336,14 @@ void Packages::ConvertTabToSpace(string& str) {
 unique_ptr<vector<string>> Packages::GetHeaderContents(string header, bool inc_header) {
   unique_ptr<vector<string>> content = make_unique<vector<string>>();
 
-  auto search{headers_->find(header)};
+  auto search = headers_->find(header);
   if (search == headers_->end()) {
     return content;
   }
 
-  auto index{search->second + 1 + static_cast<int>(!inc_header)};
+  auto index = search->second + 1 + static_cast<int>(!inc_header);
 
-  auto fs{GotoLine(index)};
+  auto fs = GotoLine(index);
 
   string line{};
   for (auto it{index}; getline(*fs, line); ++it) {
