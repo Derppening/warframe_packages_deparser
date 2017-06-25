@@ -346,7 +346,7 @@ unique_ptr<vector<string>> Packages::GetHeaderContents(string header, bool inc_h
   auto fs = GotoLine(index);
 
   string line{};
-  for (auto it{index}; getline(*fs, line); ++it) {
+  for (auto it = index; getline(*fs, line); ++it) {
     if (it != index && line.substr(0, 17) == "~FullPackageName=") {
       break;
     }

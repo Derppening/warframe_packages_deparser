@@ -23,6 +23,26 @@ using std::string;
 using std::vector;
 using std::unique_ptr;
 
+namespace {
+void Help() {
+  cout << "find [-f] [count=50] [string]: Find packages containing [string]." << '\n';
+  cout << "\tPrompt user if there are more than [count] results." << '\n';
+  cout << "\t[-f]: Only show results beginning with [string]." << '\n';
+  cout << "view [--raw] [package]: View the data of [package]" << '\n';
+  cout << "\t[--raw]: Show the raw version as opposed to deparsed version." << '\n';
+  cout << "sort [count=1024] [filename=out.txt]: Sort and output the file to out.txt" << '\n';
+  cout << "\tShow progress every [count] headers dumped." << '\n';
+  cout << "\tSorted file will be dumped to [filename]." << '\n';
+  cout << "compare [filename]: Compares the headers of the currently loaded file with [filename]" << '\n';
+  cout << '\n';
+  cout << "exit: Exit the application" << '\n';
+
+  cout.flush();
+}
+
+
+}  // namespace
+
 Gui::Gui(Packages* package) : packages_(move(package)), package_ver_(PackageVer::kCurrent) {}
 
 Gui::Gui(PackagesLegacy* package) : package_legacy_(move(package)), package_ver_(PackageVer::kLegacy) {}
@@ -269,20 +289,4 @@ void Gui::Compare(const vector<string>& args) const {
       // all cases covered
       break;
   }
-}
-
-void Gui::Help() {
-  cout << "find [-f] [count=50] [string]: Find packages containing [string]." << '\n';
-  cout << "\tPrompt user if there are more than [count] results." << '\n';
-  cout << "\t[-f]: Only show results beginning with [string]." << '\n';
-  cout << "view [--raw] [package]: View the data of [package]" << '\n';
-  cout << "\t[--raw]: Show the raw version as opposed to deparsed version." << '\n';
-  cout << "sort [count=1024] [filename=out.txt]: Sort and output the file to out.txt" << '\n';
-  cout << "\tShow progress every [count] headers dumped." << '\n';
-  cout << "\tSorted file will be dumped to [filename]." << '\n';
-  cout << "compare [filename]: Compares the headers of the currently loaded file with [filename]" << '\n';
-  cout << '\n';
-  cout << "exit: Exit the application" << '\n';
-
-  cout.flush();
 }

@@ -22,16 +22,15 @@ class Gui {
 
   void MainMenu();
 
+ private:
   std::string GetFileName() const;
   std::size_t GetSize() const;
 
-  void Help();
   void Find(const std::vector<std::string>& args) const;
   void View(const std::vector<std::string>& args) const;
   void Sort(const std::vector<std::string>& args) const;
   void Compare(const std::vector<std::string>& args) const;
 
- private:
   Packages* packages_ = nullptr;
   PackagesLegacy* package_legacy_ = nullptr;
 

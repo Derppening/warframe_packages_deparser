@@ -18,14 +18,14 @@ class Packages {
   void OutputHeader(std::string header);
   void OutputHeaderRaw(std::string header);
 
-  void Find(std::string header, bool search_front, unsigned int max_size = 10);
+  void Find(std::string header, bool search_front, unsigned int max_size);
 
   void Compare(std::string);
 
-  void SortFile(std::string = "out.txt", unsigned int = 1024);
+  void SortFile(std::string, unsigned int);
 
   std::string GetFilename() const { return filename_; }
-  const std::map<std::string, unsigned int>* GetHeaderPtr() const { return headers_.get(); };
+  const std::map<std::string, unsigned int>* GetHeaderPtr() const { return headers_.get(); }
   std::size_t GetSize() const { return headers_->size(); }
 
  private:
