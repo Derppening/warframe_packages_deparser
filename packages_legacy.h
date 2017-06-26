@@ -20,11 +20,11 @@ class PackagesLegacy {
 
   void SuggestSimilar(std::string header, unsigned int max_size = 10);
 
-  std::string GetFilename() const { return filename_;}
-  std::size_t GetSize() const { return header_contents_->size(); }
+  auto GetFilename() const -> std::string { return filename_; }
+  auto GetSize() const -> std::size_t { return header_contents_->size(); }
  private:
   void ParseFile(std::ifstream*);
-  std::ifstream& GotoLine(std::ifstream& file, unsigned int line);
+  auto GotoLine(std::ifstream& file, unsigned int line) -> std::ifstream&;
 
   std::string filename_ = "";
   std::unique_ptr<std::map<std::string, std::vector<std::string>>> header_contents_ = nullptr;

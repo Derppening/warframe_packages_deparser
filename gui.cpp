@@ -87,7 +87,7 @@ void Gui::MainMenu() {
   }
 }
 
-string Gui::GetFileName() const {
+auto Gui::GetFileName() const -> string {
   switch (package_ver_) {
     case PackageVer::kLegacy:
       return package_legacy_->GetFilename();
@@ -99,7 +99,7 @@ string Gui::GetFileName() const {
   }
 }
 
-size_t Gui::GetSize() const {
+auto Gui::GetSize() const -> size_t {
   switch (package_ver_) {
     case PackageVer::kLegacy:
       return package_legacy_->GetSize();

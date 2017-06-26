@@ -8,14 +8,6 @@
 #include <string>
 #include <vector>
 
-std::vector<std::string> SplitString(std::string input,
-                                     std::string delimiter,
-                                     unsigned limit = 0);
-
-std::vector<std::string> SplitString(std::string input,
-                                     char delimiter,
-                                     unsigned limit = 0);
-
-bool Require(bool predicate, std::string message, bool is_fatal = false);
+auto SplitString(std::string input, std::string delimiter, unsigned limit = 0) -> std::vector<std::string>;
 
 #endif  // WARFRAME_PACKAGES_DEPARSER_UTIL_H_

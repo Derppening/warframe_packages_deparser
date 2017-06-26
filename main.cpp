@@ -18,9 +18,9 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const std::string kBuildString = "0.6.0-beta.1";
+const string kBuildString = "0.6.0-beta.1";
 
-Gui::PackageVer ReadArgs(const vector<string>&, string& filename);
+auto ReadArgs(const vector<string>&, string& filename) -> Gui::PackageVer;
 void OutputVersionInfo();
 void OutputHelp(const string& s);
 
@@ -44,7 +44,7 @@ void OutputVersionInfo() {
   cout << message << endl;
 }
 
-Gui::PackageVer ReadArgs(const vector<string>& args, string& filename) {
+auto ReadArgs(const vector<string>& args, string& filename) -> Gui::PackageVer {
   string file = "../Packages.txt";
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
 
@@ -81,7 +81,7 @@ Gui::PackageVer ReadArgs(const vector<string>& args, string& filename) {
 }
 }  // namespace
 
-int main(int argc, char* argv[]) {
+auto main(int argc, char* argv[]) -> int {
   // read input arguments
   vector<string> argvec(argv, argv + argc);
 

@@ -24,16 +24,16 @@ class Packages {
 
   void SortFile(std::string, unsigned int);
 
-  std::string GetFilename() const { return filename_; }
-  const std::map<std::string, unsigned int>* GetHeaderPtr() const { return headers_.get(); }
-  std::size_t GetSize() const { return headers_->size(); }
+  auto GetFilename() const -> std::string { return filename_; }
+  auto GetHeaderPtr() const -> const std::map<std::string, unsigned int>* { return headers_.get(); }
+  auto GetSize() const -> std::size_t { return headers_->size(); }
 
  private:
   void ParseFile(std::ifstream *ifs);
-  std::unique_ptr<std::ifstream> GotoLine(unsigned int line);
+  auto GotoLine(unsigned int line) -> std::unique_ptr<std::ifstream>;
   void ConvertTabToSpace(std::string& str);
 
-  std::unique_ptr<std::vector<std::string>> GetHeaderContents(std::string header, bool inc_header = false);
+  auto GetHeaderContents(std::string header, bool inc_header = false) -> std::unique_ptr<std::vector<std::string>>;
 
   std::unique_ptr<std::ifstream> ifs_ = nullptr;
   std::string filename_ = "";

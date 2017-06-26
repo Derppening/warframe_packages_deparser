@@ -314,7 +314,7 @@ void Packages::ParseFile(ifstream* ifs) {
   }
 }
 
-unique_ptr<ifstream> Packages::GotoLine(unsigned int line) {
+auto Packages::GotoLine(unsigned int line) -> unique_ptr<ifstream> {
   auto file = make_unique<ifstream>(filename_);
   file->seekg(std::ios::beg);
 
@@ -333,7 +333,7 @@ void Packages::ConvertTabToSpace(string& str) {
   }
 }
 
-unique_ptr<vector<string>> Packages::GetHeaderContents(string header, bool inc_header) {
+auto Packages::GetHeaderContents(string header, bool inc_header) -> unique_ptr<vector<string>> {
   unique_ptr<vector<string>> content = make_unique<vector<string>>();
 
   auto search = headers_->find(header);

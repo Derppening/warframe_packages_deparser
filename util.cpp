@@ -9,12 +9,17 @@
 #include <string>
 #include <vector>
 
-std::vector<std::string> SplitString(std::string input, std::string delimiter, unsigned limit) {
-  std::size_t pos{0};
+using std::size_t;
+using std::string;
+using std::vector;
+
+auto SplitString(string input, string delimiter, unsigned limit) -> vector<string> {
+  size_t pos{0};
   unsigned count{0};
-  std::string token{};
-  std::vector<std::string> vs{};
-  while ((pos = input.find(delimiter)) != std::string::npos) {
+  string token{};
+  vector<string> vs{};
+
+  while ((pos = input.find(delimiter)) != string::npos) {
     vs.emplace_back(input.substr(0, pos));
     input.erase(0, pos + delimiter.length());
     ++count;
@@ -28,21 +33,4 @@ std::vector<std::string> SplitString(std::string input, std::string delimiter, u
   }
 
   return vs;
-}
-
-std::vector<std::string> SplitString(std::string input, char delimiter, unsigned limit) {
-  return SplitString(input, std::string(1, delimiter), limit);
-}
-
-bool Require(bool predicate, std::string message, bool is_fatal) {
-  if (predicate) {
-    return true;
-  }
-
-  if (is_fatal) {
-    throw std::invalid_argument(message);
-  } else {
-    std::cerr << message << std::endl;
-  }
-  return false;
 }

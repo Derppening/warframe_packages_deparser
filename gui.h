@@ -23,8 +23,8 @@ class Gui {
   void MainMenu();
 
  private:
-  std::string GetFileName() const;
-  std::size_t GetSize() const;
+  auto GetFileName() const -> std::string;
+  auto GetSize() const -> std::size_t;
 
   void Find(const std::vector<std::string>& args) const;
   void View(const std::vector<std::string>& args) const;
