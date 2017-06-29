@@ -1,5 +1,7 @@
+// Copyright (c) 2017 David Mak. All rights reserved.
+// Licensed under MIT.
 //
-// Created by david on 31/5/2017.
+// Utilities which are used to aid the program
 //
 
 #ifndef WARFRAME_PACKAGES_DEPARSER_UTIL_H_

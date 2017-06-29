@@ -1,3 +1,9 @@
+// Copyright (c) 2017 David Mak. All rights reserved.
+// Licensed under MIT.
+//
+// This file parses the program argument, and inflates the Gui class.
+//
+
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -18,7 +24,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.6.0-beta.1";
+const string kBuildString = "0.6.0";
 
 auto ReadArgs(const vector<string>&, string& filename) -> Gui::PackageVer;
 void OutputVersionInfo();

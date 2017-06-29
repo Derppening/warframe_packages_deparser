@@ -1,5 +1,7 @@
+// Copyright (c) 2017 David Mak. All rights reserved.
+// Licensed under MIT.
 //
-// Created by david on 3/5/2017.
+// Utilities to parse a current-format Packages file.
 //
 
 #ifndef WARFRAME_PACKAGES_DEPARSER_PACKAGES_H_

@@ -1,5 +1,7 @@
+// Copyright (c) 2017 David Mak. All rights reserved.
+// Licensed under MIT.
 //
-// Created by david on 31/5/2017.
+// Implementations for util.h
 //
 
 #include "util.h"

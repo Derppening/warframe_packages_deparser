@@ -1,5 +1,7 @@
+// Copyright (c) 2017 David Mak. All rights reserved.
+// Licensed under MIT.
 //
-// Created by david on 30/4/2017.
+// Implementations for PackagesLegacy class
 //
 
 #include "packages_legacy.h"

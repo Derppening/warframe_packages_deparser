@@ -1,5 +1,8 @@
+// Copyright (c) 2017 David Mak. All rights reserved.
+// Licensed under MIT.
 //
-// Created by david on 30/4/2017.
+// Initializes the console user interface, and acts as the gateway to the
+// program's functionalities.
 //
 
 #ifndef WARFRAME_PACKAGES_DEPARSER_GUI_H_

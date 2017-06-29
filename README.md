@@ -30,7 +30,7 @@ make
 Run the program with `warframe_packages_deparser.exe --version` and ensure it 
 outputs something similar to as follows:
 ```
-Warframe Packages Deparser 0.6.0-beta.1
+Warframe Packages Deparser 0.6.0
 Copyright (C) 2017 David Mak
 Licensed under MIT.
 ```
