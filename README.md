@@ -86,7 +86,7 @@ warframe_packages_deparser.txt --legacy -f <path_to_packages_file>
 ## Versioning
 
 [SemVer](http://semver.org/) is used for all releases. For all releases, see 
-[tags on this repository](https://github.com/Derppening/warframe_packages_deparser/tags).
+[tags on this repository](https://github.com/Derppening/warframe_packages_deparser/releases).
 
 ## Authors
 
