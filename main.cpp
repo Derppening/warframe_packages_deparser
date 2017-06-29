@@ -24,16 +24,23 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.6.0";
+const string kBuildString = "0.7.0-alpha";
 
-auto ReadArgs(const vector<string>&, string& filename) -> Gui::PackageVer;
+struct {
+  Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
+  bool is_interactive = true;
+  vector<string> ni_args;
+} program_args;
+
+void ReadArgs(const vector<string>&, string& filename);
 void OutputVersionInfo();
 void OutputHelp(const string& s);
 
 void OutputHelp(const string& s) {
   string message{""};
-  message += "Usage: " + s + " [OPTION]...\n";
+  message += "Usage: " + s + " [OPTION]... [MODE] [MODE_ARGS]...\n";
   message += "  -f, --file=[FILE]\tread Packages.txt from [FILE]\n";
+  message += "      --no-interactive\tdisable interactive mode\n";
   message += "      --legacy\t\tread file with legacy format\n";
   message += "      --help\t\tdisplay this help and exit\n";
   message += "      --version\t\toutput version information and exit\n\n";
@@ -50,9 +57,8 @@ void OutputVersionInfo() {
   cout << message << endl;
 }
 
-auto ReadArgs(const vector<string>& args, string& filename) -> Gui::PackageVer {
+void ReadArgs(const vector<string>& args, string& filename) {
   string file = "../Packages.txt";
-  Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
 
   for (auto it = args.begin() + 1; it != args.end(); ++it) {
     if (*it == "--help") {
@@ -66,7 +72,11 @@ auto ReadArgs(const vector<string>& args, string& filename) -> Gui::PackageVer {
     } else if (it->substr(0, 7) == "--file=") {
       file = it->substr(7);
     } else if (*it == "--legacy") {
-      package_ver = Gui::PackageVer::kLegacy;
+      program_args.package_ver = Gui::PackageVer::kLegacy;
+    } else if (*it == "--no-interactive") {
+      program_args.is_interactive = false;
+    } else if (!program_args.is_interactive) {
+      program_args.ni_args.push_back(*it);
     } else if (it->substr(0, 2) == "--") {
       cout << "Warning: Unrecognized option " << *it << endl;
     }
@@ -83,7 +93,6 @@ auto ReadArgs(const vector<string>& args, string& filename) -> Gui::PackageVer {
   }
 
   filename = file;
-  return package_ver;
 }
 }  // namespace
 
@@ -92,7 +101,7 @@ auto main(int argc, char* argv[]) -> int {
   vector<string> argvec(argv, argv + argc);
 
   string filename{};
-  Gui::PackageVer ver = ReadArgs(argvec, filename);
+  ReadArgs(argvec, filename);
   unique_ptr<ifstream> file_stream = make_unique<ifstream>(filename);
   unique_ptr<Packages> package = nullptr;
   unique_ptr<PackagesLegacy> package_legacy = nullptr;
@@ -102,7 +111,7 @@ auto main(int argc, char* argv[]) -> int {
     exit(0);
   }
 
-  switch (ver) {
+  switch (program_args.package_ver) {
     case Gui::PackageVer::kCurrent:
       package = make_unique<Packages>(filename, move(file_stream));
       break;
@@ -112,6 +121,13 @@ auto main(int argc, char* argv[]) -> int {
     default:
       // all cases covered
       break;
+  }
+
+  if (!program_args.is_interactive) {
+    cout << "Non-interactive mode is currently not supported." << endl;
+    // TODO(Derppening): Parse arguments and run functions
+
+    return 0;
   }
 
   unique_ptr<Gui> g = nullptr;
