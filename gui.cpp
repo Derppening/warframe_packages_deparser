@@ -91,13 +91,13 @@ bool Gui::ParseCommand(const vector<string>& args, bool is_interactive) {
   } else if (input == "help") {
     Help(is_interactive);
   } else if (input == "find") {
-    Find(args, is_interactive);
+    Find(argv, is_interactive);
   } else if (input == "view") {
-    View(args);
+    View(argv);
   } else if (input == "sort") {
-    Sort(args);
+    Sort(argv);
   } else if (input == "compare") {
-    Compare(args);
+    Compare(argv);
   } else {
     cout << input << ": Not a valid command" << endl;
   }
