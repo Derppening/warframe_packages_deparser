@@ -299,7 +299,7 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
   outstream->close();
 }
 
-void Packages::ReverseLookup(unsigned int line) {
+void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
   auto rev_headers = make_unique<map<unsigned int, string>>();
 
   cout << "Loading..." << endl;
@@ -322,11 +322,13 @@ void Packages::ReverseLookup(unsigned int line) {
     cout << "Entry at line " << line << ": " << i->second << endl;
     cout << "Entry begins at line " << i->first + 1 << endl;
     cout << endl;
-    cout << "View Package Details? [y/N] ";
-    string resp = "";
-    getline(cin, resp);
-    if (resp == "y" || resp == "Y") {
-      OutputHeaderRaw(i->second);
+    if (is_interactive) {
+      cout << "View Package Details? [y/N] ";
+      string resp = "";
+      getline(cin, resp);
+      if (resp == "y" || resp == "Y") {
+        OutputHeaderRaw(i->second);
+      }
     }
   } else {
     cout << "No entry found at line " << line << endl;

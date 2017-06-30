@@ -37,7 +37,7 @@ class Gui {
 
   bool ParseCommand(const std::vector<std::string>& args, bool is_interactive);
 
-  void Find(const std::vector<std::string>& args) const;
+  void Find(const std::vector<std::string>& args, bool is_interactive) const;
   void View(const std::vector<std::string>& args) const;
   void Sort(const std::vector<std::string>& args) const;
   void Compare(const std::vector<std::string>& args) const;

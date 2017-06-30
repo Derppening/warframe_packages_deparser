@@ -86,7 +86,7 @@ bool Gui::ParseCommand(const vector<string>& args, bool is_interactive) {
   } else if (input == "help") {
     Help(is_interactive);
   } else if (input == "find") {
-    Find(args);
+    Find(args, is_interactive);
   } else if (input == "view") {
     View(args);
   } else if (input == "sort") {
@@ -124,7 +124,7 @@ auto Gui::GetSize() const -> size_t {
   }
 }
 
-void Gui::Find(const vector<string>& args) const {
+void Gui::Find(const vector<string>& args, bool is_interactive) const {
   enum class SearchMode {
     kDefault,
     kFront,
@@ -185,7 +185,7 @@ void Gui::Find(const vector<string>& args) const {
           packages_->Find(find_s, true, max_count);
           break;
         case SearchMode::kLine:
-          packages_->ReverseLookup(line);
+          packages_->ReverseLookup(line, is_interactive);
           break;
         default:
           cout << "This mode is currently not supported with current packages." << endl;
