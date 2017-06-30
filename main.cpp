@@ -45,8 +45,8 @@ void OutputHelp(const string& s) {
   message += "      --legacy\t\tread file with legacy format\n";
   message += "      --help\t\tdisplay this help and exit\n";
   message += "      --version\t\toutput version information and exit\n\n";
-  message += "\n";
-  message += "For help on using interactive mode, provide \'help\' to MODE.";
+  message += "MODE and MODE_ARGS will only be parsed if \'--no-interactive\' is provided.\n";
+  message += "For help on using interactive mode, provide \'help\' to MODE.\n";
 
   cout << message << endl;
 }
@@ -62,10 +62,10 @@ void OutputVersionInfo() {
 
 void ReadArgs(const vector<string>& args, string& filename) {
   string file = "../Packages.txt";
-  bool ddash = false;
+  bool is_parse_ni_args = false;
 
   for (auto it = args.begin() + 1; it != args.end(); ++it) {
-    if (program_args.is_interactive && ddash) {
+    if (program_args.is_interactive && is_parse_ni_args) {
       cout << "Warning: Ignoring all arguments provided after \"--\" token" << endl;
       break;
     } else if (*it == "--help") {
@@ -82,13 +82,12 @@ void ReadArgs(const vector<string>& args, string& filename) {
       program_args.package_ver = Gui::PackageVer::kLegacy;
     } else if (*it == "--no-interactive") {
       program_args.is_interactive = false;
-    } else if (!program_args.is_interactive && ddash) {
+    } else if (!program_args.is_interactive && is_parse_ni_args) {
       program_args.ni_args.push_back(*it);
     } else if (*it == "--") {
-      ddash = true;
+      is_parse_ni_args = true;
     } else if (it->substr(0, 2) == "--" &&
-        it->length() != 2 &&
-        program_args.is_interactive) {
+        it->length() != 2) {
       cout << "Warning: Unrecognized option " << *it << endl;
     }
   }

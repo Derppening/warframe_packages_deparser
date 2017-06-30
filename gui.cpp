@@ -31,7 +31,7 @@ void Help(bool is_interactive) {
   cout << "\tPrompt user if there are more than [count] results." << '\n';
   cout << "\t[-f]: Only show results beginning with [string]." << '\n';
   cout << "view [--raw] [package]: View the data of [package]" << '\n';
-  cout << "\t[--raw]: Show the raw version as opposed to deparsed version." << '\n';
+  cout << "\t[--raw]: Show the raw version as opposed to prettify version." << '\n';
   cout << "sort [count=1024] [filename=out.txt]: Sort and output the file to out.txt" << '\n';
   cout << "\tShow progress every [count] headers dumped." << '\n';
   cout << "\tSorted file will be dumped to [filename]." << '\n';
@@ -43,13 +43,13 @@ void Help(bool is_interactive) {
 
   cout.flush();
 }
-
-
 }  // namespace
 
-Gui::Gui(Packages* package) : packages_(move(package)), package_ver_(PackageVer::kCurrent) {}
+Gui::Gui(Packages* package) : packages_(move(package)), package_ver_(PackageVer::kCurrent)
+{}
 
-Gui::Gui(PackagesLegacy* package) : package_legacy_(move(package)), package_ver_(PackageVer::kLegacy) {}
+Gui::Gui(PackagesLegacy* package) : package_legacy_(move(package)), package_ver_(PackageVer::kLegacy)
+{}
 
 void Gui::MainMenu() {
   while (true) {
