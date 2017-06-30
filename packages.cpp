@@ -310,14 +310,24 @@ void Packages::ReverseLookup(unsigned int line) {
 
   auto i = rev_headers->end();
   for (auto it = rev_headers->begin(); it != rev_headers->end(); ++it) {
-    if (it->first > line) {
+    if (it->first + 1 > line) {
       i = --it;
       break;
     }
   }
 
+  system("cls");
+
   if (i != rev_headers->end()) {
     cout << "Entry at line " << line << ": " << i->second << endl;
+    cout << "Entry begins at line " << i->first + 1 << endl;
+    cout << endl;
+    cout << "View Package Details? [y/N] ";
+    string resp = "";
+    getline(cin, resp);
+    if (resp == "y" || resp == "Y") {
+      OutputHeaderRaw(i->second);
+    }
   } else {
     cout << "No entry found at line " << line << endl;
   }
