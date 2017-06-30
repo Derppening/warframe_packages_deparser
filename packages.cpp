@@ -299,6 +299,31 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
   outstream->close();
 }
 
+void Packages::ReverseLookup(unsigned int line) {
+  auto rev_headers = make_unique<map<unsigned int, string>>();
+
+  cout << "Loading..." << endl;
+
+  for (auto&& a : *headers_) {
+    rev_headers->emplace(a.second, a.first);
+  }
+
+  auto i = rev_headers->end();
+  for (auto it = rev_headers->begin(); it != rev_headers->end(); ++it) {
+    if (it->first > line) {
+      i = --it;
+      break;
+    }
+  }
+
+  if (i != rev_headers->end()) {
+    cout << "Entry at line " << line << ": " << i->second << endl;
+  } else {
+    cout << "No entry found at line " << line << endl;
+  }
+
+}
+
 void Packages::ParseFile(ifstream* ifs) {
   cout << "Reading file, please wait..." << endl;
   string buffer_line{};

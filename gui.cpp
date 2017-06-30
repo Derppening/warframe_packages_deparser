@@ -127,12 +127,14 @@ auto Gui::GetSize() const -> size_t {
 void Gui::Find(const vector<string>& args) const {
   enum class SearchMode {
     kDefault,
-    kFront
+    kFront,
+    kLine
   };
 
   // initialize all parameters
   string find_s{""};
   unsigned int max_count{50};
+  unsigned int line = 0;
   SearchMode mode{SearchMode::kDefault};
 
   for (auto&& arg : args) {
@@ -143,6 +145,14 @@ void Gui::Find(const vector<string>& args) const {
         cerr << "Argument provided to [count] is not a number" << endl;
         return;
       }
+    } else if (arg.substr(0, 5) == "line="){
+      try {
+        line = stoul(arg.substr(5));
+      } catch (std::invalid_argument ex_ia) {
+        cerr << "Argument provided to [line] is not a number" << endl;
+        return;
+      }
+      mode = SearchMode::kLine;
     } else if (arg == "-f") {
       mode = SearchMode::kFront;
     } else {
@@ -150,7 +160,7 @@ void Gui::Find(const vector<string>& args) const {
     }
   }
 
-  if (find_s == "") {
+  if (find_s == "" && mode != SearchMode::kLine) {
     cout << "No search string provided." << endl;
     return;
   }
@@ -173,6 +183,9 @@ void Gui::Find(const vector<string>& args) const {
           break;
         case SearchMode::kFront:
           packages_->Find(find_s, true, max_count);
+          break;
+        case SearchMode::kLine:
+          packages_->ReverseLookup(line);
           break;
         default:
           cout << "This mode is currently not supported with current packages." << endl;

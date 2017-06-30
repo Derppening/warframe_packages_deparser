@@ -26,6 +26,8 @@ class Packages {
 
   void SortFile(std::string, unsigned int);
 
+  void ReverseLookup(unsigned int);
+
   auto GetFilename() const -> std::string { return filename_; }
   auto GetHeaderPtr() const -> const std::map<std::string, unsigned int>* { return headers_.get(); }
   auto GetSize() const -> std::size_t { return headers_->size(); }

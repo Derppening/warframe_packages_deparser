@@ -25,7 +25,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.7.0";
+const string kBuildString = "0.8.0-beta";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
