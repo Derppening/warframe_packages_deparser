@@ -13,6 +13,7 @@
 #include "gui.h"
 #include "packages.h"
 #include "packages_legacy.h"
+#include "util.h"
 
 using std::cout;
 using std::endl;
@@ -24,7 +25,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.7.0-alpha";
+const string kBuildString = "0.7.0-beta";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
@@ -59,9 +60,13 @@ void OutputVersionInfo() {
 
 void ReadArgs(const vector<string>& args, string& filename) {
   string file = "../Packages.txt";
+  bool ddash = false;
 
   for (auto it = args.begin() + 1; it != args.end(); ++it) {
-    if (*it == "--help") {
+    if (program_args.is_interactive && ddash) {
+      cout << "Warning: Ignoring all arguments provided after \"--\" token" << endl;
+      break;
+    } else if (*it == "--help") {
       OutputHelp(args.at(0));
       exit(0);
     } else if (*it == "--version") {
@@ -75,9 +80,13 @@ void ReadArgs(const vector<string>& args, string& filename) {
       program_args.package_ver = Gui::PackageVer::kLegacy;
     } else if (*it == "--no-interactive") {
       program_args.is_interactive = false;
-    } else if (!program_args.is_interactive) {
+    } else if (!program_args.is_interactive && ddash) {
       program_args.ni_args.push_back(*it);
-    } else if (it->substr(0, 2) == "--") {
+    } else if (*it == "--") {
+      ddash = true;
+    } else if (it->substr(0, 2) == "--" &&
+        it->length() != 2 &&
+        program_args.is_interactive) {
       cout << "Warning: Unrecognized option " << *it << endl;
     }
   }
@@ -123,13 +132,6 @@ auto main(int argc, char* argv[]) -> int {
       break;
   }
 
-  if (!program_args.is_interactive) {
-    cout << "Non-interactive mode is currently not supported." << endl;
-    // TODO(Derppening): Parse arguments and run functions
-
-    return 0;
-  }
-
   unique_ptr<Gui> g = nullptr;
   if (package != nullptr) {
     g = make_unique<Gui>(package.get());
@@ -140,7 +142,28 @@ auto main(int argc, char* argv[]) -> int {
     exit(0);
   }
 
-  g->MainMenu();
+  if (!program_args.is_interactive) {
+    if (program_args.ni_args.size() == 0) {
+      cout << "No arguments provided for non-interactive mode. Exiting." << endl;
+    }
+
+    string response = program_args.ni_args.at(0);
+    auto args = vector<string>(program_args.ni_args.begin() + 1, program_args.ni_args.end());
+
+    if (response == "find") {
+      g->Find(args);
+    } else if (response == "view") {
+      g->View(args);
+    } else if (response == "sort") {
+      g->Sort(args);
+    } else if (response == "compare") {
+      g->Compare(args);
+    } else {
+      cout << "Error: " << response << ": Not a valid command" << endl;
+    }
+  } else {
+    g->MainMenu();
+  }
 
   return 0;
 }
