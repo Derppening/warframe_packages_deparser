@@ -26,7 +26,7 @@ using std::vector;
 using std::unique_ptr;
 
 namespace {
-void Help() {
+void Help(bool is_interactive) {
   cout << "find [-f] [count=50] [string]: Find packages containing [string]." << '\n';
   cout << "\tPrompt user if there are more than [count] results." << '\n';
   cout << "\t[-f]: Only show results beginning with [string]." << '\n';
@@ -36,8 +36,10 @@ void Help() {
   cout << "\tShow progress every [count] headers dumped." << '\n';
   cout << "\tSorted file will be dumped to [filename]." << '\n';
   cout << "compare [filename]: Compares the headers of the currently loaded file with [filename]" << '\n';
-  cout << '\n';
-  cout << "exit: Exit the application" << '\n';
+  if (is_interactive) {
+    cout << '\n';
+    cout << "exit: Exit the application" << '\n';
+  }
 
   cout.flush();
 }
@@ -82,7 +84,7 @@ bool Gui::ParseCommand(const vector<string>& args, bool is_interactive) {
   if (input == "exit" && is_interactive) {
     return true;
   } else if (input == "help") {
-    Help();
+    Help(is_interactive);
   } else if (input == "find") {
     Find(args);
   } else if (input == "view") {
