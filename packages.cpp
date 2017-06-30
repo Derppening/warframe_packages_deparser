@@ -320,8 +320,7 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
 
   if (i != rev_headers->end()) {
     cout << "Entry at line " << line << ": " << i->second << endl;
-    cout << "Entry begins at line " << i->first + 1 << endl;
-    cout << endl;
+    cout << "Entry begins at line " << i->first + 1 << endl << endl;
     if (is_interactive) {
       cout << "View Package Details? [y/N] ";
       string resp = "";
@@ -331,7 +330,7 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
       }
     }
   } else {
-    cout << "No entry found at line " << line << endl;
+    cout << "No entry found at line " << line << endl << endl;
   }
 
 }

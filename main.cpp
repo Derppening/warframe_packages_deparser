@@ -25,7 +25,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.8.0-beta.2";
+const string kBuildString = "0.8.0-rc.1";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
@@ -61,7 +61,7 @@ void OutputVersionInfo() {
 }
 
 void ReadArgs(const vector<string>& args, string& filename) {
-  string file = "../Packages.txt";
+  string file = "./Packages.txt";
   bool is_parse_ni_args = false;
 
   for (auto it = args.begin() + 1; it != args.end(); ++it) {
