@@ -30,11 +30,16 @@ void Help(bool is_interactive) {
   cout << "find [-f] [count=50] [string]: Find packages containing [string]." << '\n';
   cout << "\tPrompt user if there are more than [count] results." << '\n';
   cout << "\t[-f]: Only show results beginning with [string]." << '\n';
+  cout << '\n';
+  cout << "find line=[line]: Reverse lookup package name at [line]" << '\n';
+  cout << '\n';
   cout << "view [--raw] [package]: View the data of [package]" << '\n';
   cout << "\t[--raw]: Show the raw version as opposed to prettify version." << '\n';
+  cout << '\n';
   cout << "sort [count=1024] [filename=out.txt]: Sort and output the file to out.txt" << '\n';
   cout << "\tShow progress every [count] headers dumped." << '\n';
   cout << "\tSorted file will be dumped to [filename]." << '\n';
+  cout << '\n';
   cout << "compare [filename]: Compares the headers of the currently loaded file with [filename]" << '\n';
   if (is_interactive) {
     cout << '\n';
