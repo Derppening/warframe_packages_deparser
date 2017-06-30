@@ -17,13 +17,25 @@ class Gui {
  public:
   enum struct PackageVer {
     kLegacy = 0,
-    kCurrent = 1
+    kCurrent
+  };
+
+  enum struct GuiOption {
+    kExit,
+    kHelp,
+    kFind,
+    kView,
+    kSort,
+    kCompare,
+    kNoOpt
   };
 
   Gui(Packages* package);
   Gui(PackagesLegacy* package);
 
   void MainMenu();
+
+  bool ParseCommand(const std::vector<std::string>& args, bool is_interactive);
 
   void Find(const std::vector<std::string>& args) const;
   void View(const std::vector<std::string>& args) const;

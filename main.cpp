@@ -25,7 +25,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.7.0-beta";
+const string kBuildString = "0.7.0-beta.1";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
@@ -147,20 +147,7 @@ auto main(int argc, char* argv[]) -> int {
       cout << "No arguments provided for non-interactive mode. Exiting." << endl;
     }
 
-    string response = program_args.ni_args.at(0);
-    auto args = vector<string>(program_args.ni_args.begin() + 1, program_args.ni_args.end());
-
-    if (response == "find") {
-      g->Find(args);
-    } else if (response == "view") {
-      g->View(args);
-    } else if (response == "sort") {
-      g->Sort(args);
-    } else if (response == "compare") {
-      g->Compare(args);
-    } else {
-      cout << "Error: " << response << ": Not a valid command" << endl;
-    }
+    g->ParseCommand(program_args.ni_args, false);
   } else {
     g->MainMenu();
   }

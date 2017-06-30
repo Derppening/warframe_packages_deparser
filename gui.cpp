@@ -65,28 +65,37 @@ void Gui::MainMenu() {
 
     auto argv = SplitString(response, " ");
     if (argv.size() == 0) { continue; }
-    response = argv.at(0);
-    auto args = vector<string>(argv.begin() + 1, argv.end());
 
-    if (response == "exit") {
-      break;
-    } else if (response == "help") {
-      Help();
-    } else if (response == "find") {
-      Find(args);
-    } else if (response == "view") {
-      View(args);
-    } else if (response == "sort") {
-      Sort(args);
-    } else if (response == "compare") {
-      Compare(args);
-    } else {
-      cout << response << ": Not a valid command" << endl;
+    if (ParseCommand(argv, true)) {
+      return;
     }
 
     cout << "\nPress [ENTER] to continue..." << endl;
     getline(cin, response);
   }
+}
+
+bool Gui::ParseCommand(const vector<string>& args, bool is_interactive) {
+  string input = args.at(0);
+  auto argv = vector<string>(args.begin() + 1, args.end());
+
+  if (input == "exit" && is_interactive) {
+    return true;
+  } else if (input == "help") {
+    Help();
+  } else if (input == "find") {
+    Find(args);
+  } else if (input == "view") {
+    View(args);
+  } else if (input == "sort") {
+    Sort(args);
+  } else if (input == "compare") {
+    Compare(args);
+  } else {
+    cout << input << ": Not a valid command" << endl;
+  }
+
+  return false;
 }
 
 auto Gui::GetFileName() const -> string {
