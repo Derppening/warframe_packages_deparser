@@ -243,10 +243,10 @@ void Gui::View(const vector<string>& args) const {
     case PackageVer::kCurrent:
       switch (mode) {
         case ViewMode::kDefault:
-          packages_->OutputHeader(package);
+          packages_->OutputHeader(package, false);
           break;
         case ViewMode::kRaw:
-          packages_->OutputHeaderRaw(package);
+          packages_->OutputHeader(package, true);
           break;
         default:
           cout << "This mode is currently not supported with current packages." << endl;

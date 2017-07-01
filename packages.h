@@ -17,8 +17,7 @@ class Packages {
  public:
   Packages(std::string filename, std::unique_ptr<std::ifstream> ifs);
 
-  void OutputHeader(std::string header);
-  void OutputHeaderRaw(std::string header);
+  void OutputHeader(std::string header, bool is_raw);
 
   void Find(std::string header, bool search_front, unsigned int max_size);
 

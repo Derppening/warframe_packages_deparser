@@ -6,8 +6,9 @@
 
 #include "packages_legacy.h"
 
-#include <iostream>
+#include <exception>
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -27,6 +28,10 @@ using std::unique_ptr;
 using std::vector;
 
 PackagesLegacy::PackagesLegacy(string n, unique_ptr<ifstream> ifs) {
+  if (!ifs->good()) {
+    throw std::runtime_error("Cannot open file");
+  }
+
   filename_ = n;
 
   // create the unique_ptrs

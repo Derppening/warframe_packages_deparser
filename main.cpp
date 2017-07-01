@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -25,7 +26,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.8.0";
+const string kBuildString = "0.8.1";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
@@ -96,12 +97,6 @@ void ReadArgs(const vector<string>& args, string& filename) {
     file.insert(0, "./");
   }
 
-  unique_ptr<ifstream> file_stream = make_unique<ifstream>(file);
-  if (!file_stream->good()) {
-    cout << file << ": File not found. Exiting." << endl;
-    exit(0);
-  }
-
   filename = file;
 }
 }  // namespace
@@ -116,21 +111,20 @@ auto main(int argc, char* argv[]) -> int {
   unique_ptr<Packages> package = nullptr;
   unique_ptr<PackagesLegacy> package_legacy = nullptr;
 
-  if (!file_stream->good()) {
-    cout << filename << ": File not found. Exiting." << endl;
-    exit(0);
-  }
-
-  switch (program_args.package_ver) {
-    case Gui::PackageVer::kCurrent:
-      package = make_unique<Packages>(filename, move(file_stream));
-      break;
-    case Gui::PackageVer::kLegacy:
-      package_legacy = make_unique<PackagesLegacy>(filename, move(file_stream));
-      break;
-    default:
-      // all cases covered
-      break;
+  try {
+    switch (program_args.package_ver) {
+      case Gui::PackageVer::kCurrent:
+        package = make_unique<Packages>(filename, move(file_stream));
+        break;
+      case Gui::PackageVer::kLegacy:
+        package_legacy = make_unique<PackagesLegacy>(filename, move(file_stream));
+        break;
+      default:
+        throw std::runtime_error("Bad State");
+    }
+  } catch (std::runtime_error ex_runtime) {
+    cout << "Error while opening parsing file: " << ex_runtime.what() << endl;
+    return 0;
   }
 
   unique_ptr<Gui> g = nullptr;
@@ -140,7 +134,7 @@ auto main(int argc, char* argv[]) -> int {
     g = make_unique<Gui>(package_legacy.get());
   } else {
     cout << "Error when initializing packages!" << endl;
-    exit(0);
+    return 1;
   }
 
   if (!program_args.is_interactive) {

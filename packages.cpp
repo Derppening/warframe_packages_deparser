@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -101,6 +102,10 @@ void PrettifyLine(std::string& s) {
 
 Packages::Packages(string n, unique_ptr<ifstream> ifs)
     : ifs_(std::move(ifs)), filename_(n), headers_(make_unique<map<string, unsigned int>>()) {
+  if (!ifs_->good()) {
+    throw std::runtime_error("Cannot open file");
+  }
+
   ParseFile(ifs_.get());
 
   // sort the vectors!
@@ -112,29 +117,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs)
   });
 }
 
-void Packages::OutputHeaderRaw(string header) {
-  // find the header. return if we can't find it
-  auto search = headers_->find(header);
-  if (search == headers_->end()) {
-    cout << header << ": Header not found." << endl;
-    return;
-  }
-
-  system("cls");
-
-  // provide some raw information
-  cout << "Package Name: " << header << endl;
-  cout << "Line Number in File: " << search->second + 1 << endl;
-  cout << endl;
-
-  // read from file, and display the contents
-  auto contents = GetHeaderContents(header);
-  for (auto&& l : *contents) {
-    cout << l << endl;
-  }
-}
-
-void Packages::OutputHeader(string header) {
+void Packages::OutputHeader(string header, bool is_raw) {
   // find the header. return if we can't find it
   auto search = headers_->find(header);
   if (search == headers_->end()) {
@@ -149,21 +132,33 @@ void Packages::OutputHeader(string header) {
   auto contents = GetHeaderContents(header);
   system("cls");
 
-  // provide some raw information
-  cout << "Package Name: " << header << endl;
-  if (contents->at(0).substr(0, 12) == "BasePackage=") {
-    cout << "Base Package: " << contents->at(0).substr(12) << endl;
-    contents->erase(contents->begin());
-  }
-  cout << endl;
-  cout << "Line Number in File: " << search->second + 1 << endl;
-  cout << endl;
+  if (is_raw) {
+    // provide some raw information
+    cout << "Package Name: " << header << endl;
+    cout << "Line Number in File: " << search->second + 1 << endl;
+    cout << endl;
 
-  // display the header contents
-  for (auto& it : *contents) {
-    PrettifyLine(it);
+    // display the contents
+    for (auto&& l : *contents) {
+      cout << l << endl;
+    }
+  } else {
+    // provide some raw information
+    cout << "Package Name: " << header << endl;
+    if (contents->at(0).substr(0, 12) == "BasePackage=") {
+      cout << "Base Package: " << contents->at(0).substr(12) << endl;
+      contents->erase(contents->begin());
+    }
+    cout << endl;
+    cout << "Line Number in File: " << search->second + 1 << endl;
+    cout << endl;
 
-    cout << it << endl;
+    // display the contents
+    for (auto& it : *contents) {
+      PrettifyLine(it);
+
+      cout << it << endl;
+    }
   }
 }
 
@@ -326,7 +321,7 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
       string resp = "";
       getline(cin, resp);
       if (resp == "y" || resp == "Y") {
-        OutputHeaderRaw(i->second);
+        OutputHeader(i->second, false);
       }
     }
   } else {
