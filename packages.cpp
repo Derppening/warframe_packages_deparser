@@ -37,7 +37,7 @@ using std::vector;
 namespace {
 vector<pair<string, string>> NormVarReplaceSet = {
     pair<string, string>("=", ": "),
-    pair<string, string>("{}", "(empty hash"),
+    pair<string, string>("{}", "(empty hash)"),
     pair<string, string>("[]", "(empty array)"),
     pair<string, string>("SkipBuildTimePrice", "Rush Price (Platinum)"),
     pair<string, string>("PrimeSellingPrice", "Selling Price (Ducats)"),
