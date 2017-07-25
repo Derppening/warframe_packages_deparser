@@ -144,7 +144,7 @@ auto main(int argc, char* argv[]) -> int {
       cout << "No arguments provided for non-interactive mode. Exiting." << endl;
     }
 
-    g->ParseCommand(program_args.ni_args, false);
+    g->ParseCommand(program_args.ni_args);
   } else {
     g->MainMenu();
   }

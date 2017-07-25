@@ -30,17 +30,17 @@ class Gui {
     kNoOpt
   };
 
-  Gui(Packages* package);
-  Gui(PackagesLegacy* package);
+  explicit Gui(Packages* package);
+  explicit Gui(PackagesLegacy* package);
 
   void MainMenu();
 
-  bool ParseCommand(const std::vector<std::string>& args, bool is_interactive);
+  bool ParseCommand(const std::vector<std::string>& args);
 
-  void Find(const std::vector<std::string>& args, bool is_interactive) const;
-  void View(const std::vector<std::string>& args) const;
-  void Sort(const std::vector<std::string>& args) const;
-  void Compare(const std::vector<std::string>& args) const;
+  void Find(std::string args, bool is_interactive) const;
+  void View(std::string args) const;
+  void Sort(std::string args) const;
+  void Compare(std::string args) const;
 
  private:
   auto GetFileName() const -> std::string;

@@ -7,9 +7,12 @@
 #include "gui.h"
 
 #include <iostream>
+#include <iterator>
 #include <memory>
+#include <sstream>
 #include <vector>
 
+#include "cui.h"
 #include "packages.h"
 #include "packages_legacy.h"
 #include "util.h"
@@ -50,56 +53,53 @@ void Help(bool is_interactive) {
 }
 }  // namespace
 
-Gui::Gui(Packages* package) : packages_(move(package)), package_ver_(PackageVer::kCurrent)
+Gui::Gui(Packages* package) : packages_(package)
 {}
 
-Gui::Gui(PackagesLegacy* package) : package_legacy_(move(package)), package_ver_(PackageVer::kLegacy)
+Gui::Gui(PackagesLegacy* package) : package_legacy_(package), package_ver_(PackageVer::kLegacy)
 {}
 
 void Gui::MainMenu() {
-  while (true) {
+  Cui c(Cui::HintLevel::kNone);
+  c.AddItem("Find", "find", std::bind(&Gui::Find, this, std::placeholders::_1, true));
+  c.AddItem("View", "view", std::bind(&Gui::View, this, std::placeholders::_1));
+  c.AddItem("Sort", "sort", std::bind(&Gui::Sort, this, std::placeholders::_1));
+  c.AddItem("Compare", "compare", std::bind(&Gui::Compare, this, std::placeholders::_1));
+  c.AddItem("Help", "help", std::bind(Help, true));
+  c.AddDiv();
+  c.AddItem("Exit", "exit", nullptr, true);
+
+  bool b = false;
+  while (!b) {
     system("cls");
     cout << "Warframe Packages Deparser: Loaded " << GetFileName() << '\n';
     cout << "Found: " << GetSize() << " records" << '\n';
     cout << '\n';
     cout << "Type 'help' to see all available commands." << '\n';
     cout << '\n';
-    cout << "> ";
     cout.flush();
 
-    string response;
-    getline(cin, response);
-
-    auto argv = SplitString(response, " ");
-    if (argv.empty()) { continue; }
-
-    if (ParseCommand(argv, true)) {
-      return;
-    }
-
-    cout << "\nPress [ENTER] to continue..." << endl;
-    getline(cin, response);
+    b = c.Inflate();
   }
 }
 
-bool Gui::ParseCommand(const vector<string>& args, bool is_interactive) {
+bool Gui::ParseCommand(const vector<string>& args) {
   string input = args.at(0);
   auto argv = vector<string>(args.begin() + 1, args.end());
 
-  if (input == "exit" && is_interactive) {
-    return true;
-  }
+  std::stringstream arg;
+  std::copy(argv.begin(), argv.end(), std::ostream_iterator<string>(arg, std::string(" ").c_str()));
 
   if (input == "help") {
-    Help(is_interactive);
+    Help(false);
   } else if (input == "find") {
-    Find(argv, is_interactive);
+    Find(arg.str(), false);
   } else if (input == "view") {
-    View(argv);
+    View(arg.str());
   } else if (input == "sort") {
-    Sort(argv);
+    Sort(arg.str());
   } else if (input == "compare") {
-    Compare(argv);
+    Compare(arg.str());
   } else {
     cout << input << ": Not a valid command" << endl;
   }
@@ -131,12 +131,14 @@ auto Gui::GetSize() const -> size_t {
   }
 }
 
-void Gui::Find(const vector<string>& args, bool is_interactive) const {
+void Gui::Find(string args, bool is_interactive) const {
   enum class SearchMode {
     kDefault,
     kFront,
     kLine
   };
+
+  vector<string> argv = SplitString(std::move(args), " ");
 
   // initialize all parameters
   string find_s;
@@ -144,7 +146,7 @@ void Gui::Find(const vector<string>& args, bool is_interactive) const {
   unsigned int line = 0;
   SearchMode mode = SearchMode::kDefault;
 
-  for (auto&& arg : args) {
+  for (auto&& arg : argv) {
     if (arg.substr(0, 6) == "count=") {
       try {
         max_count = stoul(arg.substr(6));
@@ -205,17 +207,19 @@ void Gui::Find(const vector<string>& args, bool is_interactive) const {
   }
 }
 
-void Gui::View(const vector<string>& args) const {
+void Gui::View(const std::string args) const {
   enum class ViewMode {
     kDefault,
     kRaw
   };
 
+  vector<string> argv = SplitString(args, " ");
+
   // initialize all parameters
   string package;
   ViewMode mode = ViewMode::kDefault;
 
-  for (auto&& arg : args) {
+  for (auto&& arg : argv) {
     if (arg == "--raw") {
       mode = ViewMode::kRaw;
     } else {
@@ -261,12 +265,14 @@ void Gui::View(const vector<string>& args) const {
   }
 }
 
-void Gui::Sort(const vector<string>& args) const {
+void Gui::Sort(const string args) const {
+  vector<string> argv = SplitString(args, " ");
+
   // initialize all parameters
   unsigned int count{1024};
   string filename{"out.txt"};
 
-  for (auto&& arg : args) {
+  for (auto&& arg : argv) {
     if (arg.substr(0, 6) == "count=") {
       try {
         count = stoul(arg.substr(6));
@@ -299,10 +305,11 @@ void Gui::Sort(const vector<string>& args) const {
   }
 }
 
-void Gui::Compare(const vector<string>& args) const {
-  string filename;
+void Gui::Compare(const string args) const {
+  vector<string> argv = SplitString(args, " ");
 
-  for (auto&& arg : args) {
+  string filename;
+  for (auto&& arg : argv) {
     filename = arg;
   }
 

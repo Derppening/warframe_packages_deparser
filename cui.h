@@ -77,8 +77,10 @@ class Cui {
                bool is_term = false);
   /**
    * Start the @c Cui menu using the given options.
+   *
+   * @return True if terminating
    */
-  void Inflate();
+  bool Inflate();
 
  private:
   struct Entry {

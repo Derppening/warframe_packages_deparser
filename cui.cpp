@@ -36,12 +36,8 @@ void Cui::AddItem(const std::string text, const std::vector<std::string>& input,
   sel_.push_back(e);
 }
 
-void Cui::Inflate() {
+bool Cui::Inflate() {
   while (true) {
-    if (static_cast<bool>(system("cls"))) {
-      system("clear");
-    }
-
     if (hint_level_ != HintLevel::kNone) {
       for (auto it = sel_.begin(); it != sel_.end(); ++it) {
         if (it->text.empty()) {
@@ -70,6 +66,8 @@ void Cui::Inflate() {
     std::string input;
     std::getline(std::cin, input);
 
+    if (input.empty()) { continue; }
+
     std::string args;
     if (input.find(' ') != std::string::npos) {
       args = input.substr(input.find(' ') + 1);
@@ -91,7 +89,7 @@ void Cui::Inflate() {
         search_res->fptr(args);
       }
       if (search_res->is_terminate) {
-        return;
+        return true;
       }
     } else {
       std::cout << input << ": Not found" << std::endl;
@@ -100,5 +98,7 @@ void Cui::Inflate() {
     std::cout << std::endl;
     std::cout << "Press [ENTER] to continue..." << std::endl;
     std::getline(std::cin, input);
+
+    return false;
   }
 }
