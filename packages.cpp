@@ -36,29 +36,29 @@ using std::vector;
 
 namespace {
 vector<pair<string, string>> NormVarReplaceSet = {
-    pair<string, string>("=", ": "),
-    pair<string, string>("{}", "(empty hash)"),
-    pair<string, string>("[]", "(empty array)"),
-    pair<string, string>("SkipBuildTimePrice", "Rush Price (Platinum)"),
-    pair<string, string>("PrimeSellingPrice", "Selling Price (Ducats)"),
-    pair<string, string>("TradeCapability", "Can be Traded?"),
-    pair<string, string>("SellingPrice", "Selling Price (Credits)"),
-    pair<string, string>("PremiumPrice", "Price (Platinum)"),
-    pair<string, string>("RegularPrice", "Price (Credits)"),
-    pair<string, string>("BuildPrice", "Build Price (Platinum)"),
-    pair<string, string>("BuildTime", "Build Time (Seconds)"),
-    pair<string, string>("RO_ALWAYS", "Always"),
-    pair<string, string>("RO_NEVER", "Never")
+    {"=", ": "},
+    {"{}", "(empty hash)"},
+    {"[]", "(empty array)"},
+    {"SkipBuildTimePrice", "Rush Price (Platinum)"},
+    {"PrimeSellingPrice", "Selling Price (Ducats)"},
+    {"TradeCapability", "Can be Traded?"},
+    {"SellingPrice", "Selling Price (Credits)"},
+    {"PremiumPrice", "Price (Platinum)"},
+    {"RegularPrice", "Price (Credits)"},
+    {"BuildPrice", "Build Price (Platinum)"},
+    {"BuildTime", "Build Time (Seconds)"},
+    {"RO_ALWAYS", "Always"},
+    {"RO_NEVER", "Never"}
 };
 
 vector<pair<string, string>> BoolVarReplaceSet = {
-    pair<string, string>("ShowInMarket", "Visible in Market?"),
-    pair<string, string>("Tradeable", "Is Tradeable?"),
-    pair<string, string>("Giftable", "Is Giftable?"),
-    pair<string, string>("ExcludeFromCodex", "Hide in Codex?"),
-    pair<string, string>("AvailableOnPvp", "Available in Conclave?"),
-    pair<string, string>("AlwaysAvailable", "Always Available?"),
-    pair<string, string>("CodexSecret", "Secret Entry in Codex?")
+    {"ShowInMarket", "Visible in Market?"},
+    {"Tradeable", "Is Tradeable?"},
+    {"Giftable", "Is Giftable?"},
+    {"ExcludeFromCodex", "Hide in Codex?"},
+    {"AvailableOnPvp", "Available in Conclave?"},
+    {"AlwaysAvailable", "Always Available?"},
+    {"CodexSecret", "Secret Entry in Codex?"}
 };
 
 const array<pair<string, string>, 2> kBoolReplaceSet = {
@@ -101,7 +101,7 @@ void PrettifyLine(std::string& s) {
 }  // namespace
 
 Packages::Packages(string n, unique_ptr<ifstream> ifs)
-    : ifs_(std::move(ifs)), filename_(n), headers_(make_unique<map<string, unsigned int>>()) {
+    : ifs_(std::move(ifs)), filename_(std::move(n)), headers_(make_unique<map<string, unsigned int>>()) {
   if (!ifs_->good()) {
     throw std::runtime_error("Cannot open file");
   }
@@ -224,7 +224,7 @@ void Packages::Compare(std::string cmp_filename) {
 
   system("cls");
 
-  if (has_current->size() != 0) {
+  if (!has_current->empty()) {
     cout << "Headers which only exist in current version: " << endl;
     for (auto&& h : *has_current) {
       cout << h << '\n';
@@ -232,7 +232,7 @@ void Packages::Compare(std::string cmp_filename) {
     cout << endl;
   }
 
-  if (has_compare->size() != 0) {
+  if (!has_compare->empty()) {
     cout << "Headers which only exist in comparing version: " << endl;
     for (auto&& h : *has_compare) {
       cout << h << '\n';
@@ -240,7 +240,7 @@ void Packages::Compare(std::string cmp_filename) {
     cout << endl;
   }
 
-  if (has_current->size() != 0 || has_compare->size() != 0) {
+  if (!has_current->empty() || !has_compare->empty()) {
     cout << has_compare->size() << " additions, " << has_current->size() << " deletions" << endl;
   } else {
     cout << "Headers are identical." << endl;
@@ -256,10 +256,10 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
   cout << "Loading file, please wait..." << endl;
 
   // re-read the whole file into RAM
-  string category{};
-  string buffer_line{};
+  string category;
+  string buffer_line;
   for (auto i = 0; getline(*instream, buffer_line); ++i) {
-    if (buffer_line == "") {
+    if (buffer_line.empty()) {
       continue;
     }
     auto is_category = buffer_line.substr(0, 17) == "~FullPackageName=";
@@ -267,7 +267,7 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
       category = buffer_line.substr(17);
       contents->emplace(category, vector<string>());
       contents->at(category).emplace_back(buffer_line);
-    } else if (category == "") {
+    } else if (category.empty()) {
       continue;
     } else {
       ConvertTabToSpace(buffer_line);
@@ -318,7 +318,7 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
     cout << "Entry begins at line " << i->first + 1 << endl << endl;
     if (is_interactive) {
       cout << "View Package Details? [y/N] ";
-      string resp = "";
+      string resp;
       getline(cin, resp);
       if (resp == "y" || resp == "Y") {
         OutputHeader(i->second, false);
@@ -332,11 +332,11 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
 
 void Packages::ParseFile(ifstream* ifs) {
   cout << "Reading file, please wait..." << endl;
-  string buffer_line{};
+  string buffer_line;
 
   // read file and save with line numbers
   for (auto i = 0; getline(*ifs, buffer_line); ++i) {
-    if (buffer_line == "") {
+    if (buffer_line.empty()) {
       continue;
     }
     auto start_of_category = buffer_line.substr(0, 17) == "~FullPackageName=";
@@ -378,7 +378,7 @@ auto Packages::GetHeaderContents(string header, bool inc_header) -> unique_ptr<v
 
   auto fs = GotoLine(index);
 
-  string line{};
+  string line;
   for (auto it = index; getline(*fs, line); ++it) {
     if (it != index && line.substr(0, 17) == "~FullPackageName=") {
       break;

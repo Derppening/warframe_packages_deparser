@@ -67,11 +67,11 @@ void Gui::MainMenu() {
     cout << "> ";
     cout.flush();
 
-    string response{""};
+    string response;
     getline(cin, response);
 
     auto argv = SplitString(response, " ");
-    if (argv.size() == 0) { continue; }
+    if (argv.empty()) { continue; }
 
     if (ParseCommand(argv, true)) {
       return;
@@ -88,7 +88,9 @@ bool Gui::ParseCommand(const vector<string>& args, bool is_interactive) {
 
   if (input == "exit" && is_interactive) {
     return true;
-  } else if (input == "help") {
+  }
+
+  if (input == "help") {
     Help(is_interactive);
   } else if (input == "find") {
     Find(argv, is_interactive);
@@ -137,23 +139,23 @@ void Gui::Find(const vector<string>& args, bool is_interactive) const {
   };
 
   // initialize all parameters
-  string find_s{""};
-  unsigned int max_count{50};
+  string find_s;
+  unsigned int max_count = 50;
   unsigned int line = 0;
-  SearchMode mode{SearchMode::kDefault};
+  SearchMode mode = SearchMode::kDefault;
 
   for (auto&& arg : args) {
     if (arg.substr(0, 6) == "count=") {
       try {
         max_count = stoul(arg.substr(6));
-      } catch (std::invalid_argument ex_ia) {
+      } catch (std::invalid_argument& ex_ia) {
         cerr << "Argument provided to [count] is not a number" << endl;
         return;
       }
     } else if (arg.substr(0, 5) == "line="){
       try {
         line = stoul(arg.substr(5));
-      } catch (std::invalid_argument ex_ia) {
+      } catch (std::invalid_argument& ex_ia) {
         cerr << "Argument provided to [line] is not a number" << endl;
         return;
       }
@@ -165,7 +167,7 @@ void Gui::Find(const vector<string>& args, bool is_interactive) const {
     }
   }
 
-  if (find_s == "" && mode != SearchMode::kLine) {
+  if (find_s.empty() && mode != SearchMode::kLine) {
     cout << "No search string provided." << endl;
     return;
   }
@@ -210,8 +212,8 @@ void Gui::View(const vector<string>& args) const {
   };
 
   // initialize all parameters
-  string package{""};
-  ViewMode mode{ViewMode::kDefault};
+  string package;
+  ViewMode mode = ViewMode::kDefault;
 
   for (auto&& arg : args) {
     if (arg == "--raw") {
@@ -221,7 +223,7 @@ void Gui::View(const vector<string>& args) const {
     }
   }
 
-  if (package == "") {
+  if (package.empty()) {
     cout << "Please supply a package name." << endl;
     return;
   }
@@ -268,7 +270,7 @@ void Gui::Sort(const vector<string>& args) const {
     if (arg.substr(0, 6) == "count=") {
       try {
         count = stoul(arg.substr(6));
-      } catch (std::invalid_argument ex_ia) {
+      } catch (std::invalid_argument& ex_ia) {
         cerr << "Argument provided to [count] is not a number" << endl;
         return;
       }
@@ -279,7 +281,7 @@ void Gui::Sort(const vector<string>& args) const {
     }
   }
 
-  if (filename == "") {
+  if (filename.empty()) {
     cout << "Output filename cannot be empty" << endl;
     return;
   }
@@ -298,13 +300,13 @@ void Gui::Sort(const vector<string>& args) const {
 }
 
 void Gui::Compare(const vector<string>& args) const {
-  string filename{""};
+  string filename;
 
   for (auto&& arg : args) {
     filename = arg;
   }
 
-  if (filename == "") {
+  if (filename.empty()) {
     cout << "Please supply a filename." << endl;
     return;
   }

@@ -26,7 +26,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.8.1";
+const string kBuildString = "0.9.0-beta";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
@@ -34,12 +34,12 @@ struct {
   vector<string> ni_args;
 } program_args;
 
-void ReadArgs(const vector<string>&, string& filename);
+void ReadArgs(const vector<string>& args, string& filename);
 void OutputVersionInfo();
 void OutputHelp(const string& s);
 
 void OutputHelp(const string& s) {
-  string message{""};
+  string message;
   message += "Usage: " + s + " [OPTION]... -- [MODE] [MODE_ARGS]...\n";
   message += "  -f, --file=[FILE]\tread Packages.txt from [FILE]\n";
   message += "      --no-interactive\tdisable interactive mode\n";
@@ -53,7 +53,7 @@ void OutputHelp(const string& s) {
 }
 
 void OutputVersionInfo() {
-  string message{""};
+  string message;
   message += "Warframe Package Deparser " + kBuildString + "\n";
   message += "Copyright (C) 2017 David Mak\n";
   message += "Licensed under MIT.";
@@ -69,7 +69,9 @@ void ReadArgs(const vector<string>& args, string& filename) {
     if (program_args.is_interactive && is_parse_ni_args) {
       cout << "Warning: Ignoring all arguments provided after \"--\" token" << endl;
       break;
-    } else if (*it == "--help") {
+    }
+
+    if (*it == "--help") {
       OutputHelp(args.at(0));
       exit(0);
     } else if (*it == "--version") {
@@ -122,7 +124,7 @@ auto main(int argc, char* argv[]) -> int {
       default:
         throw std::runtime_error("Bad State");
     }
-  } catch (std::runtime_error ex_runtime) {
+  } catch (std::runtime_error& ex_runtime) {
     cout << "Error while opening parsing file: " << ex_runtime.what() << endl;
     return 0;
   }
@@ -138,7 +140,7 @@ auto main(int argc, char* argv[]) -> int {
   }
 
   if (!program_args.is_interactive) {
-    if (program_args.ni_args.size() == 0) {
+    if (program_args.ni_args.empty()) {
       cout << "No arguments provided for non-interactive mode. Exiting." << endl;
     }
 
