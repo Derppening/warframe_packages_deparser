@@ -7,7 +7,8 @@
 #include "util.h"
 
 #include <iostream>
-#include <stdexcept>
+#include <iterator>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -35,4 +36,10 @@ auto SplitString(string input, string delimiter, unsigned limit) -> vector<strin
   }
 
   return vs;
+}
+
+auto JoinToString(const std::vector<std::string>& input, std::string separator) -> std::string {
+  std::stringstream arg;
+  std::copy(input.begin(), input.end(), std::ostream_iterator<std::string>(arg, separator.c_str()));
+  return arg.str();
 }

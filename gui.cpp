@@ -87,19 +87,18 @@ bool Gui::ParseCommand(const vector<string>& args) {
   string input = args.at(0);
   auto argv = vector<string>(args.begin() + 1, args.end());
 
-  std::stringstream arg;
-  std::copy(argv.begin(), argv.end(), std::ostream_iterator<string>(arg, std::string(" ").c_str()));
+  auto arg = JoinToString(argv, " ");
 
   if (input == "help") {
     Help(false);
   } else if (input == "find") {
-    Find(arg.str(), false);
+    Find(arg, false);
   } else if (input == "view") {
-    View(arg.str());
+    View(arg);
   } else if (input == "sort") {
-    Sort(arg.str());
+    Sort(arg);
   } else if (input == "compare") {
-    Compare(arg.str());
+    Compare(arg);
   } else {
     cout << input << ": Not a valid command" << endl;
   }

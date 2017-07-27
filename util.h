@@ -12,4 +12,6 @@
 
 auto SplitString(std::string input, std::string delimiter, unsigned limit = 0) -> std::vector<std::string>;
 
+auto JoinToString(const std::vector<std::string>& input, std::string separator) -> std::string;
+
 #endif  // WARFRAME_PACKAGES_DEPARSER_UTIL_H_
