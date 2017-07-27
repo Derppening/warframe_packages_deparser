@@ -22,6 +22,12 @@ class Cui {
     kAll
   };
 
+  enum ParseResult {
+    kCmdNotFound = -1,
+    kContinue,
+    kExit
+  };
+
   /**
    * Default Constructor. Defaults to hint level @c kSimple.
    */
@@ -78,9 +84,20 @@ class Cui {
   /**
    * Start the @c Cui menu using the given options.
    *
-   * @return True if terminating
+   * @param has_custom_text True if displaying custom text (i.e. screen is not automatically cleared on selection)
+   * @param terminate_anyways True if user input loop is handled externally
+   *
+   * @return True if terminating from loop
    */
-  bool Inflate();
+  bool Inflate(bool has_custom_text = false, bool terminate_anyways = false);
+
+  /**
+   * Parses the user input and delegates to the corresponding function.
+   *
+   * @param arg String of user input
+   * @return Result of parsing
+   */
+  ParseResult Parse(std::string arg);
 
  private:
   struct Entry {

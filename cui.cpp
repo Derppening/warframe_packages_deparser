@@ -36,8 +36,12 @@ void Cui::AddItem(const std::string text, const std::vector<std::string>& input,
   sel_.push_back(e);
 }
 
-bool Cui::Inflate() {
+bool Cui::Inflate(bool has_custom_text, bool terminate_anyways) {
   while (true) {
+    if (!has_custom_text && static_cast<bool>(system("cls"))) {
+      system("clear");
+    }
+
     if (hint_level_ != HintLevel::kNone) {
       for (auto it = sel_.begin(); it != sel_.end(); ++it) {
         if (it->text.empty()) {
@@ -66,39 +70,54 @@ bool Cui::Inflate() {
     std::string input;
     std::getline(std::cin, input);
 
-    if (input.empty()) { continue; }
-
-    std::string args;
-    if (input.find(' ') != std::string::npos) {
-      args = input.substr(input.find(' ') + 1);
-      input = input.substr(0, input.find(' '));
-    }
-
-    auto search_res =
-        std::find_if(sel_.begin(),
-                     sel_.end(),
-                     [&input](const auto& entry) -> bool {
-                       for (const auto& it : entry.input) {
-                         if (it == input) { return true; }
-                       }
-                       return false;
-                     });
-
-    if (search_res != sel_.end()) {
-      if (search_res->fptr) {
-        search_res->fptr(args);
-      }
-      if (search_res->is_terminate) {
+    switch (Parse(input)) {
+      case ParseResult::kExit:
         return true;
-      }
-    } else {
-      std::cout << input << ": Not found" << std::endl;
+      case ParseResult::kCmdNotFound:
+        std::cout << input << ": Not found" << std::endl;
+        break;
+      default:
+        // not handled
+        break;
     }
 
     std::cout << std::endl;
     std::cout << "Press [ENTER] to continue..." << std::endl;
     std::getline(std::cin, input);
 
-    return false;
+    if (terminate_anyways) {
+      return false;
+    }
   }
+}
+
+Cui::ParseResult Cui::Parse(std::string arg) {
+  std::string args;
+  if (arg.find(' ') != std::string::npos) {
+    args = arg.substr(arg.find(' ') + 1);
+    arg = arg.substr(0, arg.find(' '));
+  }
+
+  auto search_res =
+      std::find_if(sel_.begin(),
+                   sel_.end(),
+                   [&arg](const auto& entry) -> bool {
+                     for (const auto& it : entry.input) {
+                       if (it == arg) { return true; }
+                     }
+                     return false;
+                   });
+
+  if (search_res != sel_.end()) {
+    if (search_res->fptr) {
+      search_res->fptr(args);
+    }
+    if (search_res->is_terminate) {
+      return ParseResult::kExit;
+    }
+  } else {
+    return ParseResult::kCmdNotFound;
+  }
+
+  return ParseResult::kContinue;
 }

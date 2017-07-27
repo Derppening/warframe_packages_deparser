@@ -79,7 +79,7 @@ void Gui::MainMenu() {
     cout << '\n';
     cout.flush();
 
-    b = c.Inflate();
+    b = c.Inflate(true, true);
   }
 }
 
