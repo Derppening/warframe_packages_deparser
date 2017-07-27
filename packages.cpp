@@ -18,6 +18,9 @@
 #include <utility>
 #include <vector>
 
+#include "static_log.h"
+#include "timer.h"
+
 using std::array;
 using std::cin;
 using std::cout;
@@ -102,9 +105,12 @@ void PrettifyLine(std::string& s) {
 
 Packages::Packages(string n, unique_ptr<ifstream> ifs)
     : ifs_(std::move(ifs)), filename_(std::move(n)), headers_(make_unique<map<string, unsigned int>>()) {
-  if (!ifs_->good()) {
+  if (!*ifs_) {
     throw std::runtime_error("Cannot open file");
   }
+
+  Timer t;
+  t.Start();
 
   ParseFile(ifs_.get());
 
@@ -115,6 +121,14 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs)
   sort(BoolVarReplaceSet.begin(), BoolVarReplaceSet.end(), [](pair<string, string> a, pair<string, string> b) {
     return b.first.length() < a.first.length();
   });
+
+  t.Stop();
+
+  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+
+  StaticLog::i(
+      "Initialization of Packages(\"" + filename_ + "\") complete. Took " + std::to_string(time) + "ms.",
+      StaticLog::kFile);
 }
 
 void Packages::OutputHeader(string header, bool is_raw) {
@@ -331,6 +345,8 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
 }
 
 void Packages::ParseFile(ifstream* ifs) {
+  StaticLog::d("Packages::ParseFile", StaticLog::kFile);
+
   cout << "Reading file, please wait..." << endl;
   string buffer_line;
 
