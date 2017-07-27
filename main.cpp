@@ -151,7 +151,7 @@ auto main(int argc, char* argv[]) -> int {
     c.AddItem("View", "view", std::bind(&Gui::View, *g, std::placeholders::_1));
     c.AddItem("Sort", "sort", std::bind(&Gui::Sort, *g, std::placeholders::_1));
     c.AddItem("Compare", "compare", std::bind(&Gui::Compare, *g, std::placeholders::_1));
-    c.AddItem("Help", "help", std::bind(&Gui::Help, *g, true));
+    c.AddItem("Help", "help", std::bind(&Gui::Help, *g, false));
 
     c.Parse(JoinToString(program_args.ni_args, " "));
   } else {
