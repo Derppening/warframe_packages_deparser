@@ -28,31 +28,6 @@ using std::string;
 using std::vector;
 using std::unique_ptr;
 
-namespace {
-void Help(bool is_interactive) {
-  cout << "find [-f] [count=50] [string]: Find packages containing [string]." << '\n';
-  cout << "\tPrompt user if there are more than [count] results." << '\n';
-  cout << "\t[-f]: Only show results beginning with [string]." << '\n';
-  cout << '\n';
-  cout << "find line=[line]: Reverse lookup package name at [line]" << '\n';
-  cout << '\n';
-  cout << "view [--raw] [package]: View the data of [package]" << '\n';
-  cout << "\t[--raw]: Show the raw version as opposed to prettify version." << '\n';
-  cout << '\n';
-  cout << "sort [count=1024] [filename=out.txt]: Sort and output the file to out.txt" << '\n';
-  cout << "\tShow progress every [count] headers dumped." << '\n';
-  cout << "\tSorted file will be dumped to [filename]." << '\n';
-  cout << '\n';
-  cout << "compare [filename]: Compares the headers of the currently loaded file with [filename]" << '\n';
-  if (is_interactive) {
-    cout << '\n';
-    cout << "exit: Exit the application" << '\n';
-  }
-
-  cout.flush();
-}
-}  // namespace
-
 Gui::Gui(Packages* package) : packages_(package)
 {}
 
@@ -65,7 +40,7 @@ void Gui::MainMenu() {
   c.AddItem("View", "view", std::bind(&Gui::View, this, std::placeholders::_1));
   c.AddItem("Sort", "sort", std::bind(&Gui::Sort, this, std::placeholders::_1));
   c.AddItem("Compare", "compare", std::bind(&Gui::Compare, this, std::placeholders::_1));
-  c.AddItem("Help", "help", std::bind(Help, true));
+  c.AddItem("Help", "help", std::bind(&Gui::Help, this, true));
   c.AddDiv();
   c.AddItem("Exit", "exit", nullptr, true);
 
@@ -81,29 +56,6 @@ void Gui::MainMenu() {
 
     b = c.Inflate(true, true);
   }
-}
-
-bool Gui::ParseCommand(const vector<string>& args) {
-  string input = args.at(0);
-  auto argv = vector<string>(args.begin() + 1, args.end());
-
-  auto arg = JoinToString(argv, " ");
-
-  if (input == "help") {
-    Help(false);
-  } else if (input == "find") {
-    Find(arg, false);
-  } else if (input == "view") {
-    View(arg);
-  } else if (input == "sort") {
-    Sort(arg);
-  } else if (input == "compare") {
-    Compare(arg);
-  } else {
-    cout << input << ": Not a valid command" << endl;
-  }
-
-  return false;
 }
 
 auto Gui::GetFileName() const -> string {
@@ -128,6 +80,29 @@ auto Gui::GetSize() const -> size_t {
       // all cases covered
       return 0;
   }
+}
+
+void Gui::Help(bool is_interactive) const {
+  cout << "find [-f] [count=50] [string]: Find packages containing [string]." << '\n';
+  cout << "\tPrompt user if there are more than [count] results." << '\n';
+  cout << "\t[-f]: Only show results beginning with [string]." << '\n';
+  cout << '\n';
+  cout << "find line=[line]: Reverse lookup package name at [line]" << '\n';
+  cout << '\n';
+  cout << "view [--raw] [package]: View the data of [package]" << '\n';
+  cout << "\t[--raw]: Show the raw version as opposed to prettify version." << '\n';
+  cout << '\n';
+  cout << "sort [count=1024] [filename=out.txt]: Sort and output the file to out.txt" << '\n';
+  cout << "\tShow progress every [count] headers dumped." << '\n';
+  cout << "\tSorted file will be dumped to [filename]." << '\n';
+  cout << '\n';
+  cout << "compare [filename]: Compares the headers of the currently loaded file with [filename]" << '\n';
+  if (is_interactive) {
+    cout << '\n';
+    cout << "exit: Exit the application" << '\n';
+  }
+
+  cout.flush();
 }
 
 void Gui::Find(string args, bool is_interactive) const {

@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "cui.h"
 #include "gui.h"
 #include "packages.h"
 #include "packages_legacy.h"
@@ -26,7 +27,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.9.0-beta.1";
+const string kBuildString = "0.9.0-beta.2";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
@@ -144,7 +145,14 @@ auto main(int argc, char* argv[]) -> int {
       cout << "No arguments provided for non-interactive mode. Exiting." << endl;
     }
 
-    g->ParseCommand(program_args.ni_args);
+    Cui c(Cui::HintLevel::kNone);
+    c.AddItem("Find", "find", std::bind(&Gui::Find, *g, std::placeholders::_1, false));
+    c.AddItem("View", "view", std::bind(&Gui::View, *g, std::placeholders::_1));
+    c.AddItem("Sort", "sort", std::bind(&Gui::Sort, *g, std::placeholders::_1));
+    c.AddItem("Compare", "compare", std::bind(&Gui::Compare, *g, std::placeholders::_1));
+    c.AddItem("Help", "help", std::bind(&Gui::Help, *g, true));
+
+    c.Parse(JoinToString(program_args.ni_args, " "));
   } else {
     g->MainMenu();
   }
