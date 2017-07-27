@@ -4,8 +4,8 @@
 // Utilities for timekeeping.
 //
 
-#ifndef TESTING_GROUNDS_TIMER_H_
-#define TESTING_GROUNDS_TIMER_H_
+#ifndef WARFRAME_PACKAGES_DEPARSER_TIMER_H_
+#define WARFRAME_PACKAGES_DEPARSER_TIMER_H_
 
 #include <chrono>
 
@@ -47,4 +47,4 @@ class Timer {
   std::chrono::duration<double, std::nano> last_time_ = std::chrono::duration<double, std::nano>::zero();
 };
 
-#endif  // TESTING_GROUNDS_TIMER_H_
+#endif  // WARFRAME_PACKAGES_DEPARSER_TIMER_H_

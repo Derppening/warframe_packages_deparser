@@ -4,8 +4,8 @@
 // Utilities for exporting and importing fixed-format files.
 //
 
-#ifndef TESTING_GROUNDS_CONFIG_FILE_H_
-#define TESTING_GROUNDS_CONFIG_FILE_H_
+#ifndef WARFRAME_PACKAGES_DEPARSER_CONFIG_FILE_H_
+#define WARFRAME_PACKAGES_DEPARSER_CONFIG_FILE_H_
 
 #include <memory>
 #include <string>
@@ -119,4 +119,4 @@ class ConfigFile {
       config_ = nullptr;
 };
 
-#endif //TESTING_GROUNDS_CONFIG_FILE_H_
+#endif //WARFRAME_PACKAGES_DEPARSER_CONFIG_FILE_H_

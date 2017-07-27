@@ -4,8 +4,8 @@
 // Utilities for a console interface.
 //
 
-#ifndef TESTING_GROUNDS_CUI_H_
-#define TESTING_GROUNDS_CUI_H_
+#ifndef WARFRAME_PACKAGES_DEPARSER_CUI_H_
+#define WARFRAME_PACKAGES_DEPARSER_CUI_H_
 
 #include <functional>
 #include <string>
@@ -95,4 +95,4 @@ class Cui {
   std::vector<Entry> sel_;
 };
 
-#endif //TESTING_GROUNDS_CUI_H_
+#endif //WARFRAME_PACKAGES_DEPARSER_CUI_H_

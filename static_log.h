@@ -4,8 +4,8 @@
 // Utilities for logging.
 //
 
-#ifndef TESTING_GROUNDS_STATIC_LOG_H_
-#define TESTING_GROUNDS_STATIC_LOG_H_
+#ifndef WARFRAME_PACKAGES_DEPARSER_STATIC_LOG_H_
+#define WARFRAME_PACKAGES_DEPARSER_STATIC_LOG_H_
 
 #include <fstream>
 #include <memory>
@@ -180,4 +180,4 @@ class StaticLog {
   static std::ofstream log_str_;
 };
 
-#endif  // TESTING_GROUNDS_STATIC_LOG_H_
+#endif  // WARFRAME_PACKAGES_DEPARSER_STATIC_LOG_H_
