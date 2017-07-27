@@ -27,7 +27,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.9.0-beta.2";
+const string kBuildString = "0.9.0-beta.3";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
@@ -43,8 +43,9 @@ void OutputHelp(const string& s) {
   string message;
   message += "Usage: " + s + " [OPTION]... -- [MODE] [MODE_ARGS]...\n";
   message += "  -f, --file=[FILE]\tread Packages.txt from [FILE]\n";
-  message += "      --no-interactive\tdisable interactive mode\n";
   message += "      --legacy\t\tread file with legacy format\n";
+  message += "  -I, --no-interactive\tdisable interactive mode\n";
+//  message += "  -L, --no-log\t\tdisable logging\n";
   message += "      --help\t\tdisplay this help and exit\n";
   message += "      --version\t\toutput version information and exit\n\n";
   message += "MODE and MODE_ARGS will only be parsed if \'--no-interactive\' is provided.\n";
@@ -84,7 +85,7 @@ void ReadArgs(const vector<string>& args, string& filename) {
       file = it->substr(7);
     } else if (*it == "--legacy") {
       program_args.package_ver = Gui::PackageVer::kLegacy;
-    } else if (*it == "--no-interactive") {
+    } else if (*it == "--no-interactive" || *it == "-I") {
       program_args.is_interactive = false;
     } else if (!program_args.is_interactive && is_parse_ni_args) {
       program_args.ni_args.push_back(*it);
