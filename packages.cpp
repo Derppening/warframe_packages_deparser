@@ -39,7 +39,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const array<pair<string, string>, 3> kSyntaxReplaceSet = {
+const map<string, string> kSyntaxReplaceSet = {
     pair<string, string>("=", ": "),
     pair<string, string>("{}", "(empty hash)"),
     pair<string, string>("[]", "(empty array)")
@@ -68,7 +68,7 @@ vector<pair<string, string>> BoolVarReplaceSet = {
     {"CodexSecret", "Secret Entry in Codex?"}
 };
 
-const array<pair<string, string>, 2> kBoolReplaceSet = {
+const map<string, string> kBoolReplaceSet = {
     pair<string, string>("0", "false"),
     pair<string, string>("1", "true")
 };
@@ -145,9 +145,9 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
       }
 
       try {
-        const auto& norm_replace = cf.GetSection("bool");
+        const auto& bool_replace = cf.GetSection("bool");
         BoolVarReplaceSet.clear();
-        for (auto&& set : norm_replace) {
+        for (auto&& set : bool_replace) {
           BoolVarReplaceSet.emplace_back(set.first, set.second);
         }
       } catch (std::runtime_error& rt_ex) {
@@ -163,10 +163,10 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
   }
 
   // sort the replacement vectors
-  sort(NormVarReplaceSet.begin(), NormVarReplaceSet.end(), [](pair<string, string> a, pair<string, string> b) {
+  sort(NormVarReplaceSet.begin(), NormVarReplaceSet.end(), [](const auto& a, const auto& b) {
     return b.first.length() < a.first.length();
   });
-  sort(BoolVarReplaceSet.begin(), BoolVarReplaceSet.end(), [](pair<string, string> a, pair<string, string> b) {
+  sort(BoolVarReplaceSet.begin(), BoolVarReplaceSet.end(), [](const auto& a, const auto& b) {
     return b.first.length() < a.first.length();
   });
 
