@@ -126,9 +126,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs)
 
   auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
 
-  Log::i(
-      "Initialization of Packages(\"" + filename_ + "\") complete. Took " + std::to_string(time) + "ms.",
-      Log::kFile);
+  Log::i("Initialization of Packages(\"" + filename_ + "\") complete. Took " + std::to_string(time) + "ms.");
 }
 
 void Packages::OutputHeader(string header, bool is_raw) {
@@ -146,6 +144,7 @@ void Packages::OutputHeader(string header, bool is_raw) {
   auto contents = GetHeaderContents(header);
   system("cls");
 
+  Log::v("Dumping data for " + header);
   if (is_raw) {
     // provide some raw information
     cout << "Package Name: " << header << endl;
@@ -174,11 +173,19 @@ void Packages::OutputHeader(string header, bool is_raw) {
       cout << it << endl;
     }
   }
+
+  Log::v("Data dump complete");
+  Log::FlushFileBuf();
 }
 
 void Packages::Find(std::string header, bool search_front, unsigned int max_size) {
   std::transform(header.begin(), header.end(), header.begin(), ::tolower);
   unique_ptr<vector<string>> matches = make_unique<vector<string>>();
+
+  Log::d("Start search for \"" + header + "\" in header substrings");
+
+  Timer t;
+  t.Start();
 
   // find all matches
   for (auto&& p : *headers_) {
@@ -191,12 +198,20 @@ void Packages::Find(std::string header, bool search_front, unsigned int max_size
     }
   }
 
+  t.Stop();
+  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+
+  Log::d("Search complete. Took " + std::to_string(time) + "ms.");
+  Log::d("Found " + std::to_string(matches->size()) + " matches.");
+
   // check if we have more matches than max_size
   if (matches->size() > max_size) {
     cout << "Display all " << matches->size() << " possibilities? (y/n) ";
     string response;
     getline(cin, response);
-    if (response != "y") {
+    if (response != "y" || response != "Y") {
+      Log::i("Skip displaying matches from user input");
+      Log::FlushFileBuf();
       return;
     }
   }
@@ -207,11 +222,15 @@ void Packages::Find(std::string header, bool search_front, unsigned int max_size
   }
   cout << endl;
   cout << matches->size() << " entries." << endl;
+
+  Log::FlushFileBuf();
 }
 
 void Packages::Compare(std::string cmp_filename) {
+  Log::i("Packages::Compare(...): " + filename_ + " <-> " + cmp_filename);
+
   unique_ptr<ifstream> cmp_filestream = make_unique<ifstream>(cmp_filename);
-  if (!cmp_filestream->good()) {
+  if (!*cmp_filestream) {
     cout << cmp_filename << ": File not found." << endl;
     return;
   }
@@ -221,6 +240,11 @@ void Packages::Compare(std::string cmp_filename) {
   unique_ptr<vector<string>> has_compare = make_unique<vector<string>>();
 
   const auto cmp_file_headers = cmp_file->GetHeaderPtr();
+
+  Log::d("Begin header comparison");
+
+  Timer t;
+  t.Start();
 
   cout << "Searching for new keys in current file..." << endl;
   for (auto&& h : *headers_) {
@@ -235,6 +259,11 @@ void Packages::Compare(std::string cmp_filename) {
       has_compare->emplace_back(h.first);
     }
   }
+
+  t.Stop();
+  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+
+  Log::d("Comparison complete. Took " + std::to_string(time) + "ms.");
 
   system("cls");
 
@@ -259,15 +288,24 @@ void Packages::Compare(std::string cmp_filename) {
   } else {
     cout << "Headers are identical." << endl;
   }
+
+  Log::FlushFileBuf();
 }
 
 void Packages::SortFile(string outfile, unsigned int notify_count) {
+  Log::i("Packages::SortFile -> " + outfile);
+
   // initialize variables
   auto instream = make_unique<ifstream>(filename_);
   auto contents = make_unique<map<string, vector<string>>>();
   auto outstream = make_unique<ofstream>(outfile);
 
   cout << "Loading file, please wait..." << endl;
+
+  Log::d("Begin full file load");
+
+  Timer t;
+  t.Start();
 
   // re-read the whole file into RAM
   string category;
@@ -289,10 +327,22 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
     }
   }
 
+
+  t.Stop();
+  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+
+  Log::d("Read complete. Took " + std::to_string(time) + "ms.");
+
   instream->close();
+
+  t.Reset();
 
   unsigned count{0};
   const auto total = contents->size();
+
+  Log::d("Begin full file dump");
+
+  t.Start();
 
   // dump map into new file
   for (auto&& p : *contents) {
@@ -305,17 +355,39 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
     outstream->flush();
   }
 
+  t.Stop();
+  time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+
+  Log::d("Dump complete. Took " + std::to_string(time) + "ms.");
+
   outstream->close();
+  Log::FlushFileBuf();
 }
 
 void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
   auto rev_headers = make_unique<map<unsigned int, string>>();
+
+  Log::d("Reversing header map...");
+
+  Timer t;
+  t.Start();
 
   cout << "Loading..." << endl;
 
   for (auto&& a : *headers_) {
     rev_headers->emplace(a.second, a.first);
   }
+
+  t.Stop();
+  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+
+  Log::d("Reversal complete. Took " + std::to_string(time) + "ms.");
+
+  t.Reset();
+
+  Log::d("Searching for line...");
+
+  t.Start();
 
   auto i = rev_headers->end();
   for (auto it = rev_headers->begin(); it != rev_headers->end(); ++it) {
@@ -324,6 +396,11 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
       break;
     }
   }
+
+  t.Stop();
+  time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+
+  Log::d("Search complete. Took " + std::to_string(time) + "ms.");
 
   system("cls");
 
@@ -339,6 +416,7 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
       }
     }
   } else {
+    Log::w("Line " + std::to_string(line) + " has no entry");
     cout << "No entry found at line " << line << endl << endl;
   }
 
@@ -383,20 +461,26 @@ void Packages::ConvertTabToSpace(string& str) {
 }
 
 auto Packages::GetHeaderContents(string header, bool inc_header) -> unique_ptr<vector<string>> {
+  Log::d("Packages::GetHeaderContents(" + header + ")");
+
   unique_ptr<vector<string>> content = make_unique<vector<string>>();
 
   auto search = headers_->find(header);
   if (search == headers_->end()) {
+    Log::w("Cannot find header!");
     return content;
   }
 
   auto index = search->second + 1 + static_cast<int>(!inc_header);
+
+  Log::v("Packages::GetHeaderContents: Will start reading from line " + std::to_string(index));
 
   auto fs = GotoLine(index);
 
   string line;
   for (auto it = index; getline(*fs, line); ++it) {
     if (it != index && line.substr(0, 17) == "~FullPackageName=") {
+      Log::v("Packages::GetHeaderContents: Next header found. Breaking.");
       break;
     }
     ConvertTabToSpace(line);
