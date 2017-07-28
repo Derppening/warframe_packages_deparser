@@ -103,7 +103,7 @@ void PrettifyLine(std::string& s) {
 }
 }  // namespace
 
-Packages::Packages(string n, unique_ptr<ifstream> ifs)
+Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
     : ifs_(std::move(ifs)), filename_(std::move(n)), headers_(make_unique<map<string, unsigned int>>()) {
   if (!*ifs_) {
     throw std::runtime_error("Cannot open file");
@@ -114,7 +114,9 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs)
 
   ParseFile(ifs_.get());
 
-  // sort the vectors!
+  // TODO(Derppening): Parse prettify_filename and read file contents
+
+  // sort the replacement vectors
   sort(NormVarReplaceSet.begin(), NormVarReplaceSet.end(), [](pair<string, string> a, pair<string, string> b) {
     return b.first.length() < a.first.length();
   });

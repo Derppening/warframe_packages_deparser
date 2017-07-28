@@ -15,7 +15,7 @@
 
 class Packages {
  public:
-  Packages(std::string filename, std::unique_ptr<std::ifstream> ifs);
+  Packages(std::string filename, std::unique_ptr<std::ifstream> ifs, std::string prettify_filename = "");
 
   void OutputHeader(std::string header, bool is_raw);
 
