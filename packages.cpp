@@ -18,7 +18,7 @@
 #include <utility>
 #include <vector>
 
-#include "static_log.h"
+#include "log.h"
 #include "timer.h"
 
 using std::array;
@@ -126,9 +126,9 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs)
 
   auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
 
-  StaticLog::i(
+  Log::i(
       "Initialization of Packages(\"" + filename_ + "\") complete. Took " + std::to_string(time) + "ms.",
-      StaticLog::kFile);
+      Log::kFile);
 }
 
 void Packages::OutputHeader(string header, bool is_raw) {
@@ -345,7 +345,7 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
 }
 
 void Packages::ParseFile(ifstream* ifs) {
-  StaticLog::d("Packages::ParseFile", StaticLog::kFile);
+  Log::d("Packages::ParseFile");
 
   cout << "Reading file, please wait..." << endl;
   string buffer_line;

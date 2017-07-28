@@ -15,7 +15,7 @@
 #include "gui.h"
 #include "packages.h"
 #include "packages_legacy.h"
-#include "static_log.h"
+#include "log.h"
 #include "util.h"
 
 using std::cout;
@@ -28,7 +28,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.9.0-beta.3";
+const string kBuildString = "0.9.0-beta.4";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
@@ -89,7 +89,7 @@ void ReadArgs(const vector<string>& args, string& filename) {
     } else if (*it == "--no-interactive" || *it == "-I") {
       program_args.is_interactive = false;
     } else if (*it == "--debug" || *it == "-d") {
-      StaticLog::Enable();
+      Log::Enable();
     } else if (!program_args.is_interactive && is_parse_ni_args) {
       program_args.ni_args.push_back(*it);
     } else if (*it == "--") {
@@ -106,14 +106,19 @@ void ReadArgs(const vector<string>& args, string& filename) {
 
   filename = file;
 
-  StaticLog::SetFile("debug.log");
+  Log::SetFile("debug.log");
+  Log::SetOverridePipe(Log::kFile);
+  Log::UseOverridePipe(true);
 
-  StaticLog::d("Launching with arguments: " + JoinToString(args, " "), StaticLog::kFile);
-  StaticLog::d("Interpreting Package Version: " + std::to_string(static_cast<int>(program_args.package_ver)),
-               StaticLog::kFile);
-  StaticLog::d("Interactive Mode: " + std::string(program_args.is_interactive ? "true" : "false"), StaticLog::kFile);
-  StaticLog::d("Interactive Mode Arguments: " + JoinToString(program_args.ni_args, " "), StaticLog::kFile);
-  StaticLog::FlushFileBuf();
+  Log::d("Launching with arguments: ");
+  for (std::size_t it = 0; it < args.size(); ++it) {
+    Log::d("[" + std::to_string(it) + "] " + args[it]);
+  }
+  Log::d("Interpreting Package Version: " + std::to_string(static_cast<int>(program_args.package_ver)),
+               Log::kFile);
+  Log::d("Interactive Mode: " + std::string(program_args.is_interactive ? "true" : "false"));
+  Log::d("Interactive Mode Arguments: " + JoinToString(program_args.ni_args, " "));
+  Log::FlushFileBuf();
 }
 }  // namespace
 
@@ -131,39 +136,39 @@ auto main(int argc, char* argv[]) -> int {
   try {
     switch (program_args.package_ver) {
       case Gui::PackageVer::kCurrent:
-        StaticLog::v("Attempting to create Packages", StaticLog::kFile);
+        Log::v("Attempting to create Packages");
         package = make_unique<Packages>(filename, move(file_stream));
         break;
       case Gui::PackageVer::kLegacy:
-        StaticLog::v("Attempting to create PackagesLegacy", StaticLog::kFile);
+        Log::v("Attempting to create PackagesLegacy");
         package_legacy = make_unique<PackagesLegacy>(filename, move(file_stream));
         break;
       default:
         throw std::runtime_error("Bad State");
     }
   } catch (std::runtime_error& ex_runtime) {
-    StaticLog::e("Error while opening file: " + std::string(ex_runtime.what()), StaticLog::kFile);
+    Log::e("Error while opening file: " + std::string(ex_runtime.what()));
     cout << "Error while opening file: " << ex_runtime.what() << endl;
     return 0;
   }
-  StaticLog::FlushFileBuf();
+  Log::FlushFileBuf();
 
   unique_ptr<Gui> g = nullptr;
   if (package != nullptr) {
-    StaticLog::v("Invoking Gui::Gui(Packages)", StaticLog::kFile);
+    Log::v("Invoking Gui::Gui(Packages)");
     g = make_unique<Gui>(package.get());
   } else if (package_legacy != nullptr) {
-    StaticLog::v("Invoking Gui::Gui(PackagesLegacy)", StaticLog::kFile);
+    Log::v("Invoking Gui::Gui(PackagesLegacy)");
     g = make_unique<Gui>(package_legacy.get());
   } else {
     cout << "Error when initializing packages!" << endl;
     return 1;
   }
-  StaticLog::FlushFileBuf();
+  Log::FlushFileBuf();
 
   if (!program_args.is_interactive) {
     if (program_args.ni_args.empty()) {
-      StaticLog::w("No interactive mode arguments! Quitting", StaticLog::kFile);
+      Log::w("No interactive mode arguments! Quitting");
       cout << "No arguments provided for non-interactive mode. Exiting." << endl;
     }
 
@@ -174,10 +179,10 @@ auto main(int argc, char* argv[]) -> int {
     c.AddItem("Compare", "compare", std::bind(&Gui::Compare, *g, std::placeholders::_1));
     c.AddItem("Help", "help", std::bind(&Gui::Help, *g, false));
 
-    StaticLog::d("Invoking Cui::Parse()", StaticLog::kFile);
+    Log::d("Invoking Cui::Parse()");
     c.Parse(JoinToString(program_args.ni_args, " "));
   } else {
-    StaticLog::d("Invoking Gui::MainMenu()", StaticLog::kFile);
+    Log::d("Invoking Gui::MainMenu()");
     g->MainMenu();
   }
 

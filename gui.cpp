@@ -15,7 +15,7 @@
 #include "cui.h"
 #include "packages.h"
 #include "packages_legacy.h"
-#include "static_log.h"
+#include "log.h"
 #include "util.h"
 
 using std::cerr;
@@ -58,7 +58,7 @@ void Gui::MainMenu() {
     b = c.Inflate(true, true);
   }
 
-  StaticLog::i("Exiting interactive loop...", StaticLog::kFile);
+  Log::i("Exiting interactive loop...");
 }
 
 auto Gui::GetFileName() const -> string {
@@ -165,15 +165,15 @@ void Gui::Find(string args, bool is_interactive) const {
     case PackageVer::kCurrent:
       switch (mode) {
         case SearchMode::kDefault:
-          StaticLog::i("Invoking Packages::Find(\"" + find_s + "\"...)", StaticLog::kFile);
+          Log::i("Invoking Packages::Find(\"" + find_s + "\"...)");
           packages_->Find(find_s, false, max_count);
           break;
         case SearchMode::kFront:
-          StaticLog::i("Invoking Packages::Find(\"" + find_s + "\"...)", StaticLog::kFile);
+          Log::i("Invoking Packages::Find(\"" + find_s + "\"...)");
           packages_->Find(find_s, true, max_count);
           break;
         case SearchMode::kLine:
-          StaticLog::i("Invoking Packages::ReverseLookup(" + std::to_string(line) + "...)", StaticLog::kFile);
+          Log::i("Invoking Packages::ReverseLookup(" + std::to_string(line) + "...)");
           packages_->ReverseLookup(line, is_interactive);
           break;
         default:
@@ -229,11 +229,11 @@ void Gui::View(const std::string args) const {
     case PackageVer::kCurrent:
       switch (mode) {
         case ViewMode::kDefault:
-          StaticLog::i("Invoking Packages::View(\"" + package + "\"...)", StaticLog::kFile);
+          Log::i("Invoking Packages::View(\"" + package + "\"...)");
           packages_->OutputHeader(package, false);
           break;
         case ViewMode::kRaw:
-          StaticLog::i("Invoking Packages::View(\"" + package + "\"...)", StaticLog::kFile);
+          Log::i("Invoking Packages::View(\"" + package + "\"...)");
           packages_->OutputHeader(package, true);
           break;
         default:
@@ -279,7 +279,7 @@ void Gui::Sort(const string args) const {
       cout << "This mode is currently not supported with legacy packages." << endl;
       break;
     case PackageVer::kCurrent:
-      StaticLog::i("Invoking Packages::SortFile()", StaticLog::kFile);
+      Log::i("Invoking Packages::SortFile()");
       packages_->SortFile(filename, count);
       break;
     default:
@@ -306,7 +306,7 @@ void Gui::Compare(const string args) const {
       cout << "This mode is currently not supported with legacy packages." << endl;
       break;
     case PackageVer::kCurrent:
-      StaticLog::i("Invoking Packages::Compare(\"" + filename + "\"...)", StaticLog::kFile);
+      Log::i("Invoking Packages::Compare(\"" + filename + "\"...)");
       packages_->Compare(filename);
       break;
     default:

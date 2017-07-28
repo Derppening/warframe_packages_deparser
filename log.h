@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>
 
-class StaticLog {
+class Log {
  public:
   /**
    * Enumeration of piping destinations.
@@ -28,7 +28,7 @@ class StaticLog {
     /**
      * Pipe to file
      */
-        kFile
+        kFile,
   };
 
   /**
@@ -42,12 +42,12 @@ class StaticLog {
     kError
   };
 
-  StaticLog() = delete;
-  StaticLog(StaticLog&&) = delete;
-  StaticLog(const StaticLog&) = delete;
-  auto operator=(StaticLog&&) noexcept -> StaticLog& = delete;
-  auto operator=(const StaticLog&) -> StaticLog& = delete;
-  ~StaticLog() = delete;
+  Log() = delete;
+  Log(Log&&) = delete;
+  Log(const Log&) = delete;
+  auto operator=(Log&&) noexcept -> Log& = delete;
+  auto operator=(const Log&) -> Log& = delete;
+  ~Log() = delete;
 
   /**
    * Enable all logging functions provided by this class.
@@ -77,6 +77,19 @@ class StaticLog {
    * @throw @c std::ios_base_failure if stream is not good
    */
   static bool ForceSetFile(std::string filename, std::ios_base::openmode mode = std::ios_base::out);
+
+  /**
+   * Set whether to use the override pipe by default.
+   *
+   * @param use_default_pipe True if using the override pipe by default
+   */
+  static void UseOverridePipe(bool use_default_pipe) { use_override_pipe_ = use_default_pipe; }
+  /**
+   * Set which pipe to use when overriding the default pipe.
+   *
+   * @param default_pipe Pipe to use
+   */
+  static void SetOverridePipe(Pipe default_pipe) { override_pipe_ = default_pipe; }
 
   /**
  * Log a message with verbose severity.
@@ -169,6 +182,9 @@ class StaticLog {
   static auto GetPadding(Level lvl) -> std::string;
 
   static bool enable_logging_;
+
+  static bool use_override_pipe_;
+  static Pipe override_pipe_;
 
   static std::string verbose_app_;
   static std::string debug_app_;
