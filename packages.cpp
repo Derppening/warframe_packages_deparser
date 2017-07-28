@@ -39,10 +39,13 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
+const array<pair<string, string>, 3> kSyntaxReplaceSet = {
+    pair<string, string>("=", ": "),
+    pair<string, string>("{}", "(empty hash)"),
+    pair<string, string>("[]", "(empty array)")
+};
+
 vector<pair<string, string>> NormVarReplaceSet = {
-    {"=", ": "},
-    {"{}", "(empty hash)"},
-    {"[]", "(empty array)"},
     {"SkipBuildTimePrice", "Rush Price (Platinum)"},
     {"PrimeSellingPrice", "Selling Price (Ducats)"},
     {"TradeCapability", "Can be Traded?"},
@@ -71,17 +74,25 @@ const array<pair<string, string>, 2> kBoolReplaceSet = {
 };
 
 void PrettifyLine(std::string& s) {
+  // quote absolute paths
+  if (s.find("/Lotus") != string::npos) {
+    s.replace(s.find("/Lotus"), 1, "\"/");
+    s.push_back('\"');
+  }
+
+  // do replacement for syntactial pairs
+  for (const auto& p_replace : kSyntaxReplaceSet) {
+    auto cmp = s.find(p_replace.first);
+    if (cmp != string::npos) {
+      s.replace(cmp, p_replace.first.length(), p_replace.second);
+    }
+  }
+
   // do replacement for normal variables
   for (const auto& p_replace : NormVarReplaceSet) {
     auto cmp = s.find(p_replace.first);
     if (cmp != string::npos) {
       s.replace(cmp, p_replace.first.length(), p_replace.second);
-
-      // quote absolute paths
-      if (s.find("/Lotus") != string::npos) {
-        s.replace(s.find("/Lotus"), 1, "\"/");
-        s.push_back('\"');
-      }
     }
   }
 
