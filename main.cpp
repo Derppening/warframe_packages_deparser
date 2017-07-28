@@ -90,7 +90,6 @@ void ReadArgs(const vector<string>& args, string& filename) {
       program_args.is_interactive = false;
     } else if (*it == "--debug" || *it == "-d") {
       StaticLog::Enable();
-      StaticLog::SetFile("debug.log");
     } else if (!program_args.is_interactive && is_parse_ni_args) {
       program_args.ni_args.push_back(*it);
     } else if (*it == "--") {
@@ -106,6 +105,8 @@ void ReadArgs(const vector<string>& args, string& filename) {
   }
 
   filename = file;
+
+  StaticLog::SetFile("debug.log");
 
   StaticLog::d("Launching with arguments: " + JoinToString(args, " "), StaticLog::kFile);
   StaticLog::d("Interpreting Package Version: " + std::to_string(static_cast<int>(program_args.package_ver)),
