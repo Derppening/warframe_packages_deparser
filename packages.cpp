@@ -18,6 +18,7 @@
 #include <utility>
 #include <vector>
 
+#include "config_file.h"
 #include "log.h"
 #include "timer.h"
 
@@ -114,7 +115,41 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
 
   ParseFile(ifs_.get());
 
-  // TODO(Derppening): Parse prettify_filename and read file contents
+  if (!prettify_filename.empty()) {
+    Log::i("Trying to open external replacement pairs");
+    ConfigFile cf(std::move(prettify_filename));
+    if (cf.ReadFromFile()) {
+      Log::d("Prettify file is valid");
+
+      try {
+        const auto& norm_replace = cf.GetSection("normal");
+        NormVarReplaceSet.clear();
+        for (auto&& set : norm_replace) {
+          NormVarReplaceSet.emplace_back(set.first, set.second);
+        }
+      } catch (std::runtime_error& rt_ex) {
+        Log::w("Section \"normal\" not found. Using built-in pairs.");
+
+        // no need to handle it
+      }
+
+      try {
+        const auto& norm_replace = cf.GetSection("bool");
+        BoolVarReplaceSet.clear();
+        for (auto&& set : norm_replace) {
+          BoolVarReplaceSet.emplace_back(set.first, set.second);
+        }
+      } catch (std::runtime_error& rt_ex) {
+        Log::w("Section \"bool\" not found. Using built-in pairs.");
+
+        // no need to handle it
+      }
+    } else {
+      Log::d("Prettify file is invalid. Using built-in pairs.");
+    }
+  } else {
+    Log::i("Using built-in replacement pairs");
+  }
 
   // sort the replacement vectors
   sort(NormVarReplaceSet.begin(), NormVarReplaceSet.end(), [](pair<string, string> a, pair<string, string> b) {

@@ -32,6 +32,9 @@ const string kBuildString = "0.9.0-beta.5";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
+
+  std::string prettify_src = "";
+
   bool is_interactive = true;
   vector<string> ni_args;
 } program_args;
@@ -47,6 +50,7 @@ void OutputHelp(const string& s) {
   message += "  -f, --file=[FILE]\tread Packages.txt from [FILE]\n";
   message += "      --legacy\t\tread file with legacy format\n";
   message += "  -I, --no-interactive\tdisable interactive mode\n";
+  message += "  -p, --prettify=[FILE]\timport prettifying replacement pairs from [FILE]\n";
   message += "      --help\t\tdisplay this help and exit\n";
   message += "      --version\t\toutput version information and exit\n\n";
   message += "MODE and MODE_ARGS will only be parsed if \'--no-interactive\' is provided.\n";
@@ -90,6 +94,10 @@ void ReadArgs(const vector<string>& args, string& filename) {
       program_args.is_interactive = false;
     } else if (*it == "--debug" || *it == "-d") {
       Log::Enable();
+    } else if (*it == "-p") {
+      program_args.prettify_src = *++it;
+    } else if (it->substr(0, 11) == "--prettify=") {
+      program_args.prettify_src = it->substr(11);
     } else if (!program_args.is_interactive && is_parse_ni_args) {
       program_args.ni_args.push_back(*it);
     } else if (*it == "--") {
@@ -114,8 +122,8 @@ void ReadArgs(const vector<string>& args, string& filename) {
   for (std::size_t it = 0; it < args.size(); ++it) {
     Log::d("[" + std::to_string(it) + "] " + args[it]);
   }
-  Log::d("Interpreting Package Version: " + std::to_string(static_cast<int>(program_args.package_ver)),
-               Log::kFile);
+  Log::d("Interpreting Package Version: " + std::to_string(static_cast<int>(program_args.package_ver)));
+  Log::d("Prettify Replacement Source: " + (program_args.prettify_src.empty() ? "(none)" : program_args.prettify_src));
   Log::d("Interactive Mode: " + std::string(program_args.is_interactive ? "true" : "false"));
   Log::d("Interactive Mode Arguments: " + JoinToString(program_args.ni_args, " "));
   Log::FlushFileBuf();
@@ -137,7 +145,7 @@ auto main(int argc, char* argv[]) -> int {
     switch (program_args.package_ver) {
       case Gui::PackageVer::kCurrent:
         Log::v("Attempting to create Packages");
-        package = make_unique<Packages>(filename, move(file_stream));
+        package = make_unique<Packages>(filename, move(file_stream), program_args.prettify_src);
         break;
       case Gui::PackageVer::kLegacy:
         Log::v("Attempting to create PackagesLegacy");
