@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <vector>
@@ -149,6 +150,10 @@ void Gui::Find(string args, bool is_interactive) const {
   if (find_s.empty() && mode != SearchMode::kLine) {
     cout << "No search string provided." << endl;
     return;
+  }
+
+  if (!is_interactive) {
+    max_count = std::numeric_limits<unsigned>::max();
   }
 
   switch (package_ver_) {
