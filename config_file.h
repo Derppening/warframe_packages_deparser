@@ -7,9 +7,9 @@
 #ifndef WARFRAME_PACKAGES_DEPARSER_CONFIG_FILE_H_
 #define WARFRAME_PACKAGES_DEPARSER_CONFIG_FILE_H_
 
+#include <map>
 #include <memory>
 #include <string>
-#include <vector>
 
 /**
  * Class to manage application configurations.
@@ -88,6 +88,22 @@ class ConfigFile {
   void EraseField(std::string section, std::string field);
 
   /**
+   * Retrieves a reference to the map of a given section
+   *
+   * @param section Name of section to get
+   * @return Map of section
+   *
+   * @throw @c std::runtime_error if the section is not found
+   */
+  auto GetSection(std::string section) -> const std::map<std::string, std::string>&;
+  /**
+   * Retrieves a reference to the whole config
+   *
+   * @return Reference to config
+   */
+  auto GetConfig() -> const std::map<std::string, std::map<std::string, std::string>>&;
+
+  /**
    * Export the current configuration to a file.
    *
    * @note This will call @c GarbageCollect() to remove unused sections.
@@ -115,8 +131,7 @@ class ConfigFile {
 
  private:
   std::string filename_ = "";
-  std::unique_ptr<std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::string>>>>>
-      config_ = nullptr;
+  std::unique_ptr<std::map<std::string, std::map<std::string, std::string>>> config_ = nullptr;
 };
 
 #endif //WARFRAME_PACKAGES_DEPARSER_CONFIG_FILE_H_

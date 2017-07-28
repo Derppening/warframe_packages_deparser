@@ -3,28 +3,26 @@
 //
 // Implementations for ConfigFile class
 //
-
 #include "config_file.h"
 
 #include <algorithm>
 #include <fstream>
+#include <map>
 #include <memory>
 
 ConfigFile::ConfigFile() {
-  config_ = std::make_unique<std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::string>>>>>();
+  config_ = std::make_unique<std::map<std::string, std::map<std::string, std::string>>>();
 }
 
 ConfigFile::ConfigFile(std::string filename) : filename_(std::move(filename)) {
-  config_ = std::make_unique<std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::string>>>>>();
+  config_ = std::make_unique<std::map<std::string, std::map<std::string, std::string>>>();
 }
 
 ConfigFile::ConfigFile(ConfigFile&& config) noexcept
-    : filename_(std::move(config.filename_)), config_(std::move(config.config_))
-{}
+    : filename_(std::move(config.filename_)), config_(std::move(config.config_)) {}
 
 ConfigFile::ConfigFile(const ConfigFile& config) : filename_(config.filename_) {
-  config_ = std::make_unique<std::vector<std::pair<std::string,
-                                                   std::vector<std::pair<std::string, std::string>>>>>(*config.config_);
+  config_ = std::make_unique<std::map<std::string, std::map<std::string, std::string>>>(*config.config_);
 }
 
 ConfigFile::~ConfigFile() {
@@ -40,9 +38,7 @@ auto ConfigFile::operator=(ConfigFile&& config) noexcept -> ConfigFile& {
 
 auto ConfigFile::operator=(const ConfigFile& config) -> ConfigFile& {
   filename_ = config.filename_;
-  config_ = std::make_unique<std::vector<std::pair<std::string,
-                                                         std::vector<std::pair<std::string,
-                                                                               std::string>>>>>(*config.config_);
+  config_ = std::make_unique<std::map<std::string, std::map<std::string, std::string>>>(*config.config_);
   return *this;
 }
 
@@ -52,18 +48,14 @@ void ConfigFile::SetFile(std::string filename) {
 
 auto ConfigFile::GetField(std::string section, std::string field) -> std::string {
   // find the section
-  const auto config_it = std::find_if(config_->begin(),
-                                      config_->end(),
-                                      [&section](const auto& p) -> bool { return p.first == section; });
+  const auto config_it = config_->find(section);
   if (config_it == config_->end()) {
     throw std::range_error("Cannot find section " + section);
   }
 
   // use the section and find the field
   const auto& section_ptr = config_it->second;
-  const auto field_it = std::find_if(section_ptr.begin(),
-                                     section_ptr.end(),
-                                     [&field](const auto& p) -> bool { return p.first == field; });
+  const auto field_it = section_ptr.find(field);
   if (field_it == section_ptr.end()) {
     throw std::range_error("Cannot find field: " + section + "::" + field);
   }
@@ -72,23 +64,19 @@ auto ConfigFile::GetField(std::string section, std::string field) -> std::string
 
 void ConfigFile::WriteField(std::string section, std::string field, std::string data) {
   // find the section
-  auto config_it = std::find_if(config_->begin(),
-                                config_->end(),
-                                [&section](const auto& p) -> bool { return p.first == section; });
+  auto config_it = config_->find(section);
   if (config_it == config_->end()) {
-    config_->push_back({section, std::vector<std::pair<std::string, std::string>>()});
-    config_it = config_->end() - 1;
+    config_->emplace(section, std::map<std::string, std::string>());
+    config_it = config_->find(section);
   }
 
   // find the field
   auto& section_ref = config_it->second;
-  auto field_it = std::find_if(section_ref.begin(),
-                               section_ref.end(),
-                               [&field](const auto& p) -> bool { return p.first == field; });
+  auto field_it = section_ref.find(field);
 
   // create the field if it's not found
   if (field_it == section_ref.end()) {
-    section_ref.emplace_back(field, data);
+    section_ref.emplace(field, data);
   } else {
     field_it->second = data;
   }
@@ -96,18 +84,14 @@ void ConfigFile::WriteField(std::string section, std::string field, std::string 
 
 void ConfigFile::EraseField(std::string section, std::string field) {
   // find the section
-  auto config_it = std::find_if(config_->begin(),
-                                config_->end(),
-                                [&section](const auto& p) -> bool { return p.first == section; });
+  auto config_it = config_->find(section);
   if (config_it == config_->end()) {
     return;
   }
 
   // find the field
   auto& section_ref = config_it->second;
-  auto field_it = std::find_if(section_ref.begin(),
-                               section_ref.end(),
-                               [&field](const auto& p) -> bool { return p.first == field; });
+  auto field_it = section_ref.find(field);
 
   // erase the field if it's found
   if (field_it != section_ref.end()) {
@@ -115,12 +99,24 @@ void ConfigFile::EraseField(std::string section, std::string field) {
   }
 }
 
+auto ConfigFile::GetSection(std::string section) -> const std::map<std::string, std::string>& {
+  // find the section
+  const auto config_it = config_->find(section);
+  if (config_it == config_->end()) {
+    throw std::range_error("Cannot find section " + section);
+  }
+
+  // use the section and find the field
+  return config_it->second;
+}
+
+auto ConfigFile::GetConfig() -> const std::map<std::string, std::map<std::string, std::string>>& {
+  return *config_;
+}
+
 bool ConfigFile::ExportToFile() {
   // remove redundant sections from the config vector
   GarbageCollect();
-
-  // sort the config vector by alphabetical order
-  std::sort(config_->begin(), config_->end(), [](const auto& a, const auto& b) -> bool { return a.first < b.first; });
 
   // open file for write
   auto file_ostr = std::ofstream(filename_);
@@ -134,11 +130,6 @@ bool ConfigFile::ExportToFile() {
     if (section.first.length() != 0) {
       file_ostr << "[" << section.first << "]" << '\n';
     }
-
-    // sort section contents
-    std::sort(section.second.begin(),
-              section.second.end(),
-              [](const auto& a, const auto& b) -> bool { return a.first < b.first; });
 
     // dump config contents to file
     for (const auto& field : section.second) {
