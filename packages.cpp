@@ -54,28 +54,9 @@ const map<string, string> kSyntaxReplaceSet = {
     pair<string, string>("[]", "(empty array)")
 };
 
-map<string, string, StrCompare> NormVarReplaceSet = {
-    {"SkipBuildTimePrice", "Rush Price (Platinum)"},
-    {"PrimeSellingPrice", "Selling Price (Ducats)"},
-    {"TradeCapability", "Can be Traded?"},
-    {"SellingPrice", "Selling Price (Credits)"},
-    {"PremiumPrice", "Price (Platinum)"},
-    {"RegularPrice", "Price (Credits)"},
-    {"BuildPrice", "Build Price (Platinum)"},
-    {"BuildTime", "Build Time (Seconds)"},
-    {"RO_ALWAYS", "Always"},
-    {"RO_NEVER", "Never"}
-};
-
-map<string, string, StrCompare> BoolVarReplaceSet = {
-    {"ShowInMarket", "Visible in Market?"},
-    {"Tradeable", "Is Tradeable?"},
-    {"Giftable", "Is Giftable?"},
-    {"ExcludeFromCodex", "Hide in Codex?"},
-    {"AvailableOnPvp", "Available in Conclave?"},
-    {"AlwaysAvailable", "Always Available?"},
-    {"CodexSecret", "Secret Entry in Codex?"}
-};
+map<string, string, StrCompare> NormVarReplaceSet;
+map<string, string, StrCompare> BoolVarReplaceSet;
+map<string, string, StrCompare> LotusVarReplaceSet;
 
 const map<string, string> kBoolReplaceSet = {
     pair<string, string>("0", "false"),
@@ -121,6 +102,14 @@ void PrettifyLine(std::string& s) {
       }
     }
   }
+
+  // do replacement for normal variables
+  for (const auto& p_replace : LotusVarReplaceSet) {
+    auto cmp = s.find(p_replace.first);
+    if (cmp != string::npos) {
+      s.replace(cmp, p_replace.first.length(), p_replace.second);
+    }
+  }
 }
 }  // namespace
 
@@ -135,40 +124,54 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
 
   ParseFile(ifs_.get());
 
-  if (!prettify_filename.empty()) {
-    Log::i("Trying to open external replacement pairs");
-    ConfigFile cf(std::move(prettify_filename));
-    if (cf.ReadFromFile()) {
-      Log::d("Prettify file is valid");
+  if (prettify_filename.empty()) {
+    Log::d("No prettify file specified. Using default path.");
+    prettify_filename = "prettify.txt";
+  }
 
-      try {
-        const auto& norm_replace = cf.GetSection("normal");
-        NormVarReplaceSet.clear();
-        for (auto&& set : norm_replace) {
-          NormVarReplaceSet.emplace(set.first, set.second);
-        }
-      } catch (std::runtime_error& rt_ex) {
-        Log::w("Section \"normal\" not found. Using built-in pairs.");
+  Log::i("Trying to open external replacement pairs");
+  ConfigFile cf(std::move(prettify_filename));
+  if (cf.ReadFromFile()) {
+    Log::d("Prettify file is valid");
 
-        // no need to handle it
+    try {
+      const auto& norm_replace = cf.GetSection("normal");
+      NormVarReplaceSet.clear();
+      for (auto&& set : norm_replace) {
+        NormVarReplaceSet.emplace(set.first, set.second);
       }
+    } catch (std::runtime_error& rt_ex) {
+      Log::w("Section \"normal\" not found. Will not replace normal fields");
 
-      try {
-        const auto& bool_replace = cf.GetSection("bool");
-        BoolVarReplaceSet.clear();
-        for (auto&& set : bool_replace) {
-          BoolVarReplaceSet.emplace(set.first, set.second);
-        }
-      } catch (std::runtime_error& rt_ex) {
-        Log::w("Section \"bool\" not found. Using built-in pairs.");
-
-        // no need to handle it
-      }
-    } else {
-      Log::d("Prettify file is invalid. Using built-in pairs.");
+      // no need to handle it
     }
+
+    try {
+      const auto& bool_replace = cf.GetSection("bool");
+      BoolVarReplaceSet.clear();
+      for (auto&& set : bool_replace) {
+        BoolVarReplaceSet.emplace(set.first, set.second);
+      }
+    } catch (std::runtime_error& rt_ex) {
+      Log::w("Section \"bool\" not found. Will not replace boolean fields");
+
+      // no need to handle it
+    }
+
+    try {
+      const auto& lotus_replace = cf.GetSection("lotus");
+      LotusVarReplaceSet.clear();
+      for (auto&& set : lotus_replace) {
+        LotusVarReplaceSet.emplace(set.first, set.second);
+      }
+    } catch (std::runtime_error& rt_ex) {
+      Log::w("Section \"lotus\" not found. Will not replace item fields");
+
+      // no need to handle it
+    }
+
   } else {
-    Log::i("Using built-in replacement pairs");
+    Log::d("Prettify file is invalid. Will not replace fields.");
   }
 
   t.Stop();
@@ -375,7 +378,6 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
       contents->at(category).emplace_back(buffer_line);
     }
   }
-
 
   t.Stop();
   auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
