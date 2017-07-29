@@ -39,13 +39,22 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
+struct StrCompare {
+  bool operator()(const std::string& a, const std::string& b) {
+    if (a.length() != b.length()) {
+      return b.length() < a.length();
+    }
+    return a < b;
+  }
+};
+
 const map<string, string> kSyntaxReplaceSet = {
     pair<string, string>("=", ": "),
     pair<string, string>("{}", "(empty hash)"),
     pair<string, string>("[]", "(empty array)")
 };
 
-vector<pair<string, string>> NormVarReplaceSet = {
+map<string, string, StrCompare> NormVarReplaceSet = {
     {"SkipBuildTimePrice", "Rush Price (Platinum)"},
     {"PrimeSellingPrice", "Selling Price (Ducats)"},
     {"TradeCapability", "Can be Traded?"},
@@ -58,7 +67,7 @@ vector<pair<string, string>> NormVarReplaceSet = {
     {"RO_NEVER", "Never"}
 };
 
-vector<pair<string, string>> BoolVarReplaceSet = {
+map<string, string, StrCompare> BoolVarReplaceSet = {
     {"ShowInMarket", "Visible in Market?"},
     {"Tradeable", "Is Tradeable?"},
     {"Giftable", "Is Giftable?"},
@@ -136,7 +145,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
         const auto& norm_replace = cf.GetSection("normal");
         NormVarReplaceSet.clear();
         for (auto&& set : norm_replace) {
-          NormVarReplaceSet.emplace_back(set.first, set.second);
+          NormVarReplaceSet.emplace(set.first, set.second);
         }
       } catch (std::runtime_error& rt_ex) {
         Log::w("Section \"normal\" not found. Using built-in pairs.");
@@ -148,7 +157,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
         const auto& bool_replace = cf.GetSection("bool");
         BoolVarReplaceSet.clear();
         for (auto&& set : bool_replace) {
-          BoolVarReplaceSet.emplace_back(set.first, set.second);
+          BoolVarReplaceSet.emplace(set.first, set.second);
         }
       } catch (std::runtime_error& rt_ex) {
         Log::w("Section \"bool\" not found. Using built-in pairs.");
@@ -161,14 +170,6 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
   } else {
     Log::i("Using built-in replacement pairs");
   }
-
-  // sort the replacement vectors
-  sort(NormVarReplaceSet.begin(), NormVarReplaceSet.end(), [](const auto& a, const auto& b) {
-    return b.first.length() < a.first.length();
-  });
-  sort(BoolVarReplaceSet.begin(), BoolVarReplaceSet.end(), [](const auto& a, const auto& b) {
-    return b.first.length() < a.first.length();
-  });
 
   t.Stop();
 
