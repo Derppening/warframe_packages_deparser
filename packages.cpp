@@ -258,7 +258,7 @@ void Packages::Find(std::string header, bool search_front, unsigned int max_size
     cout << "Display all " << matches->size() << " possibilities? (y/n) ";
     string response;
     getline(cin, response);
-    if (response != "y" || response != "Y") {
+    if (response != "y" && response != "Y") {
       Log::i("Skip displaying matches from user input");
       Log::FlushFileBuf();
       return;
