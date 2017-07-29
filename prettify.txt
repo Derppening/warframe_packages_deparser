@@ -9,6 +9,8 @@ BuildPrice=Build Price (Platinum)
 BuildTime=Build Time (Seconds)
 RO_ALWAYS=Always
 RO_NEVER=Never
+GuildXpValue=Clan Affinity
+ResearchTime=Research Time (Seconds)
 
 [bool]
 ShowInMarket=Visible in Market?
@@ -19,3 +21,6 @@ AvailableOnPvp=Available in Conclave?
 AlwaysAvailable=Always Available?
 CodexSecret=Secret Entry in Codex?
 IsResearch=Is Clan Research?
+
+[lotus]
+"/Lotus/Types/Items/MiscItems/Ferrite"=Ferrite
