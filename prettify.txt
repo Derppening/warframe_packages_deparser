@@ -18,3 +18,4 @@ ExcludeFromCodex=Hide in Codex?
 AvailableOnPvp=Available in Conclave?
 AlwaysAvailable=Always Available?
 CodexSecret=Secret Entry in Codex?
+IsResearch=Is Clan Research?
