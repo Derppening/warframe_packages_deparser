@@ -48,17 +48,17 @@ struct StrCompare {
   }
 };
 
-const map<string, string> kSyntaxReplaceSet = {
+map<string, string, StrCompare> NormVarReplaceSet;
+map<string, string, StrCompare> BoolVarReplaceSet;
+map<string, string, StrCompare> LotusVarReplaceSet;
+
+const map<string, string, StrCompare> kSyntaxReplaceSet = {
     pair<string, string>("=", ": "),
     pair<string, string>("{}", "(empty hash)"),
     pair<string, string>("[]", "(empty array)")
 };
 
-map<string, string, StrCompare> NormVarReplaceSet;
-map<string, string, StrCompare> BoolVarReplaceSet;
-map<string, string, StrCompare> LotusVarReplaceSet;
-
-const map<string, string> kBoolReplaceSet = {
+const map<string, string, StrCompare> kBoolReplaceSet = {
     pair<string, string>("0", "false"),
     pair<string, string>("1", "true")
 };
@@ -103,7 +103,7 @@ void PrettifyLine(std::string& s) {
     }
   }
 
-  // do replacement for normal variables
+  // do replacement for path variables
   for (const auto& p_replace : LotusVarReplaceSet) {
     auto cmp = s.find(p_replace.first);
     if (cmp != string::npos) {
@@ -124,16 +124,20 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
 
   ParseFile(ifs_.get());
 
+  // replace with default path if no file is specified for prettify
   if (prettify_filename.empty()) {
     Log::d("No prettify file specified. Using default path.");
     prettify_filename = "prettify.txt";
   }
 
-  Log::i("Trying to open external replacement pairs");
+  Log::i("Using prettify source \"" + prettify_filename + "\"");
+
+  // read the file and interpret
   ConfigFile cf(std::move(prettify_filename));
   if (cf.ReadFromFile()) {
     Log::d("Prettify file is valid");
 
+    // [normal]
     try {
       const auto& norm_replace = cf.GetSection("normal");
       NormVarReplaceSet.clear();
@@ -146,6 +150,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
       // no need to handle it
     }
 
+    // [bool]
     try {
       const auto& bool_replace = cf.GetSection("bool");
       BoolVarReplaceSet.clear();
@@ -158,6 +163,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
       // no need to handle it
     }
 
+    // [lotus]
     try {
       const auto& lotus_replace = cf.GetSection("lotus");
       LotusVarReplaceSet.clear();
@@ -175,7 +181,6 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
   }
 
   t.Stop();
-
   auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
 
   Log::i("Initialization of Packages(\"" + filename_ + "\") complete. Took " + std::to_string(time) + "ms.");
