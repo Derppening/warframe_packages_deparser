@@ -7,13 +7,12 @@
 #include "packages.h"
 
 #include <algorithm>
-#include <array>
-#include <exception>
 #include <fstream>
 #include <iostream>
 #include <limits>
 #include <map>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -28,7 +27,6 @@ using std::cout;
 using std::endl;
 using std::getline;
 using std::ifstream;
-using std::make_pair;
 using std::make_unique;
 using std::map;
 using std::ofstream;

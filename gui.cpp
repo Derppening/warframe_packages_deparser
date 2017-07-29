@@ -7,10 +7,7 @@
 #include "gui.h"
 
 #include <iostream>
-#include <iterator>
 #include <limits>
-#include <memory>
-#include <sstream>
 #include <vector>
 
 #include "cui.h"

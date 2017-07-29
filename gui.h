@@ -8,8 +8,6 @@
 #ifndef WARFRAME_PACKAGES_DEPARSER_GUI_H_
 #define WARFRAME_PACKAGES_DEPARSER_GUI_H_
 
-#include <memory>
-
 #include "packages.h"
 #include "packages_legacy.h"
 
@@ -34,8 +32,6 @@ class Gui {
   explicit Gui(PackagesLegacy* package);
 
   void MainMenu();
-
-  bool ParseCommand(const std::vector<std::string>& args);
 
   void Help(bool is_interactive) const;
   void Find(std::string args, bool is_interactive) const;
