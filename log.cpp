@@ -25,12 +25,12 @@ std::size_t Log::padding_len_ = EvaluatePadding();
 std::ofstream Log::log_str_;
 
 namespace {
-auto PutTime = [](std::stringstream& ss) -> void {
+void PutTime(std::stringstream& ss) {
   auto time = std::time(nullptr);
   std::tm tm = *std::localtime(&time);
 
   ss << std::put_time(&tm, "%m-%d %H:%M:%S");
-};
+}
 }  // namespace
 
 bool Log::SetFile(string filename, std::ios_base::openmode mode) {
