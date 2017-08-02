@@ -12,7 +12,6 @@
 
 #include "cui.h"
 #include "packages.h"
-#include "packages_legacy.h"
 #include "log.h"
 #include "util.h"
 
@@ -28,9 +27,6 @@ using std::vector;
 using std::unique_ptr;
 
 Gui::Gui(Packages* package) : packages_(package)
-{}
-
-Gui::Gui(PackagesLegacy* package) : package_legacy_(package), package_ver_(PackageVer::kLegacy)
 {}
 
 void Gui::MainMenu() {
@@ -61,8 +57,6 @@ void Gui::MainMenu() {
 
 auto Gui::GetFileName() const -> string {
   switch (package_ver_) {
-    case PackageVer::kLegacy:
-      return package_legacy_->GetFilename();
     case PackageVer::kCurrent:
       return packages_->GetFilename();
     default:
@@ -73,8 +67,6 @@ auto Gui::GetFileName() const -> string {
 
 auto Gui::GetSize() const -> size_t {
   switch (package_ver_) {
-    case PackageVer::kLegacy:
-      return package_legacy_->GetSize();
     case PackageVer::kCurrent:
       return packages_->GetSize();
     default:
@@ -154,16 +146,6 @@ void Gui::Find(string args, bool is_interactive) const {
   }
 
   switch (package_ver_) {
-    case PackageVer::kLegacy:
-      switch (mode) {
-        case SearchMode::kFront:
-          package_legacy_->SuggestSimilar(find_s, max_count);
-          break;
-        default:
-          cout << "This mode is currently not supported with legacy packages." << endl;
-          break;
-      }
-      break;
     case PackageVer::kCurrent:
       switch (mode) {
         case SearchMode::kDefault:
@@ -215,19 +197,6 @@ void Gui::View(const std::string args) const {
   }
 
   switch (package_ver_) {
-    case PackageVer::kLegacy:
-      switch (mode) {
-        case ViewMode::kDefault:
-          package_legacy_->DeparseHeader(package);
-          break;
-        case ViewMode::kRaw:
-          package_legacy_->OutputHeaderRaw(package);
-          break;
-        default:
-          cout << "This mode is currently not supported with legacy packages." << endl;
-          break;
-      }
-      break;
     case PackageVer::kCurrent:
       switch (mode) {
         case ViewMode::kDefault:
@@ -277,9 +246,6 @@ void Gui::Sort(const string args) const {
   }
 
   switch (package_ver_) {
-    case PackageVer::kLegacy:
-      cout << "This mode is currently not supported with legacy packages." << endl;
-      break;
     case PackageVer::kCurrent:
       Log::i("Invoking Packages::SortFile()");
       packages_->SortFile(filename, count);
@@ -304,9 +270,6 @@ void Gui::Compare(const string args) const {
   }
 
   switch (package_ver_) {
-    case PackageVer::kLegacy:
-      cout << "This mode is currently not supported with legacy packages." << endl;
-      break;
     case PackageVer::kCurrent:
       Log::i("Invoking Packages::Compare(\"" + filename + "\"...)");
       packages_->Compare(filename);

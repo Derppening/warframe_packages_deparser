@@ -9,12 +9,10 @@
 #define WARFRAME_PACKAGES_DEPARSER_GUI_H_
 
 #include "packages.h"
-#include "packages_legacy.h"
 
 class Gui {
  public:
   enum struct PackageVer {
-    kLegacy = 0,
     kCurrent
   };
 
@@ -29,7 +27,6 @@ class Gui {
   };
 
   explicit Gui(Packages* package);
-  explicit Gui(PackagesLegacy* package);
 
   void MainMenu();
 
@@ -44,7 +41,6 @@ class Gui {
   auto GetSize() const -> std::size_t;
 
   Packages* packages_ = nullptr;
-  PackagesLegacy* package_legacy_ = nullptr;
 
   PackageVer package_ver_ = PackageVer::kCurrent;
 };

@@ -14,7 +14,6 @@
 #include "cui.h"
 #include "gui.h"
 #include "packages.h"
-#include "packages_legacy.h"
 #include "log.h"
 #include "util.h"
 
@@ -139,17 +138,12 @@ auto main(int argc, char* argv[]) -> int {
 
   unique_ptr<ifstream> file_stream = make_unique<ifstream>(filename);
   unique_ptr<Packages> package = nullptr;
-  unique_ptr<PackagesLegacy> package_legacy = nullptr;
 
   try {
     switch (program_args.package_ver) {
       case Gui::PackageVer::kCurrent:
         Log::v("Attempting to create Packages");
         package = make_unique<Packages>(filename, move(file_stream), program_args.prettify_src);
-        break;
-      case Gui::PackageVer::kLegacy:
-        Log::v("Attempting to create PackagesLegacy");
-        package_legacy = make_unique<PackagesLegacy>(filename, move(file_stream));
         break;
       default:
         throw std::runtime_error("Bad State");
@@ -165,9 +159,6 @@ auto main(int argc, char* argv[]) -> int {
   if (package != nullptr) {
     Log::v("Invoking Gui::Gui(Packages)");
     g = make_unique<Gui>(package.get());
-  } else if (package_legacy != nullptr) {
-    Log::v("Invoking Gui::Gui(PackagesLegacy)");
-    g = make_unique<Gui>(package_legacy.get());
   } else {
     cout << "Error when initializing packages!" << endl;
     return 1;
