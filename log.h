@@ -50,13 +50,24 @@ class Log {
   ~Log() = delete;
 
   /**
-   * Enable all logging functions provided by this class.
+   * Initializes all fields in this class.
+   *
+   * @note This function must be called before any other methods are used.
    */
-  static void Enable() { enable_logging_ = true; }
+  static void Init();
+
+  /**
+   * Enable all logging functions provided by this class.
+   *
+   * @throw @c std::runtime_error if class is not initialized.
+   */
+  static void Enable();
   /**
    * Disable all logging functions provided by this class.
+   *
+   * @throw @c std::runtime_error if class is not initialized.
    */
-  static void Disable() { enable_logging_ = false; }
+  static void Disable();
 
   /**
    * Sets the output file for logging.
@@ -178,22 +189,24 @@ class Log {
   static void SetErrorString(std::string str);
 
  private:
-  static auto EvaluatePadding() -> std::size_t;
+  static void EvaluatePadding();
   static auto GetPadding(Level lvl) -> std::string;
 
+  static bool is_init_;
   static bool enable_logging_;
 
   static bool use_override_pipe_;
   static Pipe override_pipe_;
 
-  static std::string verbose_app_;
-  static std::string debug_app_;
-  static std::string info_app_;
-  static std::string warn_app_;
-  static std::string error_app_;
-  static std::size_t padding_len_;
+  static std::unique_ptr<std::string> verbose_app_;
+  static std::unique_ptr<std::string> debug_app_;
+  static std::unique_ptr<std::string> info_app_;
+  static std::unique_ptr<std::string> warn_app_;
+  static std::unique_ptr<std::string> error_app_;
 
-  static std::ofstream log_str_;
+  static std::unique_ptr<std::size_t> padding_len_;
+
+  static std::unique_ptr<std::ofstream> log_str_;
 };
 
 #endif  // WARFRAME_PACKAGES_DEPARSER_STATIC_LOG_H_

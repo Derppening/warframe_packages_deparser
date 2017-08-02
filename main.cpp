@@ -27,7 +27,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.9.1-rc";
+const string kBuildString = "0.9.1-rc.1";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
@@ -45,7 +45,7 @@ void OutputHelp(const string& s);
 void OutputHelp(const string& s) {
   string message;
   message += "Usage: " + s + " [OPTION]... -- [MODE] [MODE_ARGS]...\n";
-  message += "  -d, --debug\t\tenable logging\n";
+  message += "  -D, --no-debug\t\tdisable logging\n";
   message += "  -f, --file=[FILE]\tread Packages.txt from [FILE]\n";
   message += "  -I, --no-interactive\tdisable interactive mode\n";
   message += "  -p, --prettify=[FILE]\timport prettifying replacement pairs from [FILE]\n";
@@ -91,8 +91,8 @@ void ReadArgs(const vector<string>& args, string& filename) {
       exit(0);
     } else if (*it == "--no-interactive" || *it == "-I") {
       program_args.is_interactive = false;
-    } else if (*it == "--debug" || *it == "-d") {
-      Log::Enable();
+    } else if (*it == "--no-debug" || *it == "-D") {
+      Log::Disable();
     } else if (*it == "-p") {
       program_args.prettify_src = *++it;
     } else if (it->substr(0, 11) == "--prettify=") {
@@ -130,6 +130,10 @@ void ReadArgs(const vector<string>& args, string& filename) {
 }  // namespace
 
 auto main(int argc, char* argv[]) -> int {
+  // initialize the logging class
+  Log::Init();
+  Log::Enable();
+
   // read input arguments
   vector<string> argvec(argv, argv + argc);
 
