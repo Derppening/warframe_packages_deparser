@@ -30,7 +30,7 @@ make
 Run the program with `warframe_packages_deparser.exe --version` and ensure it 
 outputs something similar to as follows:
 ```
-Warframe Packages Deparser 0.6.0
+Warframe Packages Deparser 0.9.0
 Copyright (C) 2017 David Mak
 Licensed under MIT.
 ```
@@ -38,7 +38,7 @@ Licensed under MIT.
 ### Distributing the Binary
 
 It is strongly not recommended to distribute the binary outside of this 
-repository, as this utility may or may not violate the Terms of Service and/or
+repository, as this utility may (or may not) violate the Terms of Service and/or
 End-User License Agreement of Warframe. 
 
 If you understand the risks and would still like to distribute the binary, 
@@ -82,6 +82,11 @@ Execute the program like this:
 ```
 warframe_packages_deparser.txt --legacy -f <path_to_packages_file>
 ```
+Note that parsing of this format has been discontinued since v0.9.1.
+
+Other formats of `Packages.txt` are not supported.
+
+Help for command line arguments can be found using the `--help` flag.
 
 ## Versioning
 
