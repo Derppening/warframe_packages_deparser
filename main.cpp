@@ -28,7 +28,7 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.9.0";
+const string kBuildString = "0.9.1-rc";
 
 struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
@@ -48,7 +48,6 @@ void OutputHelp(const string& s) {
   message += "Usage: " + s + " [OPTION]... -- [MODE] [MODE_ARGS]...\n";
   message += "  -d, --debug\t\tenable logging\n";
   message += "  -f, --file=[FILE]\tread Packages.txt from [FILE]\n";
-  message += "      --legacy\t\tread file with legacy format\n";
   message += "  -I, --no-interactive\tdisable interactive mode\n";
   message += "  -p, --prettify=[FILE]\timport prettifying replacement pairs from [FILE]\n";
   message += "      --help\t\tdisplay this help and exit\n";
@@ -89,7 +88,8 @@ void ReadArgs(const vector<string>& args, string& filename) {
     } else if (it->substr(0, 7) == "--file=") {
       file = it->substr(7);
     } else if (*it == "--legacy") {
-      program_args.package_ver = Gui::PackageVer::kLegacy;
+      cout << "Legacy format support has been discontinued." << endl;
+      exit(0);
     } else if (*it == "--no-interactive" || *it == "-I") {
       program_args.is_interactive = false;
     } else if (*it == "--debug" || *it == "-d") {
