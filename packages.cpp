@@ -52,12 +52,6 @@ map<string, string, StrCompare> kSyntaxReplaceSet;
 map<string, string, StrCompare> kBoolReplaceSet;
 
 void PrettifyLine(std::string& s) {
-  // quote absolute paths
-  if (s.find("/Lotus") != string::npos) {
-    s.replace(s.find("/Lotus"), 1, "\"/");
-    s.push_back('\"');
-  }
-
   // do replacement for syntactial pairs
   for (const auto& p_replace : kSyntaxReplaceSet) {
     auto cmp = s.find(p_replace.first);
