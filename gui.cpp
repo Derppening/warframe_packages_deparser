@@ -20,11 +20,9 @@ using std::cin;
 using std::cout;
 using std::endl;
 using std::getline;
-using std::move;
 using std::stoul;
 using std::string;
 using std::vector;
-using std::unique_ptr;
 
 Gui::Gui(Packages* package) : packages_(package)
 {}

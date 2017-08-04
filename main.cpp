@@ -149,7 +149,7 @@ auto main(int argc, char* argv[]) -> int {
   string filename{};
   ReadArgs(argvec, filename);
 
-  unique_ptr<ifstream> file_stream = make_unique<ifstream>(filename);
+  auto file_stream = make_unique<ifstream>(filename);
   unique_ptr<Packages> package = nullptr;
 
   try {

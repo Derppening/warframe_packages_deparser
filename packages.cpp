@@ -29,8 +29,6 @@ using std::ifstream;
 using std::make_unique;
 using std::map;
 using std::ofstream;
-using std::pair;
-using std::sort;
 using std::string;
 using std::unique_ptr;
 using std::vector;
@@ -231,7 +229,7 @@ void Packages::OutputHeader(string header, bool is_raw) {
 
 void Packages::Find(std::string header, bool search_front, unsigned int max_size) {
   std::transform(header.begin(), header.end(), header.begin(), ::tolower);
-  unique_ptr<vector<string>> matches = make_unique<vector<string>>();
+  auto matches = make_unique<vector<string>>();
 
   Log::d("Start search for \"" + header + "\" in header substrings");
 
@@ -280,15 +278,15 @@ void Packages::Find(std::string header, bool search_front, unsigned int max_size
 void Packages::Compare(std::string cmp_filename) {
   Log::i("Packages::Compare(...): " + filename_ + " <-> " + cmp_filename);
 
-  unique_ptr<ifstream> cmp_filestream = make_unique<ifstream>(cmp_filename);
+  auto cmp_filestream = make_unique<ifstream>(cmp_filename);
   if (!*cmp_filestream) {
     cout << cmp_filename << ": File not found." << endl;
     return;
   }
   auto cmp_file = make_unique<Packages>(cmp_filename, std::move(cmp_filestream));
 
-  unique_ptr<vector<string>> has_current = make_unique<vector<string>>();
-  unique_ptr<vector<string>> has_compare = make_unique<vector<string>>();
+  auto has_current = make_unique<vector<string>>();
+  auto has_compare = make_unique<vector<string>>();
 
   const auto cmp_file_headers = cmp_file->GetHeaderPtr();
 
@@ -513,7 +511,7 @@ void Packages::ConvertTabToSpace(string& str) {
 auto Packages::GetHeaderContents(string header, bool inc_header) -> unique_ptr<vector<string>> {
   Log::d("Packages::GetHeaderContents(" + header + ")");
 
-  unique_ptr<vector<string>> content = make_unique<vector<string>>();
+  auto content = make_unique<vector<string>>();
 
   auto search = headers_->find(header);
   if (search == headers_->end()) {
