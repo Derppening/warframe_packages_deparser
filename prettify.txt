@@ -23,4 +23,4 @@ CodexSecret=Secret Entry in Codex?
 IsResearch=Is Clan Research?
 
 [lotus]
-"/Lotus/Types/Items/MiscItems/Ferrite"=Ferrite
+/Lotus/Types/Items/MiscItems/Ferrite=Ferrite
