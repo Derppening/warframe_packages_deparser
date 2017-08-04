@@ -45,7 +45,7 @@ void OutputVersionInfo();
 void OutputHelp(const string& s);
 
 void Init() {
-  kBuildString = std::make_unique<std::string>("0.9.1");
+  kBuildString = std::make_unique<std::string>("0.9.2");
   program_args = std::make_unique<ProgramArgs>();
 
   // initialize the logging class

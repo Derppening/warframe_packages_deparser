@@ -108,7 +108,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
   kSyntaxReplaceSet = {
       {"=", ": "},
       {"{}", "(empty hash)"},
-      {"[]", "(empty array"},
+      {"[]", "(empty array)"},
       {"\"\"", "(empty string)"}
   };
   kBoolReplaceSet = {
