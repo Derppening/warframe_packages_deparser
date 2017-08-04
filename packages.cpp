@@ -21,7 +21,6 @@
 #include "log.h"
 #include "timer.h"
 
-using std::array;
 using std::cin;
 using std::cout;
 using std::endl;
@@ -49,17 +48,8 @@ struct StrCompare {
 map<string, string, StrCompare> NormVarReplaceSet;
 map<string, string, StrCompare> BoolVarReplaceSet;
 map<string, string, StrCompare> LotusVarReplaceSet;
-
-const map<string, string, StrCompare> kSyntaxReplaceSet = {
-    pair<string, string>("=", ": "),
-    pair<string, string>("{}", "(empty hash)"),
-    pair<string, string>("[]", "(empty array)")
-};
-
-const map<string, string, StrCompare> kBoolReplaceSet = {
-    pair<string, string>("0", "false"),
-    pair<string, string>("1", "true")
-};
+map<string, string, StrCompare> kSyntaxReplaceSet;
+map<string, string, StrCompare> kBoolReplaceSet;
 
 void PrettifyLine(std::string& s) {
   // quote absolute paths
@@ -121,6 +111,18 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
   t.Start();
 
   ParseFile(ifs_.get());
+
+  // initialize constant replacement maps
+  kSyntaxReplaceSet = {
+      {"=", ": "},
+      {"{}", "(empty hash)"},
+      {"[]", "(empty array"},
+      {"\"\"", "(empty string)"}
+  };
+  kBoolReplaceSet = {
+      {"0", "false"},
+      {"1", "true"}
+  };
 
   // replace with default path if no file is specified for prettify
   if (prettify_filename.empty()) {

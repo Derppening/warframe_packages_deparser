@@ -27,20 +27,31 @@ using std::unique_ptr;
 using std::vector;
 
 namespace {
-const string kBuildString = "0.9.1-rc.1";
-
-struct {
+struct ProgramArgs {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
 
   std::string prettify_src = "";
 
   bool is_interactive = true;
   vector<string> ni_args;
-} program_args;
+};
 
+std::unique_ptr<std::string> kBuildString = nullptr;
+std::unique_ptr<ProgramArgs> program_args = nullptr;
+
+void Init();
 void ReadArgs(const vector<string>& args, string& filename);
 void OutputVersionInfo();
 void OutputHelp(const string& s);
+
+void Init() {
+  kBuildString = std::make_unique<std::string>("0.9.1-rc.1");
+  program_args = std::make_unique<ProgramArgs>();
+
+  // initialize the logging class
+  Log::Init();
+  Log::Enable();
+}
 
 void OutputHelp(const string& s) {
   string message;
@@ -59,7 +70,7 @@ void OutputHelp(const string& s) {
 
 void OutputVersionInfo() {
   string message;
-  message += "Warframe Package Deparser " + kBuildString + "\n";
+  message += "Warframe Package Deparser " + *kBuildString + "\n";
   message += "Copyright (C) 2017 David Mak\n";
   message += "Licensed under MIT.";
 
@@ -71,7 +82,7 @@ void ReadArgs(const vector<string>& args, string& filename) {
   bool is_parse_ni_args = false;
 
   for (auto it = args.begin() + 1; it != args.end(); ++it) {
-    if (program_args.is_interactive && is_parse_ni_args) {
+    if (program_args->is_interactive && is_parse_ni_args) {
       cout << "Warning: Ignoring all arguments provided after \"--\" token" << endl;
       break;
     }
@@ -90,15 +101,15 @@ void ReadArgs(const vector<string>& args, string& filename) {
       cout << "Legacy format support has been discontinued." << endl;
       exit(0);
     } else if (*it == "--no-interactive" || *it == "-I") {
-      program_args.is_interactive = false;
+      program_args->is_interactive = false;
     } else if (*it == "--no-debug" || *it == "-D") {
       Log::Disable();
     } else if (*it == "-p") {
-      program_args.prettify_src = *++it;
+      program_args->prettify_src = *++it;
     } else if (it->substr(0, 11) == "--prettify=") {
-      program_args.prettify_src = it->substr(11);
-    } else if (!program_args.is_interactive && is_parse_ni_args) {
-      program_args.ni_args.push_back(*it);
+      program_args->prettify_src = it->substr(11);
+    } else if (!program_args->is_interactive && is_parse_ni_args) {
+      program_args->ni_args.push_back(*it);
     } else if (*it == "--") {
       is_parse_ni_args = true;
     } else if (it->substr(0, 2) == "--" &&
@@ -121,18 +132,16 @@ void ReadArgs(const vector<string>& args, string& filename) {
   for (std::size_t it = 0; it < args.size(); ++it) {
     Log::d("[" + std::to_string(it) + "] " + args[it]);
   }
-  Log::d("Interpreting Package Version: " + std::to_string(static_cast<int>(program_args.package_ver)));
-  Log::d("Prettify Replacement Source: " + (program_args.prettify_src.empty() ? "(none)" : program_args.prettify_src));
-  Log::d("Interactive Mode: " + std::string(program_args.is_interactive ? "true" : "false"));
-  Log::d("Interactive Mode Arguments: " + JoinToString(program_args.ni_args, " "));
+  Log::d("Interpreting Package Version: " + std::to_string(static_cast<int>(program_args->package_ver)));
+  Log::d("Prettify Replacement Source: " + (program_args->prettify_src.empty() ? "(none)" : program_args->prettify_src));
+  Log::d("Interactive Mode: " + std::string(program_args->is_interactive ? "true" : "false"));
+  Log::d("Interactive Mode Arguments: " + JoinToString(program_args->ni_args, " "));
   Log::FlushFileBuf();
 }
 }  // namespace
 
 auto main(int argc, char* argv[]) -> int {
-  // initialize the logging class
-  Log::Init();
-  Log::Enable();
+  Init();
 
   // read input arguments
   vector<string> argvec(argv, argv + argc);
@@ -144,10 +153,10 @@ auto main(int argc, char* argv[]) -> int {
   unique_ptr<Packages> package = nullptr;
 
   try {
-    switch (program_args.package_ver) {
+    switch (program_args->package_ver) {
       case Gui::PackageVer::kCurrent:
         Log::v("Attempting to create Packages");
-        package = make_unique<Packages>(filename, move(file_stream), program_args.prettify_src);
+        package = make_unique<Packages>(filename, move(file_stream), program_args->prettify_src);
         break;
       default:
         throw std::runtime_error("Bad State");
@@ -169,8 +178,8 @@ auto main(int argc, char* argv[]) -> int {
   }
   Log::FlushFileBuf();
 
-  if (!program_args.is_interactive) {
-    if (program_args.ni_args.empty()) {
+  if (!program_args->is_interactive) {
+    if (program_args->ni_args.empty()) {
       Log::w("No interactive mode arguments! Quitting");
       cout << "No arguments provided for non-interactive mode. Exiting." << endl;
     }
@@ -183,7 +192,7 @@ auto main(int argc, char* argv[]) -> int {
     c.AddItem("Help", "help", std::bind(&Gui::Help, *g, false));
 
     Log::d("Invoking Cui::Parse()");
-    c.Parse(JoinToString(program_args.ni_args, " "));
+    c.Parse(JoinToString(program_args->ni_args, " "));
   } else {
     Log::d("Invoking Gui::MainMenu()");
     g->MainMenu();
