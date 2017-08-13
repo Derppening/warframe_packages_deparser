@@ -173,7 +173,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
   }
 
   t.Stop();
-  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::i("Initialization of Packages(\"" + filename_ + "\") complete. Took " + std::to_string(time) + "ms.");
 }
@@ -248,7 +248,7 @@ void Packages::Find(std::string header, bool search_front, unsigned int max_size
   }
 
   t.Stop();
-  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Search complete. Took " + std::to_string(time) + "ms.");
   Log::d("Found " + std::to_string(matches->size()) + " matches.");
@@ -310,7 +310,7 @@ void Packages::Compare(std::string cmp_filename) {
   }
 
   t.Stop();
-  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Comparison complete. Took " + std::to_string(time) + "ms.");
 
@@ -377,7 +377,7 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
   }
 
   t.Stop();
-  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Read complete. Took " + std::to_string(time) + "ms.");
 
@@ -404,7 +404,7 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
   }
 
   t.Stop();
-  time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+  time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Dump complete. Took " + std::to_string(time) + "ms.");
 
@@ -427,7 +427,7 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
   }
 
   t.Stop();
-  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Reversal complete. Took " + std::to_string(time) + "ms.");
 
@@ -446,7 +446,7 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
   }
 
   t.Stop();
-  time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetTimeRaw()).count());
+  time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Search complete. Took " + std::to_string(time) + "ms.");
 

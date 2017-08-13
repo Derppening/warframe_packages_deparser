@@ -32,17 +32,34 @@ class Timer {
   void Reset();
 
   /**
+   * Gets the time since the last Start has been called.
+   *
    * @return Time in nanoseconds
    */
-  double GetTime() { return GetTimeRaw().count(); }
+  auto GetElapsedTime() -> double;
   /**
+   * Gets the time since the last Start has been called.
+   *
+   * @return Time in nanoseconds
+   */
+  auto GetRawElapsedTime() -> std::chrono::duration<double, std::nano>;
+
+  /**
+   * Gets the time recorded from last full Start->Stop cycle.
+   *
+   * @return Time in nanoseconds
+   */
+  auto GetTime() -> double { return GetRawTime().count(); }
+  /**
+   * Gets the time recorded from last full Start->Stop cycle.
+   *
    * @return Time as a @c std::chrono::duration object
    */
-  std::chrono::duration<double, std::nano> GetTimeRaw() { return last_time_; }
+  auto GetRawTime() -> std::chrono::duration<double, std::nano> { return last_time_; }
 
  private:
-  std::chrono::time_point<std::chrono::steady_clock> start_time_ = std::chrono::steady_clock::now();
-  std::chrono::time_point<std::chrono::steady_clock> end_time_ = std::chrono::steady_clock::now();
+  std::chrono::time_point<std::chrono::steady_clock> start_time_ = std::chrono::time_point<std::chrono::steady_clock>();
+  std::chrono::time_point<std::chrono::steady_clock> end_time_ = std::chrono::time_point<std::chrono::steady_clock>();
 
   std::chrono::duration<double, std::nano> last_time_ = std::chrono::duration<double, std::nano>::zero();
 };
