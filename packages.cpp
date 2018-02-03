@@ -342,7 +342,7 @@ void Packages::Compare(std::string cmp_filename) {
   Log::FlushFileBuf();
 }
 
-void Packages::SortFile(string outfile, unsigned int notify_count) {
+void Packages::SortFile(string outfile, bool diff_opt, unsigned int notify_count) {
   Log::i("Packages::SortFile -> " + outfile);
 
   // initialize variables
@@ -368,11 +368,17 @@ void Packages::SortFile(string outfile, unsigned int notify_count) {
     if (is_category) {
       category = buffer_line.substr(17);
       contents->emplace(category, vector<string>());
+      if (diff_opt) {
+        buffer_line.erase(0, 1);
+      }
       contents->at(category).emplace_back(buffer_line);
     } else if (category.empty()) {
       continue;
     } else {
       ConvertTabToSpace(buffer_line);
+      if (diff_opt && buffer_line.substr(0, 12) == "BasePackage=") {
+        buffer_line.insert(0, "  ");
+      }
       contents->at(category).emplace_back(buffer_line);
     }
   }

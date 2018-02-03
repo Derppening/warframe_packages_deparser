@@ -83,7 +83,8 @@ void Gui::Help(bool is_interactive) const {
   cout << "view [--raw] [package]: View the data of [package]" << '\n';
   cout << "\t[--raw]: Show the raw version as opposed to prettify version." << '\n';
   cout << '\n';
-  cout << "sort [count=1024] [filename=out.txt]: Sort and output the file to out.txt" << '\n';
+  cout << "sort [--no-diff] [count=1024] [filename=out.txt]: Sort and output the file to out.txt" << '\n';
+  cout << "\tBy default a diff-optimized format will be output. Use [--no-diff] to use the legacy format." << '\n';
   cout << "\tShow progress every [count] headers dumped." << '\n';
   cout << "\tSorted file will be dumped to [filename]." << '\n';
   cout << '\n';
@@ -222,6 +223,7 @@ void Gui::Sort(const string args) const {
   // initialize all parameters
   unsigned int count{1024};
   string filename{"out.txt"};
+  bool diff_view{true};
 
   for (auto&& arg : argv) {
     if (arg.substr(0, 6) == "count=") {
@@ -233,6 +235,8 @@ void Gui::Sort(const string args) const {
       }
     } else if (arg.substr(0, 9) == "filename=") {
       filename = arg.substr(9);
+    } else if (arg == "--no-diff") {
+      diff_view = false;
     } else {
       filename = arg;
     }
@@ -246,7 +250,7 @@ void Gui::Sort(const string args) const {
   switch (package_ver_) {
     case PackageVer::kCurrent:
       Log::i("Invoking Packages::SortFile()");
-      packages_->SortFile(filename, count);
+      packages_->SortFile(filename, diff_view, count);
       break;
     default:
       // all cases covered

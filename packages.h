@@ -23,7 +23,7 @@ class Packages {
 
   void Compare(std::string);
 
-  void SortFile(std::string, unsigned int);
+  void SortFile(std::string, bool, unsigned int);
 
   void ReverseLookup(unsigned int, bool);
 
