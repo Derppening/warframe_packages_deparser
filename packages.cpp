@@ -50,7 +50,7 @@ map<string, string, StrCompare> kSyntaxReplaceSet;
 map<string, string, StrCompare> kBoolReplaceSet;
 
 void PrettifyLine(std::string& s) {
-  // do replacement for syntactial pairs
+  // do replacement for syntactical pairs
   for (const auto& p_replace : kSyntaxReplaceSet) {
     auto cmp = s.find(p_replace.first);
     if (cmp != string::npos) {
@@ -519,7 +519,7 @@ auto Packages::GetHeaderContents(string header, bool inc_header) -> unique_ptr<v
     return content;
   }
 
-  auto index = search->second + 1 + static_cast<int>(!inc_header);
+  auto index = search->second + 1 + static_cast<unsigned>(!inc_header);
 
   Log::v("Packages::GetHeaderContents: Will start reading from line " + std::to_string(index));
 

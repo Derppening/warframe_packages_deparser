@@ -114,14 +114,14 @@ void Gui::Find(string args, bool is_interactive) const {
   for (auto&& arg : argv) {
     if (arg.substr(0, 6) == "count=") {
       try {
-        max_count = stoul(arg.substr(6));
+        max_count = static_cast<unsigned int>(stoul(arg.substr(6)));
       } catch (std::invalid_argument& ex_ia) {
         cerr << "Argument provided to [count] is not a number" << endl;
         return;
       }
     } else if (arg.substr(0, 5) == "line="){
       try {
-        line = stoul(arg.substr(5));
+        line = static_cast<unsigned int>(stoul(arg.substr(5)));
       } catch (std::invalid_argument& ex_ia) {
         cerr << "Argument provided to [line] is not a number" << endl;
         return;
@@ -226,7 +226,7 @@ void Gui::Sort(const string args) const {
   for (auto&& arg : argv) {
     if (arg.substr(0, 6) == "count=") {
       try {
-        count = stoul(arg.substr(6));
+        count = static_cast<unsigned int>(stoul(arg.substr(6)));
       } catch (std::invalid_argument& ex_ia) {
         cerr << "Argument provided to [count] is not a number" << endl;
         return;

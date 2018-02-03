@@ -76,6 +76,7 @@ bool Cui::Inflate(bool has_custom_text, bool terminate_anyways) {
       case ParseResult::kCmdNotFound:
         std::cout << input << ": Not found" << std::endl;
         break;
+      case ParseResult::kContinue:
       default:
         // not handled
         break;
