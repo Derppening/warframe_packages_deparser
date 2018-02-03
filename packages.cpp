@@ -20,6 +20,7 @@
 #include "config_file.h"
 #include "log.h"
 #include "timer.h"
+#include "util.h"
 
 using std::cin;
 using std::cout;
@@ -186,12 +187,12 @@ void Packages::OutputHeader(string header, bool is_raw) {
     return;
   }
 
-  system("cls");
+  ClearScreen();
 
   // read from file first. we need the base package
   cout << "Loading entry..." << endl;
   auto contents = GetHeaderContents(header);
-  system("cls");
+  ClearScreen();
 
   Log::v("Dumping data for " + header);
   if (is_raw) {
@@ -314,7 +315,7 @@ void Packages::Compare(std::string cmp_filename) {
 
   Log::d("Comparison complete. Took " + std::to_string(time) + "ms.");
 
-  system("cls");
+  ClearScreen();
 
   if (!has_current->empty()) {
     cout << "Headers which only exist in current version: " << endl;
@@ -450,7 +451,7 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
 
   Log::d("Search complete. Took " + std::to_string(time) + "ms.");
 
-  system("cls");
+  ClearScreen();
 
   if (i != rev_headers->end()) {
     cout << "Entry at line " << line << ": " << i->second << endl;

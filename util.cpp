@@ -43,3 +43,11 @@ auto JoinToString(const std::vector<std::string>& input, std::string separator) 
   std::copy(input.begin(), input.end(), std::ostream_iterator<std::string>(arg, separator.c_str()));
   return arg.str();
 }
+
+void ClearScreen() {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+  system("cls");
+#else
+  system("clear");
+#endif  // defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+}

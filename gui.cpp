@@ -39,7 +39,7 @@ void Gui::MainMenu() {
 
   bool b = false;
   while (!b) {
-    system("cls");
+    ClearScreen();
     cout << "Warframe Packages Deparser: Loaded " << GetFileName() << '\n';
     cout << "Found: " << GetSize() << " records" << '\n';
     cout << '\n';

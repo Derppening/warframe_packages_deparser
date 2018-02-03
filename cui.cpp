@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include "util.h"
+
 Cui::Cui(HintLevel level) : hint_level_(level)
 {}
 
@@ -38,8 +40,8 @@ void Cui::AddItem(const std::string text, const std::vector<std::string>& input,
 
 bool Cui::Inflate(bool has_custom_text, bool terminate_anyways) {
   while (true) {
-    if (!has_custom_text && static_cast<bool>(system("cls"))) {
-      system("clear");
+    if (!has_custom_text) {
+      ClearScreen();
     }
 
     if (hint_level_ != HintLevel::kNone) {
