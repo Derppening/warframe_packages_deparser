@@ -334,7 +334,7 @@ void Packages::Compare(std::string cmp_filename) {
   }
 
   if (!has_current->empty() || !has_compare->empty()) {
-    cout << has_compare->size() << " additions, " << has_current->size() << " deletions" << endl;
+    cout << has_current->size() << " additions, " << has_compare->size() << " deletions" << endl;
   } else {
     cout << "Headers are identical." << endl;
   }
