@@ -1,26 +1,76 @@
 [normal]
-SkipBuildTimePrice=Rush Price (Platinum)
-PrimeSellingPrice=Selling Price (Ducats)
-TradeCapability=Can be Traded?
-SellingPrice=Selling Price (Credits)
-PremiumPrice=Price (Platinum)
-RegularPrice=Price (Credits)
-BuildPrice=Build Price (Platinum)
-BuildTime=Build Time (Seconds)
+# enumeration values
+# AP: Artifact Polarities
+AP_ATTACK=Madurai (V)
+AP_DEFENSE=Vazarin (D)
+AP_TACTIC=Naramon (-)
+AP_UNIVERSAL=No Polarity
+
+# MM: Market Visibility
+MM_HIDDEN=Hidden in Market
+
+# RO: ?
 RO_ALWAYS=Always
 RO_NEVER=Never
+
+# strings
+ArmourRatingOverride=Base Armor
+ArtifactSlots=Mod Slot Polarities
+BodySkin=Body Skin
+BuildPrice=Build Price (Platinum)
+BuildTime=Build Time (Seconds)
+Compatible=Compatible Products
+CompatibleSlots=Compatible Slots
+CustomEmblem=Custom Emblem
+DefaultCustomization=Default Appearance
+DisplayRecipe=Item Recipe
+EventEmblem=Event Emblem
 GuildXpValue=Clan Affinity
+IconTexture=Icon
+Ingredients=Resource Requirements
+InitialEnergy=Base Energy (R0)
+ItemCount=Count
+ItemType=Resource
+LocalizeTag=Localized Name
+LocalizeDescTag=Localized Description
+MarketMode=Market Visibility
+MaxEnergy=Base Energy (R30)
+MaxShieldOverride=Base Shield (R30)
+MiniMapIcon=Minimap Icon
+PosOffset=Positional Offset
+PremiumPrice=Price (Platinum)
+PrimeSellingPrice=Selling Price (Ducats)
+ProductCategory=Item Category
+RegularPrice=Price (Credits)
+RequiredLevel=MR Requirement
 ResearchTime=Research Time (Seconds)
+ResultItem=Crafting Product
+RotOffset=Rotational Offset
+SellingPrice=Selling Price (Credits)
+SkipBuildTimePrice=Rush Price (Platinum)
+TradeCapability=Can be Traded?
+TypeName=Type Name
 
 [bool]
+AlwaysAvailable=Always Available?
+AvailableOnPvp=Available in Conclave?
+CanEnhance=Can Fit Arcane?
+CodexSecret=Secret Entry in Codex?
+ExcludeFromCodex=Hide in Codex?
+Giftable=Is Giftable?
+IsPrime=Is Prime?
+IsResearch=Is Clan Research?
 ShowInMarket=Visible in Market?
 Tradeable=Is Tradeable?
-Giftable=Is Giftable?
-ExcludeFromCodex=Hide in Codex?
-AvailableOnPvp=Available in Conclave?
-AlwaysAvailable=Always Available?
-CodexSecret=Secret Entry in Codex?
-IsResearch=Is Clan Research?
 
 [lotus]
+/Lotus/Types/Items/MiscItems/AlloyPlate=Alloy Plates
+/Lotus/Types/Items/MiscItems/Circuits=Circuits
+/Lotus/Types/Items/MiscItems/ControlModule=Control Modules
 /Lotus/Types/Items/MiscItems/Ferrite=Ferrite
+/Lotus/Types/Items/MiscItems/Gallium=Gallium
+/Lotus/Types/Items/MiscItems/Nanospores=Nano Spores
+/Lotus/Types/Items/MiscItems/NeuralSensor=Neural Sensors
+/Lotus/Types/Items/MiscItems/OrokinCell=Orokin Cell
+/Lotus/Types/Items/MiscItems/Rubedo=Rubedo
+/Lotus/Types/Items/MiscItems/Salvage=Salvage
