@@ -1,4 +1,4 @@
-// Copyright (c) 2017 David Mak. All rights reserved.
+// Copyright (c) 2017-2018 David Mak. All rights reserved.
 // Licensed under MIT.
 //
 // This file parses the program argument, and inflates the Gui class.
@@ -39,7 +39,7 @@ void OutputVersionInfo();
 void OutputHelp(const std::string& s);
 
 void Init() {
-  kBuildString = std::make_unique<std::string>("0.10.0-beta.2");
+  kBuildString = std::make_unique<std::string>("0.10.0-rc");
   program_args = std::make_unique<ProgramArgs>();
 
   // initialize the logging class
@@ -65,7 +65,7 @@ void OutputHelp(const std::string& s) {
 void OutputVersionInfo() {
   std::string message;
   message += "Warframe Package Deparser " + *kBuildString + "\n";
-  message += "Copyright (C) 2017 David Mak\n";
+  message += "Copyright (C) 2017-2018 David Mak\n";
   message += "Licensed under MIT.";
 
   cout << message << endl;

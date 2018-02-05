@@ -1,4 +1,4 @@
-// Copyright (c) 2017 David Mak. All rights reserved.
+// Copyright (c) 2017-2018 David Mak. All rights reserved.
 // Licensed under MIT.
 //
 // Initializes the console user interface, and acts as the gateway to the
@@ -7,6 +7,8 @@
 
 #ifndef WARFRAME_PACKAGES_DEPARSER_GUI_H_
 #define WARFRAME_PACKAGES_DEPARSER_GUI_H_
+
+#include <memory>
 
 #include "packages.h"
 

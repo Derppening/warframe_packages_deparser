@@ -1,4 +1,4 @@
-// Copyright (c) 2017 David Mak. All rights reserved.
+// Copyright (c) 2017-2018 David Mak. All rights reserved.
 // Licensed under MIT.
 //
 // Implementations for Gui class
