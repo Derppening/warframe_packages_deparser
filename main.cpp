@@ -19,12 +19,6 @@
 
 using std::cout;
 using std::endl;
-using std::ifstream;
-using std::make_unique;
-using std::move;
-using std::string;
-using std::unique_ptr;
-using std::vector;
 
 namespace {
 struct ProgramArgs {
@@ -33,19 +27,19 @@ struct ProgramArgs {
   std::string prettify_src = "";
 
   bool is_interactive = true;
-  vector<string> ni_args;
+  std::vector<std::string> ni_args;
 };
 
 std::unique_ptr<std::string> kBuildString = nullptr;
 std::unique_ptr<ProgramArgs> program_args = nullptr;
 
 void Init();
-void ReadArgs(const vector<string>& args, string& filename);
+void ReadArgs(const std::vector<std::string>& args, std::string& filename);
 void OutputVersionInfo();
-void OutputHelp(const string& s);
+void OutputHelp(const std::string& s);
 
 void Init() {
-  kBuildString = std::make_unique<std::string>("0.10.0-beta.1");
+  kBuildString = std::make_unique<std::string>("0.10.0-beta.2");
   program_args = std::make_unique<ProgramArgs>();
 
   // initialize the logging class
@@ -53,8 +47,8 @@ void Init() {
   Log::Enable();
 }
 
-void OutputHelp(const string& s) {
-  string message;
+void OutputHelp(const std::string& s) {
+  std::string message;
   message += "Usage: " + s + " [OPTION]... -- [MODE] [MODE_ARGS]...\n";
   message += "  -D, --no-debug\t\tdisable logging\n";
   message += "  -f, --file=[FILE]\tread Packages.txt from [FILE]\n";
@@ -69,7 +63,7 @@ void OutputHelp(const string& s) {
 }
 
 void OutputVersionInfo() {
-  string message;
+  std::string message;
   message += "Warframe Package Deparser " + *kBuildString + "\n";
   message += "Copyright (C) 2017 David Mak\n";
   message += "Licensed under MIT.";
@@ -77,8 +71,8 @@ void OutputVersionInfo() {
   cout << message << endl;
 }
 
-void ReadArgs(const vector<string>& args, string& filename) {
-  string file = "./Packages.txt";
+void ReadArgs(const std::vector<std::string>& args, std::string& filename) {
+  std::string file = "./Packages.txt";
   bool is_parse_ni_args = false;
 
   for (auto it = args.begin() + 1; it != args.end(); ++it) {
@@ -112,8 +106,7 @@ void ReadArgs(const vector<string>& args, string& filename) {
       program_args->ni_args.push_back(*it);
     } else if (*it == "--") {
       is_parse_ni_args = true;
-    } else if (it->substr(0, 2) == "--" &&
-        it->length() != 2) {
+    } else if (it->substr(0, 2) == "--" && it->length() != 2) {
       cout << "Warning: Unrecognized option " << *it << endl;
     }
   }
@@ -133,7 +126,8 @@ void ReadArgs(const vector<string>& args, string& filename) {
     Log::d("[" + std::to_string(it) + "] " + args[it]);
   }
   Log::d("Interpreting Package Version: " + std::to_string(static_cast<int>(program_args->package_ver)));
-  Log::d("Prettify Replacement Source: " + (program_args->prettify_src.empty() ? "(none)" : program_args->prettify_src));
+  Log::d(
+      "Prettify Replacement Source: " + (program_args->prettify_src.empty() ? "(none)" : program_args->prettify_src));
   Log::d("Interactive Mode: " + std::string(program_args->is_interactive ? "true" : "false"));
   Log::d("Interactive Mode Arguments: " + JoinToString(program_args->ni_args, " "));
   Log::FlushFileBuf();
@@ -144,19 +138,19 @@ auto main(int argc, char* argv[]) -> int {
   Init();
 
   // read input arguments
-  vector<string> argvec(argv, argv + argc);
+  std::vector<std::string> argvec(argv, argv + argc);
 
-  string filename{};
+  std::string filename{};
   ReadArgs(argvec, filename);
 
-  auto file_stream = make_unique<ifstream>(filename);
-  unique_ptr<Packages> package = nullptr;
+  auto file_stream = std::ifstream(filename);
+  std::unique_ptr<Packages> package = nullptr;
 
   try {
     switch (program_args->package_ver) {
       case Gui::PackageVer::kCurrent:
         Log::v("Attempting to create Packages");
-        package = make_unique<Packages>(filename, move(file_stream), program_args->prettify_src);
+        package = std::make_unique<Packages>(filename, std::move(file_stream), program_args->prettify_src);
         break;
       default:
         throw std::runtime_error("Bad State");
@@ -168,14 +162,14 @@ auto main(int argc, char* argv[]) -> int {
   }
   Log::FlushFileBuf();
 
-  unique_ptr<Gui> g = nullptr;
-  if (package != nullptr) {
-    Log::v("Invoking Gui::Gui(Packages)");
-    g = make_unique<Gui>(package.get());
-  } else {
+  // check if packages is properly initialized
+  if (package == nullptr) {
     cout << "Error when initializing packages!" << endl;
     return 1;
   }
+
+  Log::v("Invoking Gui::Gui(Packages)");
+  Gui g(package.get());
   Log::FlushFileBuf();
 
   if (!program_args->is_interactive) {
@@ -185,17 +179,17 @@ auto main(int argc, char* argv[]) -> int {
     }
 
     Cui c(Cui::HintLevel::kNone);
-    c.AddItem("Find", "find", std::bind(&Gui::Find, *g, std::placeholders::_1, false));
-    c.AddItem("View", "view", std::bind(&Gui::View, *g, std::placeholders::_1));
-    c.AddItem("Sort", "sort", std::bind(&Gui::Sort, *g, std::placeholders::_1));
-    c.AddItem("Compare", "compare", std::bind(&Gui::Compare, *g, std::placeholders::_1));
-    c.AddItem("Help", "help", std::bind(&Gui::Help, *g, false));
+    c.AddItem("Find", "find", std::bind(&Gui::Find, g, std::placeholders::_1, false));
+    c.AddItem("View", "view", std::bind(&Gui::View, g, std::placeholders::_1));
+    c.AddItem("Sort", "sort", std::bind(&Gui::Sort, g, std::placeholders::_1));
+    c.AddItem("Compare", "compare", std::bind(&Gui::Compare, g, std::placeholders::_1));
+    c.AddItem("Help", "help", std::bind(&Gui::Help, g, false));
 
     Log::d("Invoking Cui::Parse()");
     c.Parse(JoinToString(program_args->ni_args, " "));
   } else {
     Log::d("Invoking Gui::MainMenu()");
-    g->MainMenu();
+    g.MainMenu();
   }
 
   return 0;

@@ -15,32 +15,31 @@
 
 class Packages {
  public:
-  Packages(std::string filename, std::unique_ptr<std::ifstream> ifs, std::string prettify_filename = "");
+  Packages(const std::string& filename, std::ifstream&& ifs, std::string prettify_filename = "");
 
   void OutputHeader(std::string header, bool is_raw);
 
-  void Find(std::string header, bool search_front, unsigned int max_size);
+  void Find(std::string header, bool search_front, unsigned max_size);
 
   void Compare(std::string);
 
-  void SortFile(std::string, bool, unsigned int);
+  void SortFile(std::string, bool, unsigned);
 
-  void ReverseLookup(unsigned int, bool);
+  void ReverseLookup(unsigned, bool);
 
   auto GetFilename() const -> std::string { return filename_; }
-  auto GetHeaderPtr() const -> const std::map<std::string, unsigned int>* { return headers_.get(); }
-  auto GetSize() const -> std::size_t { return headers_->size(); }
+  auto GetSize() const -> std::size_t { return headers_.size(); }
 
  private:
-  void ParseFile(std::ifstream *ifs);
-  auto GotoLine(unsigned int line) -> std::unique_ptr<std::ifstream>;
+  void ParseFile(std::ifstream* ifs);
+  auto GotoLine(unsigned line) -> std::ifstream;
   void ConvertTabToSpace(std::string& str);
 
-  auto GetHeaderContents(std::string header, bool inc_header = false) -> std::unique_ptr<std::vector<std::string>>;
+  auto GetHeaderContents(std::string header, bool inc_header = false) -> std::vector<std::string>;
 
-  std::unique_ptr<std::ifstream> ifs_ = nullptr;
+  std::ifstream ifs_;
   std::string filename_ = "";
-  std::unique_ptr<std::map<std::string, unsigned int>> headers_ = nullptr;
+  std::map<std::string, unsigned> headers_;
 };
 
 #endif  // WARFRAME_PACKAGES_DEPARSER_PACKAGES_H_

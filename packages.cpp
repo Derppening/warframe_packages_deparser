@@ -26,13 +26,6 @@ using std::cin;
 using std::cout;
 using std::endl;
 using std::getline;
-using std::ifstream;
-using std::make_unique;
-using std::map;
-using std::ofstream;
-using std::string;
-using std::unique_ptr;
-using std::vector;
 
 namespace {
 struct StrCompare {
@@ -44,17 +37,17 @@ struct StrCompare {
   }
 };
 
-map<string, string, StrCompare> NormVarReplaceSet;
-map<string, string, StrCompare> BoolVarReplaceSet;
-map<string, string, StrCompare> LotusVarReplaceSet;
-map<string, string, StrCompare> kSyntaxReplaceSet;
-map<string, string, StrCompare> kBoolReplaceSet;
+std::map<std::string, std::string, StrCompare> NormVarReplaceSet;
+std::map<std::string, std::string, StrCompare> BoolVarReplaceSet;
+std::map<std::string, std::string, StrCompare> LotusVarReplaceSet;
+std::map<std::string, std::string, StrCompare> kSyntaxReplaceSet;
+std::map<std::string, std::string, StrCompare> kBoolReplaceSet;
 
 void PrettifyLine(std::string& s) {
   // do replacement for syntactical pairs
   for (const auto& p_replace : kSyntaxReplaceSet) {
     auto cmp = s.find(p_replace.first);
-    if (cmp != string::npos) {
+    if (cmp != std::string::npos) {
       s.replace(cmp, p_replace.first.length(), p_replace.second);
     }
   }
@@ -62,7 +55,7 @@ void PrettifyLine(std::string& s) {
   // do replacement for normal variables
   for (const auto& p_replace : NormVarReplaceSet) {
     auto cmp = s.find(p_replace.first);
-    if (cmp != string::npos) {
+    if (cmp != std::string::npos) {
       s.replace(cmp, p_replace.first.length(), p_replace.second);
     }
   }
@@ -70,13 +63,13 @@ void PrettifyLine(std::string& s) {
   // do replacement for boolean variables
   for (const auto& p_replace : BoolVarReplaceSet) {
     auto cmp = s.find(p_replace.first);
-    if (cmp != string::npos) {
+    if (cmp != std::string::npos) {
       s.replace(cmp, p_replace.first.length(), p_replace.second);
 
       // also replace the boolean values
       for (const auto& p_bool : kBoolReplaceSet) {
         auto val = s.find(p_bool.first);
-        if (val != string::npos) {
+        if (val != std::string::npos) {
           s.replace(val, p_bool.first.size(), p_bool.second);
           break;
         }
@@ -87,23 +80,23 @@ void PrettifyLine(std::string& s) {
   // do replacement for path variables
   for (const auto& p_replace : LotusVarReplaceSet) {
     auto cmp = s.find(p_replace.first);
-    if (cmp != string::npos) {
+    if (cmp != std::string::npos) {
       s.replace(cmp, p_replace.first.length(), p_replace.second);
     }
   }
 }
 }  // namespace
 
-Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
-    : ifs_(std::move(ifs)), filename_(std::move(n)), headers_(make_unique<map<string, unsigned int>>()) {
-  if (!*ifs_) {
+Packages::Packages(const std::string& n, std::ifstream&& ifs, std::string prettify_filename)
+    : ifs_(std::move(ifs)), filename_(n), headers_(std::map<std::string, unsigned>()) {
+  if (!ifs_) {
     throw std::runtime_error("Cannot open file");
   }
 
   Timer t;
   t.Start();
 
-  ParseFile(ifs_.get());
+  ParseFile(&ifs_);
 
   // initialize constant replacement maps
   kSyntaxReplaceSet = {
@@ -126,13 +119,13 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
   Log::i("Using prettify source \"" + prettify_filename + "\"");
 
   // read the file and interpret
-  ConfigFile cf(std::move(prettify_filename));
+  ConfigFile cf(prettify_filename);
   if (cf.ReadFromFile()) {
     Log::d("Prettify file is valid");
 
     // [normal]
     try {
-      const auto& norm_replace = cf.GetSection("normal");
+      const std::map<std::string, std::string>& norm_replace = cf.GetSection("normal");
       NormVarReplaceSet.clear();
       for (auto&& set : norm_replace) {
         NormVarReplaceSet.emplace(set.first, set.second);
@@ -145,7 +138,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
 
     // [bool]
     try {
-      const auto& bool_replace = cf.GetSection("bool");
+      const std::map<std::string, std::string>& bool_replace = cf.GetSection("bool");
       BoolVarReplaceSet.clear();
       for (auto&& set : bool_replace) {
         BoolVarReplaceSet.emplace(set.first, set.second);
@@ -158,7 +151,7 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
 
     // [lotus]
     try {
-      const auto& lotus_replace = cf.GetSection("lotus");
+      const std::map<std::string, std::string>& lotus_replace = cf.GetSection("lotus");
       LotusVarReplaceSet.clear();
       for (auto&& set : lotus_replace) {
         LotusVarReplaceSet.emplace(set.first, set.second);
@@ -174,15 +167,15 @@ Packages::Packages(string n, unique_ptr<ifstream> ifs, string prettify_filename)
   }
 
   t.Stop();
-  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
+  auto time = static_cast<unsigned>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::i("Initialization of Packages(\"" + filename_ + "\") complete. Took " + std::to_string(time) + "ms.");
 }
 
-void Packages::OutputHeader(string header, bool is_raw) {
+void Packages::OutputHeader(std::string header, bool is_raw) {
   // find the header. return if we can't find it
-  auto search = headers_->find(header);
-  if (search == headers_->end()) {
+  auto search = headers_.find(header);
+  if (search == headers_.end()) {
     cout << header << ": Header not found." << endl;
     return;
   }
@@ -191,7 +184,7 @@ void Packages::OutputHeader(string header, bool is_raw) {
 
   // read from file first. we need the base package
   cout << "Loading entry..." << endl;
-  auto contents = GetHeaderContents(header);
+  std::vector<std::string> contents = GetHeaderContents(header);
   ClearScreen();
 
   Log::v("Dumping data for " + header);
@@ -202,22 +195,22 @@ void Packages::OutputHeader(string header, bool is_raw) {
     cout << endl;
 
     // display the contents
-    for (auto&& l : *contents) {
+    for (auto&& l : contents) {
       cout << l << endl;
     }
   } else {
     // provide some raw information
     cout << "Package Name: " << header << endl;
-    if (contents->at(0).substr(0, 12) == "BasePackage=") {
-      cout << "Base Package: " << contents->at(0).substr(12) << endl;
-      contents->erase(contents->begin());
+    if (contents[0].find("BasePackage=") != std::string::npos) {
+      cout << "Base Package: " << contents[0].substr(contents[0].find("BasePackage=") + 12) << endl;
+      contents.erase(contents.begin());
     }
     cout << endl;
     cout << "Line Number in File: " << search->second + 1 << endl;
     cout << endl;
 
     // display the contents
-    for (auto& it : *contents) {
+    for (auto& it : contents) {
       PrettifyLine(it);
 
       cout << it << endl;
@@ -228,9 +221,9 @@ void Packages::OutputHeader(string header, bool is_raw) {
   Log::FlushFileBuf();
 }
 
-void Packages::Find(std::string header, bool search_front, unsigned int max_size) {
+void Packages::Find(std::string header, bool search_front, unsigned max_size) {
   std::transform(header.begin(), header.end(), header.begin(), ::tolower);
-  auto matches = make_unique<vector<string>>();
+  auto matches = std::vector<std::string>();
 
   Log::d("Start search for \"" + header + "\" in header substrings");
 
@@ -238,26 +231,26 @@ void Packages::Find(std::string header, bool search_front, unsigned int max_size
   t.Start();
 
   // find all matches
-  for (auto&& p : *headers_) {
-    string s{p.first};
+  for (auto&& p : headers_) {
+    std::string s{p.first};
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
     if (search_front && s.substr(0, header.size()) == header) {
-      matches->emplace_back(p.first);
-    } else if (!search_front && s.find(header) != string::npos) {
-      matches->emplace_back(p.first);
+      matches.emplace_back(p.first);
+    } else if (!search_front && s.find(header) != std::string::npos) {
+      matches.emplace_back(p.first);
     }
   }
 
   t.Stop();
-  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
+  auto time = static_cast<unsigned>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Search complete. Took " + std::to_string(time) + "ms.");
-  Log::d("Found " + std::to_string(matches->size()) + " matches.");
+  Log::d("Found " + std::to_string(matches.size()) + " matches.");
 
   // check if we have more matches than max_size
-  if (matches->size() > max_size) {
-    cout << "Display all " << matches->size() << " possibilities? (y/n) ";
-    string response;
+  if (matches.size() > max_size) {
+    cout << "Display all " << matches.size() << " possibilities? (y/n) ";
+    std::string response;
     getline(cin, response);
     if (response != "y" && response != "Y") {
       Log::i("Skip displaying matches from user input");
@@ -267,11 +260,11 @@ void Packages::Find(std::string header, bool search_front, unsigned int max_size
   }
 
   // display all matches and total count
-  for (auto&& e : *matches) {
+  for (auto&& e : matches) {
     cout << e << '\n';
   }
   cout << endl;
-  cout << matches->size() << " entries." << endl;
+  cout << matches.size() << " entries." << endl;
 
   Log::FlushFileBuf();
 }
@@ -279,17 +272,17 @@ void Packages::Find(std::string header, bool search_front, unsigned int max_size
 void Packages::Compare(std::string cmp_filename) {
   Log::i("Packages::Compare(...): " + filename_ + " <-> " + cmp_filename);
 
-  auto cmp_filestream = make_unique<ifstream>(cmp_filename);
-  if (!*cmp_filestream) {
+  auto cmp_filestream = std::ifstream(cmp_filename);
+  if (!cmp_filestream) {
     cout << cmp_filename << ": File not found." << endl;
     return;
   }
-  auto cmp_file = make_unique<Packages>(cmp_filename, std::move(cmp_filestream));
+  auto cmp_file = std::make_unique<Packages>(cmp_filename, std::move(cmp_filestream));
 
-  auto has_current = make_unique<vector<string>>();
-  auto has_compare = make_unique<vector<string>>();
+  auto has_current = std::vector<std::string>();
+  auto has_compare = std::vector<std::string>();
 
-  const auto cmp_file_headers = cmp_file->GetHeaderPtr();
+  const std::map<std::string, unsigned>& cmp_file_headers = cmp_file->headers_;
 
   Log::d("Begin header comparison");
 
@@ -297,44 +290,44 @@ void Packages::Compare(std::string cmp_filename) {
   t.Start();
 
   cout << "Searching for new keys in current file..." << endl;
-  for (auto&& h : *headers_) {
-    if (cmp_file_headers->find(h.first) == cmp_file_headers->cend()) {
-      has_current->emplace_back(h.first);
+  for (auto&& h : headers_) {
+    if (cmp_file_headers.find(h.first) == cmp_file_headers.cend()) {
+      has_current.emplace_back(h.first);
     }
   }
 
   cout << "Searching for new keys in comparing file..." << endl;
-  for (auto&& h : *cmp_file_headers) {
-    if (headers_->find(h.first) == headers_->cend()) {
-      has_compare->emplace_back(h.first);
+  for (auto&& h : cmp_file_headers) {
+    if (headers_.find(h.first) == headers_.cend()) {
+      has_compare.emplace_back(h.first);
     }
   }
 
   t.Stop();
-  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
+  auto time = static_cast<unsigned>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Comparison complete. Took " + std::to_string(time) + "ms.");
 
   ClearScreen();
 
-  if (!has_current->empty()) {
+  if (!has_current.empty()) {
     cout << "Headers which only exist in current version: " << endl;
-    for (auto&& h : *has_current) {
+    for (auto&& h : has_current) {
       cout << h << '\n';
     }
     cout << endl;
   }
 
-  if (!has_compare->empty()) {
+  if (!has_compare.empty()) {
     cout << "Headers which only exist in comparing version: " << endl;
-    for (auto&& h : *has_compare) {
+    for (auto&& h : has_compare) {
       cout << h << '\n';
     }
     cout << endl;
   }
 
-  if (!has_current->empty() || !has_compare->empty()) {
-    cout << has_current->size() << " additions, " << has_compare->size() << " deletions" << endl;
+  if (!has_current.empty() || !has_compare.empty()) {
+    cout << has_current.size() << " additions, " << has_compare.size() << " deletions" << endl;
   } else {
     cout << "Headers are identical." << endl;
   }
@@ -342,13 +335,13 @@ void Packages::Compare(std::string cmp_filename) {
   Log::FlushFileBuf();
 }
 
-void Packages::SortFile(string outfile, bool diff_opt, unsigned int notify_count) {
+void Packages::SortFile(std::string outfile, bool diff_opt, unsigned notify_count) {
   Log::i("Packages::SortFile -> " + outfile);
 
   // initialize variables
-  auto instream = make_unique<ifstream>(filename_);
-  auto contents = make_unique<map<string, vector<string>>>();
-  auto outstream = make_unique<ofstream>(outfile);
+  auto instream = std::ifstream(filename_);
+  auto contents = std::map<std::string, std::vector<std::string>>();
+  auto outstream = std::ofstream(outfile);
 
   cout << "Loading file, please wait..." << endl;
 
@@ -358,20 +351,27 @@ void Packages::SortFile(string outfile, bool diff_opt, unsigned int notify_count
   t.Start();
 
   // re-read the whole file into RAM
-  string category;
-  string buffer_line;
-  for (auto i = 0; getline(*instream, buffer_line); ++i) {
+  std::string category;
+  std::string buffer_line;
+  for (auto i = 0; getline(instream, buffer_line); ++i) {
     if (buffer_line.empty()) {
       continue;
     }
-    auto is_category = buffer_line.substr(0, 17) == "~FullPackageName=";
-    if (is_category) {
-      category = buffer_line.substr(17);
-      contents->emplace(category, vector<string>());
-      if (diff_opt) {
+
+    // remove trailing CR character in *nix systems
+    if (buffer_line.back() == '\r') {
+      buffer_line.pop_back();
+    }
+
+    // sort the contents based on what header they lie under
+    auto start_of_category = buffer_line.find("FullPackageName=");
+    if (start_of_category != std::string::npos) {
+      category = buffer_line.substr(start_of_category + 16);
+      contents.emplace(category, std::vector<std::string>());
+      if (diff_opt && buffer_line.front() == '~') {
         buffer_line.erase(0, 1);
       }
-      contents->at(category).emplace_back(buffer_line);
+      contents.at(category).emplace_back(buffer_line);
     } else if (category.empty()) {
       continue;
     } else {
@@ -379,48 +379,48 @@ void Packages::SortFile(string outfile, bool diff_opt, unsigned int notify_count
       if (diff_opt && buffer_line.substr(0, 12) == "BasePackage=") {
         buffer_line.insert(0, "  ");
       }
-      contents->at(category).emplace_back(buffer_line);
+      contents.at(category).emplace_back(buffer_line);
     }
   }
 
   t.Stop();
-  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
+  auto time = static_cast<unsigned>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Read complete. Took " + std::to_string(time) + "ms.");
 
-  instream->close();
+  instream.close();
 
   t.Reset();
 
   unsigned count{0};
-  const auto total = contents->size();
+  const auto total = contents.size();
 
   Log::d("Begin full file dump");
 
   t.Start();
 
   // dump map into new file
-  for (auto&& p : *contents) {
+  for (auto&& p : contents) {
     if (++count % notify_count == 0) {
       cout << "Dumping header: " << count << "/" << total << endl;
     }
     for (auto&& l : p.second) {
-      *outstream << l << '\n';
+      outstream << l << '\n';
     }
-    outstream->flush();
+    outstream.flush();
   }
 
   t.Stop();
-  time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
+  time = static_cast<unsigned>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Dump complete. Took " + std::to_string(time) + "ms.");
 
-  outstream->close();
+  outstream.close();
   Log::FlushFileBuf();
 }
 
-void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
-  auto rev_headers = make_unique<map<unsigned int, string>>();
+void Packages::ReverseLookup(unsigned line, bool is_interactive) {
+  auto rev_headers = std::map<unsigned, std::string>();
 
   Log::d("Reversing header map...");
 
@@ -429,12 +429,12 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
 
   cout << "Loading..." << endl;
 
-  for (auto&& a : *headers_) {
-    rev_headers->emplace(a.second, a.first);
-  }
+  std::for_each(headers_.begin(), headers_.end(), [&rev_headers](const std::pair<std::string, unsigned>& a) {
+    rev_headers.emplace(a.second, a.first);
+  });
 
   t.Stop();
-  auto time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
+  auto time = static_cast<unsigned>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Reversal complete. Took " + std::to_string(time) + "ms.");
 
@@ -444,8 +444,8 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
 
   t.Start();
 
-  auto i = rev_headers->end();
-  for (auto it = rev_headers->begin(); it != rev_headers->end(); ++it) {
+  auto i = rev_headers.end();
+  for (auto it = rev_headers.begin(); it != rev_headers.end(); ++it) {
     if (it->first + 1 > line) {
       i = --it;
       break;
@@ -453,18 +453,18 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
   }
 
   t.Stop();
-  time = static_cast<unsigned int>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
+  time = static_cast<unsigned>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
 
   Log::d("Search complete. Took " + std::to_string(time) + "ms.");
 
   ClearScreen();
 
-  if (i != rev_headers->end()) {
+  if (i != rev_headers.end()) {
     cout << "Entry at line " << line << ": " << i->second << endl;
     cout << "Entry begins at line " << i->first + 1 << endl << endl;
     if (is_interactive) {
       cout << "View Package Details? [y/N] ";
-      string resp;
+      std::string resp;
       getline(cin, resp);
       if (resp == "y" || resp == "Y") {
         OutputHeader(i->second, false);
@@ -477,69 +477,81 @@ void Packages::ReverseLookup(unsigned int line, bool is_interactive) {
 
 }
 
-void Packages::ParseFile(ifstream* ifs) {
+void Packages::ParseFile(std::ifstream* const ifs) {
   Log::d("Packages::ParseFile");
 
   cout << "Reading file, please wait..." << endl;
-  string buffer_line;
+  std::string buffer_line;
 
   // read file and save with line numbers
-  for (auto i = 0; getline(*ifs, buffer_line); ++i) {
+  for (unsigned i = 0; getline(*ifs, buffer_line); ++i) {
     if (buffer_line.empty()) {
       continue;
     }
+
+    // remove trailing CR character in *nix systems
+    if (buffer_line.back() == '\r') {
+      buffer_line.pop_back();
+    }
+
     auto start_of_category = buffer_line.find("FullPackageName=");
     if (start_of_category != std::string::npos) {
-      string category = buffer_line.substr(start_of_category + 16);
-      headers_->emplace(category, i);
+      std::string category = buffer_line.substr(start_of_category + 16);
+      headers_.emplace(category, i);
     }
   }
 }
 
-auto Packages::GotoLine(unsigned int line) -> unique_ptr<ifstream> {
-  auto file = make_unique<ifstream>(filename_);
-  file->seekg(std::ios::beg);
+auto Packages::GotoLine(unsigned line) -> std::ifstream {
+  auto file = std::ifstream(filename_);
+  file.seekg(std::ios::beg);
 
   // skip line number of lines
-  for (unsigned int it = 0; it < line - 1; ++it) {
-    file->ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  for (unsigned it = 0; it < line - 1; ++it) {
+    file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
   }
   return file;
 }
 
-void Packages::ConvertTabToSpace(string& str) {
-  string::size_type n = 0;
-  while ((n = str.find('\t', n)) != string::npos) {
+void Packages::ConvertTabToSpace(std::string& str) {
+  std::string::size_type n = 0;
+  while ((n = str.find('\t', n)) != std::string::npos) {
     str.replace(n, 1, "  ");
     n += 2;
   }
 }
 
-auto Packages::GetHeaderContents(string header, bool inc_header) -> unique_ptr<vector<string>> {
+auto Packages::GetHeaderContents(std::string header, bool inc_header) -> std::vector<std::string> {
   Log::d("Packages::GetHeaderContents(" + header + ")");
 
-  auto content = make_unique<vector<string>>();
+  auto content = std::vector<std::string>();
 
-  auto search = headers_->find(header);
-  if (search == headers_->end()) {
+  auto search = headers_.find(header);
+  if (search == headers_.end()) {
     Log::w("Cannot find header!");
     return content;
   }
 
-  auto index = search->second + 1 + static_cast<unsigned>(!inc_header);
+  unsigned index = search->second + 1 + static_cast<unsigned>(!inc_header);
 
   Log::v("Packages::GetHeaderContents: Will start reading from line " + std::to_string(index));
 
-  auto fs = GotoLine(index);
+  std::ifstream fs = GotoLine(index);
 
-  string line;
-  for (auto it = index; getline(*fs, line); ++it) {
-    if (it != index && line.substr(0, 17) == "~FullPackageName=") {
+  std::string line;
+  for (unsigned it = index; getline(fs, line); ++it) {
+    if (it != index && line.find("FullPackageName=") != std::string::npos) {
       Log::v("Packages::GetHeaderContents: Next header found. Breaking.");
       break;
     }
+
+    // remove trailing CR character in *nix systems
+    if (line.back() == '\r') {
+      line.pop_back();
+    }
+
     ConvertTabToSpace(line);
-    content->push_back(line);
+    content.push_back(line);
   }
 
   return content;
