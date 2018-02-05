@@ -488,9 +488,9 @@ void Packages::ParseFile(ifstream* ifs) {
     if (buffer_line.empty()) {
       continue;
     }
-    auto start_of_category = buffer_line.substr(0, 17) == "~FullPackageName=";
-    if (start_of_category) {
-      string category = buffer_line.substr(17);
+    auto start_of_category = buffer_line.find("FullPackageName=");
+    if (start_of_category != std::string::npos) {
+      string category = buffer_line.substr(start_of_category + 16);
       headers_->emplace(category, i);
     }
   }

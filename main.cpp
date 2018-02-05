@@ -45,7 +45,7 @@ void OutputVersionInfo();
 void OutputHelp(const string& s);
 
 void Init() {
-  kBuildString = std::make_unique<std::string>("0.10.0-beta");
+  kBuildString = std::make_unique<std::string>("0.10.0-beta.1");
   program_args = std::make_unique<ProgramArgs>();
 
   // initialize the logging class
