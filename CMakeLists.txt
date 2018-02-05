@@ -5,6 +5,7 @@ include(compile_flags.cmake)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_CXX_FLAGS_DEBUG  "-O0 -ggdb -fno-limit-debug-info")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -static")
 
 file(GLOB SOURCE_FILES *.cpp)
