@@ -19,6 +19,7 @@
 
 #include "config_file.h"
 #include "log.h"
+#include "packages_utils.h"
 #include "timer.h"
 #include "util.h"
 
@@ -26,66 +27,6 @@ using std::cin;
 using std::cout;
 using std::endl;
 using std::getline;
-
-namespace {
-struct StrCompare {
-  bool operator()(const std::string& a, const std::string& b) {
-    if (a.length() != b.length()) {
-      return b.length() < a.length();
-    }
-    return a < b;
-  }
-};
-
-std::map<std::string, std::string, StrCompare> NormVarReplaceSet;
-std::map<std::string, std::string, StrCompare> BoolVarReplaceSet;
-std::map<std::string, std::string, StrCompare> LotusVarReplaceSet;
-std::map<std::string, std::string, StrCompare> kSyntaxReplaceSet;
-std::map<std::string, std::string, StrCompare> kBoolReplaceSet;
-
-void PrettifyLine(std::string& s) {
-  // do replacement for syntactical pairs
-  for (const auto& p_replace : kSyntaxReplaceSet) {
-    auto cmp = s.find(p_replace.first);
-    if (cmp != std::string::npos) {
-      s.replace(cmp, p_replace.first.length(), p_replace.second);
-    }
-  }
-
-  // do replacement for normal variables
-  for (const auto& p_replace : NormVarReplaceSet) {
-    auto cmp = s.find(p_replace.first);
-    if (cmp != std::string::npos) {
-      s.replace(cmp, p_replace.first.length(), p_replace.second);
-    }
-  }
-
-  // do replacement for boolean variables
-  for (const auto& p_replace : BoolVarReplaceSet) {
-    auto cmp = s.find(p_replace.first);
-    if (cmp != std::string::npos) {
-      s.replace(cmp, p_replace.first.length(), p_replace.second);
-
-      // also replace the boolean values
-      for (const auto& p_bool : kBoolReplaceSet) {
-        auto val = s.find(p_bool.first);
-        if (val != std::string::npos) {
-          s.replace(val, p_bool.first.size(), p_bool.second);
-          break;
-        }
-      }
-    }
-  }
-
-  // do replacement for path variables
-  for (const auto& p_replace : LotusVarReplaceSet) {
-    auto cmp = s.find(p_replace.first);
-    if (cmp != std::string::npos) {
-      s.replace(cmp, p_replace.first.length(), p_replace.second);
-    }
-  }
-}
-}  // namespace
 
 Packages::Packages(const std::string& n, std::ifstream&& ifs, std::string prettify_filename)
     : ifs_(std::move(ifs)), filename_(n), headers_(std::map<std::string, unsigned>()) {
@@ -98,18 +39,6 @@ Packages::Packages(const std::string& n, std::ifstream&& ifs, std::string pretti
 
   ParseFile(&ifs_);
 
-  // initialize constant replacement maps
-  kSyntaxReplaceSet = {
-      {"=", ": "},
-      {"{}", "(empty hash)"},
-      {"[]", "(empty array)"},
-      {"\"\"", "(empty string)"}
-  };
-  kBoolReplaceSet = {
-      {"0", "false"},
-      {"1", "true"}
-  };
-
   // replace with default path if no file is specified for prettify
   if (prettify_filename.empty()) {
     Log::d("No prettify file specified. Using default path.");
@@ -118,53 +47,7 @@ Packages::Packages(const std::string& n, std::ifstream&& ifs, std::string pretti
 
   Log::i("Using prettify source \"" + prettify_filename + "\"");
 
-  // read the file and interpret
-  ConfigFile cf(prettify_filename);
-  if (cf.ReadFromFile()) {
-    Log::d("Prettify file is valid");
-
-    // [normal]
-    try {
-      const std::map<std::string, std::string>& norm_replace = cf.GetSection("normal");
-      NormVarReplaceSet.clear();
-      for (auto&& set : norm_replace) {
-        NormVarReplaceSet.emplace(set.first, set.second);
-      }
-    } catch (std::runtime_error& rt_ex) {
-      Log::w("Section \"normal\" not found. Will not replace normal fields");
-
-      // no need to handle it
-    }
-
-    // [bool]
-    try {
-      const std::map<std::string, std::string>& bool_replace = cf.GetSection("bool");
-      BoolVarReplaceSet.clear();
-      for (auto&& set : bool_replace) {
-        BoolVarReplaceSet.emplace(set.first, set.second);
-      }
-    } catch (std::runtime_error& rt_ex) {
-      Log::w("Section \"bool\" not found. Will not replace boolean fields");
-
-      // no need to handle it
-    }
-
-    // [lotus]
-    try {
-      const std::map<std::string, std::string>& lotus_replace = cf.GetSection("lotus");
-      LotusVarReplaceSet.clear();
-      for (auto&& set : lotus_replace) {
-        LotusVarReplaceSet.emplace(set.first, set.second);
-      }
-    } catch (std::runtime_error& rt_ex) {
-      Log::w("Section \"lotus\" not found. Will not replace item fields");
-
-      // no need to handle it
-    }
-
-  } else {
-    Log::d("Prettify file is invalid. Will not replace fields.");
-  }
+  ParsePrettify(prettify_filename);
 
   t.Stop();
   auto time = static_cast<unsigned>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
@@ -385,12 +268,10 @@ void Packages::SortFile(std::string outfile, bool diff_opt, unsigned notify_coun
 
   t.Stop();
   auto time = static_cast<unsigned>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
-
   Log::d("Read complete. Took " + std::to_string(time) + "ms.");
+  t.Reset();
 
   instream.close();
-
-  t.Reset();
 
   unsigned count{0};
   const auto total = contents.size();
@@ -412,7 +293,6 @@ void Packages::SortFile(std::string outfile, bool diff_opt, unsigned notify_coun
 
   t.Stop();
   time = static_cast<unsigned>(std::chrono::duration_cast<Timer::milliseconds>(t.GetRawTime()).count());
-
   Log::d("Dump complete. Took " + std::to_string(time) + "ms.");
 
   outstream.close();
@@ -502,25 +382,6 @@ void Packages::ParseFile(std::ifstream* const ifs) {
   }
 }
 
-auto Packages::GotoLine(unsigned line) -> std::ifstream {
-  auto file = std::ifstream(filename_);
-  file.seekg(std::ios::beg);
-
-  // skip line number of lines
-  for (unsigned it = 0; it < line - 1; ++it) {
-    file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-  }
-  return file;
-}
-
-void Packages::ConvertTabToSpace(std::string& str) {
-  std::string::size_type n = 0;
-  while ((n = str.find('\t', n)) != std::string::npos) {
-    str.replace(n, 1, "  ");
-    n += 2;
-  }
-}
-
 auto Packages::GetHeaderContents(std::string header, bool inc_header) -> std::vector<std::string> {
   Log::d("Packages::GetHeaderContents(" + header + ")");
 
@@ -536,7 +397,8 @@ auto Packages::GetHeaderContents(std::string header, bool inc_header) -> std::ve
 
   Log::v("Packages::GetHeaderContents: Will start reading from line " + std::to_string(index));
 
-  std::ifstream fs = GotoLine(index);
+  auto fs = std::ifstream(filename_);
+  GotoLine(fs, index);
 
   std::string line;
   for (unsigned it = index; getline(fs, line); ++it) {

@@ -6,11 +6,12 @@
 
 #include "util.h"
 
+#include <fstream>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <sstream>
 #include <string>
-#include <vector>
 
 using std::size_t;
 using std::string;
@@ -42,6 +43,23 @@ auto JoinToString(const std::vector<std::string>& input, std::string separator) 
   std::stringstream arg;
   std::copy(input.begin(), input.end(), std::ostream_iterator<std::string>(arg, separator.c_str()));
   return arg.str();
+}
+
+void GotoLine(std::ifstream& fs, unsigned line) {
+  fs.seekg(std::ios::beg);
+
+  // skip line number of lines
+  for (unsigned it = 0; it < line - 1; ++it) {
+    fs.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  }
+}
+
+void ConvertTabToSpace(std::string& str) {
+  std::string::size_type n = 0;
+  while ((n = str.find('\t', n)) != std::string::npos) {
+    str.replace(n, 1, "  ");
+    n += 2;
+  }
 }
 
 void ClearScreen() {

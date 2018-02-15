@@ -31,8 +31,6 @@ class Packages {
 
  private:
   void ParseFile(std::ifstream* ifs);
-  auto GotoLine(unsigned line) -> std::ifstream;
-  void ConvertTabToSpace(std::string& str);
 
   auto GetHeaderContents(std::string header, bool inc_header = false) -> std::vector<std::string>;
 

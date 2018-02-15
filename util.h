@@ -11,8 +11,10 @@
 #include <vector>
 
 auto SplitString(std::string input, std::string delimiter, unsigned limit = 0) -> std::vector<std::string>;
-
 auto JoinToString(const std::vector<std::string>& input, std::string separator) -> std::string;
+
+void GotoLine(std::ifstream& fs, unsigned line);
+void ConvertTabToSpace(std::string& str);
 
 void ClearScreen();
 

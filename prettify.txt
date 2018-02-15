@@ -9,6 +9,11 @@ AP_UNIVERSAL=No Polarity
 # MM: Market Visibility
 MM_HIDDEN=Hidden in Market
 
+# MR: Max Resolution
+MR_256=256px
+MR_2048=2048px
+MR_4096=4096px
+
 # RO: ?
 RO_ALWAYS=Always
 RO_NEVER=Never
@@ -35,6 +40,7 @@ LocalizeTag=Localized Name
 LocalizeDescTag=Localized Description
 MarketMode=Market Visibility
 MaxEnergy=Base Energy (R30)
+MaxResolution=Maximum Texture Resolution
 MaxShieldOverride=Base Shield (R30)
 MiniMapIcon=Minimap Icon
 PosOffset=Positional Offset
