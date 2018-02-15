@@ -4,8 +4,8 @@
 // Utilities to assist Package-parsing.
 //
 
-#ifndef WARFRAME_PACKAGES_DEPARSER_PACKAGES_UTILS_H_
-#define WARFRAME_PACKAGES_DEPARSER_PACKAGES_UTILS_H_
+#ifndef WARFRAME_PACKAGES_DEPARSER_PRETTIFY_H_
+#define WARFRAME_PACKAGES_DEPARSER_PRETTIFY_H_
 
 #include <map>
 #include <string>
@@ -13,4 +13,4 @@
 void ParsePrettify(const std::string& filename);
 void PrettifyLine(std::string& s);
 
-#endif  // WARFRAME_PACKAGES_DEPARSER_PACKAGES_UTILS_H_
+#endif  // WARFRAME_PACKAGES_DEPARSER_PRETTIFY_H_

@@ -4,7 +4,7 @@
 // Implementations for package utilities.
 //
 
-#include "packages_utils.h"
+#include "prettify.h"
 
 #include "config_file.h"
 #include "log.h"

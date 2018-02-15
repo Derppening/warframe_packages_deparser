@@ -19,7 +19,7 @@
 
 #include "config_file.h"
 #include "log.h"
-#include "packages_utils.h"
+#include "prettify.h"
 #include "timer.h"
 #include "util.h"
 
