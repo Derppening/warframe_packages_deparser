@@ -85,6 +85,8 @@ void Gui::Help(bool is_interactive) const {
   cout << '\n';
   cout << "sort [--no-diff] [count=1024] [filename=out.txt]: Sort and output the file to out.txt" << '\n';
   cout << "\tBy default a diff-optimized format will be output. Use [--no-diff] to use the legacy format." << '\n';
+  cout << "\t\tNote that [--no-diff] only outputs the legacy format if the input file is in the legacy format." << '\n';
+  cout << "\t\tOtherwise, this flag has no effect." << '\n';
   cout << "\tShow progress every [count] headers dumped." << '\n';
   cout << "\tSorted file will be dumped to [filename]." << '\n';
   cout << '\n';
