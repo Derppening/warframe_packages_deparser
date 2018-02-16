@@ -30,7 +30,7 @@ struct ProgramArgs {
   std::vector<std::string> ni_args;
 } program_args;
 
-const std::string kBuildString = "0.10.1";
+const std::string kBuildString = "0.11.0-beta";
 
 void Init();
 void ReadArgs(const std::vector<std::string>& args, std::string& filename);
@@ -38,7 +38,6 @@ void OutputVersionInfo();
 void OutputHelp(const std::string& s);
 
 void Init() {
-
   // initialize the logging class
   Log::Init();
   Log::Enable();

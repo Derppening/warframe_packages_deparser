@@ -218,7 +218,7 @@ void Packages::Compare(std::string cmp_filename) {
   Log::FlushFileBuf();
 }
 
-void Packages::SortFile(std::string outfile, bool diff_opt, unsigned notify_count) {
+void Packages::SortFile(std::string outfile, unsigned opt_mask, unsigned notify_count) {
   Log::i("Packages::SortFile -> " + outfile);
 
   // initialize variables
@@ -251,7 +251,7 @@ void Packages::SortFile(std::string outfile, bool diff_opt, unsigned notify_coun
     if (start_of_category != std::string::npos) {
       category = buffer_line.substr(start_of_category + 16);
       contents.emplace(category, std::vector<std::string>());
-      if (diff_opt && buffer_line.front() == '~') {
+      if ((opt_mask & static_cast<unsigned>(SortOptions::kDiff)) && buffer_line.front() == '~') {
         buffer_line.erase(0, 1);
       }
       contents.at(category).emplace_back(buffer_line);
@@ -259,7 +259,7 @@ void Packages::SortFile(std::string outfile, bool diff_opt, unsigned notify_coun
       continue;
     } else {
       ConvertTabToSpace(buffer_line);
-      if (diff_opt && buffer_line.substr(0, 12) == "BasePackage=") {
+      if ((opt_mask & static_cast<unsigned>(SortOptions::kDiff)) && buffer_line.substr(0, 12) == "BasePackage=") {
         buffer_line.insert(0, "  ");
       }
       contents.at(category).emplace_back(buffer_line);

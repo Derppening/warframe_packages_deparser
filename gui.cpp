@@ -20,9 +20,6 @@ using std::cin;
 using std::cout;
 using std::endl;
 using std::getline;
-using std::stoul;
-using std::string;
-using std::vector;
 
 Gui::Gui(Packages* package) : packages_(package)
 {}
@@ -53,7 +50,7 @@ void Gui::MainMenu() {
   Log::i("Exiting interactive loop...");
 }
 
-auto Gui::GetFileName() const -> string {
+auto Gui::GetFileName() const -> std::string {
   switch (package_ver_) {
     case PackageVer::kCurrent:
       return packages_->GetFilename();
@@ -63,7 +60,7 @@ auto Gui::GetFileName() const -> string {
   }
 }
 
-auto Gui::GetSize() const -> size_t {
+auto Gui::GetSize() const -> std::size_t {
   switch (package_ver_) {
     case PackageVer::kCurrent:
       return packages_->GetSize();
@@ -99,17 +96,17 @@ void Gui::Help(bool is_interactive) const {
   cout.flush();
 }
 
-void Gui::Find(string args, bool is_interactive) const {
+void Gui::Find(std::string args, bool is_interactive) const {
   enum class SearchMode {
     kDefault,
     kFront,
     kLine
   };
 
-  vector<string> argv = SplitString(std::move(args), " ");
+  std::vector<std::string> argv = SplitString(std::move(args), " ");
 
   // initialize all parameters
-  string find_s;
+  std::string find_s;
   unsigned int max_count = 50;
   unsigned int line = 0;
   SearchMode mode = SearchMode::kDefault;
@@ -117,14 +114,14 @@ void Gui::Find(string args, bool is_interactive) const {
   for (auto&& arg : argv) {
     if (arg.substr(0, 6) == "count=") {
       try {
-        max_count = static_cast<unsigned int>(stoul(arg.substr(6)));
+        max_count = static_cast<unsigned int>(std::stoul(arg.substr(6)));
       } catch (std::invalid_argument& ex_ia) {
         cerr << "Argument provided to [count] is not a number" << endl;
         return;
       }
     } else if (arg.substr(0, 5) == "line="){
       try {
-        line = static_cast<unsigned int>(stoul(arg.substr(5)));
+        line = static_cast<unsigned int>(std::stoul(arg.substr(5)));
       } catch (std::invalid_argument& ex_ia) {
         cerr << "Argument provided to [line] is not a number" << endl;
         return;
@@ -178,10 +175,10 @@ void Gui::View(const std::string args) const {
     kRaw
   };
 
-  vector<string> argv = SplitString(args, " ");
+  std::vector<std::string> argv = SplitString(args, " ");
 
   // initialize all parameters
-  string package;
+  std::string package;
   ViewMode mode = ViewMode::kDefault;
 
   for (auto&& arg : argv) {
@@ -219,18 +216,18 @@ void Gui::View(const std::string args) const {
   }
 }
 
-void Gui::Sort(const string args) const {
-  vector<string> argv = SplitString(args, " ");
+void Gui::Sort(const std::string args) const {
+  std::vector<std::string> argv = SplitString(args, " ");
 
   // initialize all parameters
   unsigned int count{1024};
-  string filename{"out.txt"};
-  bool diff_view{true};
+  std::string filename{"out.txt"};
+  unsigned format_opts{static_cast<unsigned>(Packages::SortOptions::kDiff)};
 
   for (auto&& arg : argv) {
     if (arg.substr(0, 6) == "count=") {
       try {
-        count = static_cast<unsigned int>(stoul(arg.substr(6)));
+        count = static_cast<unsigned int>(std::stoul(arg.substr(6)));
       } catch (std::invalid_argument& ex_ia) {
         cerr << "Argument provided to [count] is not a number" << endl;
         return;
@@ -238,7 +235,7 @@ void Gui::Sort(const string args) const {
     } else if (arg.substr(0, 9) == "filename=") {
       filename = arg.substr(9);
     } else if (arg == "--no-diff") {
-      diff_view = false;
+      format_opts &= !static_cast<unsigned>(Packages::SortOptions::kDiff);
     } else {
       filename = arg;
     }
@@ -252,7 +249,7 @@ void Gui::Sort(const string args) const {
   switch (package_ver_) {
     case PackageVer::kCurrent:
       Log::i("Invoking Packages::SortFile()");
-      packages_->SortFile(filename, diff_view, count);
+      packages_->SortFile(filename, format_opts, count);
       break;
     default:
       // all cases covered
@@ -260,10 +257,10 @@ void Gui::Sort(const string args) const {
   }
 }
 
-void Gui::Compare(const string args) const {
-  vector<string> argv = SplitString(args, " ");
+void Gui::Compare(const std::string args) const {
+  std::vector<std::string> argv = SplitString(args, " ");
 
-  string filename;
+  std::string filename;
   for (auto&& arg : argv) {
     filename = arg;
   }

@@ -14,6 +14,10 @@
 
 class Packages {
  public:
+  enum struct SortOptions : unsigned {
+    kDiff = 1 << 0
+  };
+
   Packages(const std::string& filename, std::ifstream&& ifs, std::string prettify_filename = "");
 
   void OutputHeader(std::string header, bool is_raw);
@@ -22,7 +26,7 @@ class Packages {
 
   void Compare(std::string);
 
-  void SortFile(std::string, bool, unsigned);
+  void SortFile(std::string, unsigned, unsigned);
 
   void ReverseLookup(unsigned, bool);
 
