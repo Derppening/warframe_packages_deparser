@@ -80,10 +80,11 @@ void Gui::Help(bool is_interactive) const {
   cout << "view [--raw] [package]: View the data of [package]" << '\n';
   cout << "\t[--raw]: Show the raw version as opposed to prettify version." << '\n';
   cout << '\n';
-  cout << "sort [--no-diff] [count=1024] [filename=out.txt]: Sort and output the file to out.txt" << '\n';
+  cout << "sort [OPTIONS...]: Sort and output the file to out.txt" << '\n';
   cout << "\tBy default a diff-optimized format will be output. Use [--no-diff] to use the legacy format." << '\n';
   cout << "\t\tNote that [--no-diff] only outputs the legacy format if the input file is in the legacy format." << '\n';
   cout << "\t\tOtherwise, this flag has no effect." << '\n';
+  cout << "\tIf [--prettify] is specified, a prettified version will be dumped." << '\n';
   cout << "\tShow progress every [count] headers dumped." << '\n';
   cout << "\tSorted file will be dumped to [filename]." << '\n';
   cout << '\n';
@@ -235,7 +236,9 @@ void Gui::Sort(const std::string args) const {
     } else if (arg.substr(0, 9) == "filename=") {
       filename = arg.substr(9);
     } else if (arg == "--no-diff") {
-      format_opts &= !static_cast<unsigned>(Packages::SortOptions::kDiff);
+      format_opts &= ~(static_cast<unsigned>(Packages::SortOptions::kDiff));
+    } else if (args == "--prettify") {
+      format_opts |= static_cast<unsigned>(Packages::SortOptions::kPrettify);
     } else {
       filename = arg;
     }

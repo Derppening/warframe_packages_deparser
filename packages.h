@@ -15,7 +15,14 @@
 class Packages {
  public:
   enum struct SortOptions : unsigned {
-    kDiff = 1 << 0
+    /**
+     * @brief Whether to output the diff-optimized version.
+     */
+    kDiff = 1 << 0,
+    /**
+     * @brief Whether to output the prettified version.
+     */
+    kPrettify = 1 << 1
   };
 
   Packages(const std::string& filename, std::ifstream&& ifs, std::string prettify_filename = "");

@@ -318,6 +318,10 @@ void Packages::SortFile(std::string outfile, unsigned opt_mask, unsigned notify_
       cout << "Dumping header: " << count << "/" << total << endl;
     }
     for (auto&& l : p.second) {
+      if (opt_mask & static_cast<unsigned>(SortOptions::kPrettify)) {
+        PrettifyLine(l);
+      }
+
       outstream << l << '\n';
     }
     outstream.flush();
