@@ -9,7 +9,19 @@
 #include "config_file.h"
 #include "log.h"
 
+/**
+ * @brief Class for custom comparator.
+ */
 struct StrCompare {
+  /**
+   * @brief Custom comparator for prettifying.
+   *
+   * This custom comparator first compares the length of the string, then compares the strings lexicographically.
+   *
+   * @param a String
+   * @param b Another string
+   * @return Which string is "bigger"
+   */
   bool operator()(const std::string& a, const std::string& b) {
     if (a.length() != b.length()) {
       return b.length() < a.length();
@@ -18,20 +30,42 @@ struct StrCompare {
   }
 };
 
+/**
+ * @brief Replacement pairs for normal variables.
+ */
 std::map<std::string, std::string, StrCompare> NormVarReplaceSet;
+/**
+ * @brief Replacement pairs for boolean variables.
+ */
 std::map<std::string, std::string, StrCompare> BoolVarReplaceSet;
+/**
+ * @brief Replacement pairs for path variables (/...)
+ */
 std::map<std::string, std::string, StrCompare> LotusVarReplaceSet;
-std::map<std::string, std::string, StrCompare> kSyntaxReplaceSet = {
+/**
+ * @brief Replacement pairs for syntactical constants.
+ */
+const std::map<std::string, std::string, StrCompare> kSyntaxReplaceSet = {
     {"=", ": "},
     {"{}", "(empty hash)"},
     {"[]", "(empty array)"},
     {"\"\"", "(empty string)"}
 };
-std::map<std::string, std::string, StrCompare> kBoolReplaceSet = {
+/**
+ * @brief Replacement pairs for boolean constants.
+ */
+const std::map<std::string, std::string, StrCompare> kBoolReplaceSet = {
     {"0", "false"},
     {"1", "true"}
 };
 
+/**
+ * @brief Parse prettify file.
+ *
+ * This function will attempt to read, and if successful, parse and store the prettify pairs from the file.
+ *
+ * @param filename Filename of the prettify file
+ */
 void ParsePrettify(const std::string& filename) {
   ConfigFile cf(filename);
   if (cf.ReadFromFile()) {
@@ -81,6 +115,11 @@ void ParsePrettify(const std::string& filename) {
   }
 }
 
+/**
+ * @brief Prettifies a line using the prettify maps.
+ *
+ * @param s Line to be prettified
+ */
 void PrettifyLine(std::string& s) {
   // do replacement for syntactical pairs
   for (const auto& p_replace : kSyntaxReplaceSet) {

@@ -28,8 +28,15 @@ using std::cout;
 using std::endl;
 using std::getline;
 
-Packages::Packages(const std::string& n, std::ifstream&& ifs, std::string prettify_filename)
-    : ifs_(std::move(ifs)), filename_(n), headers_(std::map<std::string, unsigned>()) {
+/**
+ * @brief Packages constructor.
+ *
+ * @param filename Input filename
+ * @param ifs Input file stream
+ * @param prettify_filename Prettify filename
+ */
+Packages::Packages(const std::string& filename, std::ifstream&& ifs, std::string prettify_filename)
+    : ifs_(std::move(ifs)), filename_(filename), headers_(std::map<std::string, unsigned>()) {
   if (!ifs_) {
     throw std::runtime_error("Cannot open file");
   }
@@ -55,6 +62,12 @@ Packages::Packages(const std::string& n, std::ifstream&& ifs, std::string pretti
   Log::i("Initialization of Packages(\"" + filename_ + "\") complete. Took " + std::to_string(time) + "ms.");
 }
 
+/**
+ * @brief Outputs the contents of a given header.
+ *
+ * @param header Target header
+ * @param is_raw Whether to output the contents in the raw format
+ */
 void Packages::OutputHeader(std::string header, bool is_raw) {
   // find the header. return if we can't find it
   auto search = headers_.find(header);
@@ -104,6 +117,13 @@ void Packages::OutputHeader(std::string header, bool is_raw) {
   Log::FlushFileBuf();
 }
 
+/**
+ * @brief Find all headers containing the given string.
+ *
+ * @param header String to match
+ * @param search_front If true, only return headers which starts from header
+ * @param max_size Maximum matches before the application prompts the user for input.
+ */
 void Packages::Find(std::string header, bool search_front, unsigned max_size) {
   std::transform(header.begin(), header.end(), header.begin(), ::tolower);
   auto matches = std::vector<std::string>();
@@ -152,6 +172,11 @@ void Packages::Find(std::string header, bool search_front, unsigned max_size) {
   Log::FlushFileBuf();
 }
 
+/**
+ * @brief Compare the contents between the loaded file and another file.
+ *
+ * @param cmp_filename Filename of the comparing file
+ */
 void Packages::Compare(std::string cmp_filename) {
   Log::i("Packages::Compare(...): " + filename_ + " <-> " + cmp_filename);
 
@@ -218,6 +243,13 @@ void Packages::Compare(std::string cmp_filename) {
   Log::FlushFileBuf();
 }
 
+/**
+ * @brief Sort the file lexicographically.
+ *
+ * @param outfile Filename of the output
+ * @param opt_mask Bit mask of options to apply. See @c SortOptions
+ * @param notify_count How often to output progress
+ */
 void Packages::SortFile(std::string outfile, unsigned opt_mask, unsigned notify_count) {
   Log::i("Packages::SortFile -> " + outfile);
 
@@ -299,6 +331,12 @@ void Packages::SortFile(std::string outfile, unsigned opt_mask, unsigned notify_
   Log::FlushFileBuf();
 }
 
+/**
+ * @brief Lookup the header based on the line number.
+ *
+ * @param line Line number to lookup
+ * @param is_interactive If true, will prompt user if they want to view the header contents
+ */
 void Packages::ReverseLookup(unsigned line, bool is_interactive) {
   auto rev_headers = std::map<unsigned, std::string>();
 
@@ -357,6 +395,11 @@ void Packages::ReverseLookup(unsigned line, bool is_interactive) {
 
 }
 
+/**
+ * @brief Parses the input file, saves all headers and their corresponding line number.
+ *
+ * @param ifs Input file stream
+ */
 void Packages::ParseFile(std::ifstream* const ifs) {
   Log::d("Packages::ParseFile");
 
@@ -382,6 +425,14 @@ void Packages::ParseFile(std::ifstream* const ifs) {
   }
 }
 
+/**
+ * @brief Retrieves the contents of a header.
+ *
+ * @param header Header to retrieve the contents
+ * @param inc_header Whether to include the header line
+ *
+ * @return All lines of the given header
+ */
 auto Packages::GetHeaderContents(std::string header, bool inc_header) -> std::vector<std::string> {
   Log::d("Packages::GetHeaderContents(" + header + ")");
 

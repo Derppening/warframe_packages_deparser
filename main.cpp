@@ -21,7 +21,10 @@ using std::cout;
 using std::endl;
 
 namespace {
-struct ProgramArgs {
+/**
+ * @brief List of program options.
+ */
+struct {
   Gui::PackageVer package_ver = Gui::PackageVer::kCurrent;
 
   std::string prettify_src = "";
@@ -37,12 +40,20 @@ void ReadArgs(const std::vector<std::string>& args, std::string& filename);
 void OutputVersionInfo();
 void OutputHelp(const std::string& s);
 
+/**
+ * @brief Performs initialization.
+ */
 void Init() {
   // initialize the logging class
   Log::Init();
   Log::Enable();
 }
 
+/**
+ * @brief Outputs help text.
+ *
+ * @param s Name of the application
+ */
 void OutputHelp(const std::string& s) {
   std::string message;
   message += "Usage: " + s + " [OPTION]... -- [MODE] [MODE_ARGS]...\n";
@@ -58,6 +69,9 @@ void OutputHelp(const std::string& s) {
   cout << message << endl;
 }
 
+/**
+ * @brief Outputs version information.
+ */
 void OutputVersionInfo() {
   std::string message;
   message += "Warframe Package Deparser " + kBuildString + "\n";
@@ -67,6 +81,12 @@ void OutputVersionInfo() {
   cout << message << endl;
 }
 
+/**
+ * @brief Parse all arguments in the command line.
+ *
+ * @param args Vector of arguments
+ * @param filename Filename to read the file from
+ */
 void ReadArgs(const std::vector<std::string>& args, std::string& filename) {
   std::string file = "./Packages.txt";
   bool is_parse_ni_args = false;
