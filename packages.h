@@ -25,6 +25,12 @@ class Packages {
     kPrettify = 1 << 1
   };
 
+  enum struct StructureOptions {
+    kNone,
+    kScope,
+    kTree
+  };
+
   Packages(const std::string& filename, std::ifstream&& ifs, std::string prettify_filename = "");
 
   void OutputHeader(std::string header, bool is_raw);
@@ -37,7 +43,7 @@ class Packages {
 
   void ReverseLookup(unsigned, bool);
 
-  std::vector<std::string> HeaderToJson(const std::string& header);
+  std::vector<std::string> HeaderToJson(const std::string& header, StructureOptions opts);
 
   auto GetFilename() const -> std::string { return filename_; }
   auto GetSize() const -> std::size_t { return headers_.size(); }

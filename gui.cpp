@@ -30,7 +30,7 @@ void Gui::MainMenu() {
   c.AddItem("View", "view", std::bind(&Gui::View, this, std::placeholders::_1));
   c.AddItem("Sort", "sort", std::bind(&Gui::Sort, this, std::placeholders::_1));
   c.AddItem("Compare", "compare", std::bind(&Gui::Compare, this, std::placeholders::_1));
-  c.AddItem("json", "json", std::bind(&Gui::Json, this, std::placeholders::_1));
+  c.AddItem("json-struct", "json-struct", std::bind(&Gui::Json, this, std::placeholders::_1));
   c.AddItem("Help", "help", std::bind(&Gui::Help, this, true));
   c.AddDiv();
   c.AddItem("Exit", "exit", nullptr, true);
@@ -90,7 +90,9 @@ void Gui::Help(bool is_interactive) const {
   cout << "\tSorted file will be dumped to [filename]." << '\n';
   cout << '\n';
   cout << "compare [filename]: Compares the headers of the currently loaded file with [filename]" << '\n';
-  cout << "json [header]: Serializes contents of [header] into JSON format, and dumps the package structure." << '\n';
+  cout << "json-struct [--scope|--tree] [header]: Serializes contents of [header] into JSON format, and dumps the package structure." << '\n';
+  cout << "\tBy default, this shows the package structure using \"::\"-delimited naming." << '\n';
+  cout << "\tUse [--tree] to show the package in a tree-like structure." << '\n';
   if (is_interactive) {
     cout << '\n';
     cout << "exit: Exit the application" << '\n';
@@ -290,8 +292,13 @@ void Gui::Json(const std::string args) const {
   std::vector<std::string> argv = SplitString(args, " ");
 
   std::string header;
+  Packages::StructureOptions opt = Packages::StructureOptions::kScope;
   for (auto&& arg : argv) {
-    header = arg;
+    if (arg == "--tree") {
+      opt = Packages::StructureOptions::kTree;
+    } else {
+      header = arg;
+    }
   }
 
   if (header.empty()) {
@@ -302,7 +309,7 @@ void Gui::Json(const std::string args) const {
   switch (package_ver_) {
     case PackageVer::kCurrent:
       Log::i("Invoking Packages::HeaderToJson(\"" + header + "\")");
-      packages_->HeaderToJson(header);
+      packages_->HeaderToJson(header, opt);
       break;
     default:
       // all cases covered

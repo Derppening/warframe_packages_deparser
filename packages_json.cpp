@@ -1,5 +1,6 @@
 #include "packages.h"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -51,9 +52,42 @@ void OutputScope(Type t, const std::string& full_path) {
       break;
   }
 }
+
+void OutputTree(Type t, const unsigned indent, const std::string& key) {
+  std::string str_indent = std::string((indent - 2) * 2, ' ');
+  if (indent > 2) {
+    for (std::string::size_type i = 0; (i = str_indent.find("    ", i)) != std::string::npos; i += 5) {
+      str_indent.replace(i, 4, "  |  ");
+    }
+    str_indent.replace(str_indent.size() - 2, 2, "--");
+  }
+  std::string str;
+
+  switch (t) {
+    case Type::kEmptyArray:
+      str = "[   ]";
+      break;
+    case Type::kArray:
+      str = "[...]";
+      break;
+    case Type::kEmptyObject:
+      str = "{   }";
+      break;
+    case Type::kObject:
+    case Type::kAnonObject:
+      str = "{...}";
+      break;
+    case Type::kEmptyPair:
+    case Type::kPair:
+    case Type::kUnparseable:
+      str = "     ";
+  }
+
+  cout << str_indent << key << str << endl;
+}
 }  // namespace
 
-std::vector<std::string> Packages::HeaderToJson(const std::string& header) {
+std::vector<std::string> Packages::HeaderToJson(const std::string& header, StructureOptions opts) {
   if (headers_.find(header) == headers_.end()) {
     cout << "Cannot find header." << endl;
     return std::vector<std::string>();
@@ -87,19 +121,54 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header) {
     }
 
     if (line.find("UNPARSEABLEcONTENTS") != std::string::npos) {
-      OutputScope(Type::kUnparseable, st_string);
+      switch (opts) {
+        case StructureOptions::kScope:
+          OutputScope(Type::kUnparseable, st_string);
+          break;
+        case StructureOptions::kTree:
+          OutputTree(Type::kUnparseable, unsigned(indent), "UNPARSEABLEcONTENTS");
+          break;
+        case StructureOptions::kNone:
+          // not handled
+          break;
+      }
       continue;
     }
 
     if (narray_token != std::string::npos) {
       std::string key = line.substr(0, barray_token);
-      OutputScope(Type::kEmptyArray, st_string.append(key));
+
+      switch (opts) {
+        case StructureOptions::kScope:
+          OutputScope(Type::kEmptyArray, st_string.append(key));
+          break;
+        case StructureOptions::kTree:
+          OutputTree(Type::kEmptyArray, unsigned(indent), key);
+          break;
+        case StructureOptions::kNone:
+          // not handled
+          break;
+      }
+
       parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":[],)"));
       continue;
     }
+
     if (nobject_token != std::string::npos) {
       std::string key = line.substr(0, bobject_token);
-      OutputScope(Type::kEmptyObject, st_string.append(key));
+
+      switch (opts) {
+        case StructureOptions::kScope:
+          OutputScope(Type::kEmptyObject, st_string.append(key));
+          break;
+        case StructureOptions::kTree:
+          OutputTree(Type::kEmptyObject, unsigned(indent), key);
+          break;
+        case StructureOptions::kNone:
+          // not handled
+          break;
+      }
+
       parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":{},)"));
       continue;
     }
@@ -116,9 +185,20 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header) {
       }
     } else if (barray_token != std::string::npos) {
       std::string key = line.substr(0, barray_token);
-      OutputScope(Type::kArray, st_string.append(key));
-      st.emplace_back('[', line.substr(0, barray_token) + "[]");
 
+      switch (opts) {
+        case StructureOptions::kScope:
+          OutputScope(Type::kArray, st_string.append(key));
+          break;
+        case StructureOptions::kTree:
+          OutputTree(Type::kArray, unsigned(indent), key);
+          break;
+        case StructureOptions::kNone:
+          // not handled
+          break;
+      }
+
+      st.emplace_back('[', line.substr(0, barray_token) + "[]");
       parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":[)"));
       indent += 2;
 
@@ -134,18 +214,39 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header) {
         parsed.emplace_back(std::string(unsigned(indent), ' ').append("}"));
       }
     } else if (aobject_token) {
-      OutputScope(Type::kAnonObject, st_string);
-      st.emplace_back('{', "{}");
+      switch (opts) {
+        case StructureOptions::kScope:
+          OutputScope(Type::kAnonObject, st_string);
+          break;
+        case StructureOptions::kTree:
+          OutputTree(Type::kAnonObject, unsigned(indent), "");
+          break;
+        case StructureOptions::kNone:
+          // not handled
+          break;
+      }
 
+      st.emplace_back('{', "{}");
       parsed.emplace_back(std::string(unsigned(indent), ' ').append("{"));
       indent += 2;
 
       continue;
     } else if (bobject_token != std::string::npos) {
       std::string key = line.substr(0, bobject_token);
-      OutputScope(Type::kObject, st_string.append(key));
-      st.emplace_back('{', line.substr(0, bobject_token).append("{}"));
 
+      switch (opts) {
+        case StructureOptions::kScope:
+          OutputScope(Type::kObject, st_string.append(key));
+          break;
+        case StructureOptions::kTree:
+          OutputTree(Type::kObject, unsigned(indent), key);
+          break;
+        case StructureOptions::kNone:
+          // not handled
+          break;
+      }
+
+      st.emplace_back('{', line.substr(0, bobject_token).append("{}"));
       parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":{)"));
       indent += 2;
 
@@ -154,12 +255,33 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header) {
       std::string key = line.substr(0, entry_token);
 
       if (line.substr(entry_token + 1) == "\"\"") {
-        OutputScope(Type::kEmptyPair, st_string.append(key));
+        switch (opts) {
+          case StructureOptions::kScope:
+            OutputScope(Type::kEmptyPair, st_string.append(key));
+            break;
+          case StructureOptions::kTree:
+            OutputTree(Type::kEmptyPair, unsigned(indent), key);
+            break;
+          case StructureOptions::kNone:
+            // not handled
+            break;
+        }
+
         parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":"")"));
       } else {
         std::string value = line.substr(entry_token + 1);
 
-        OutputScope(Type::kPair, st_string.append(key));
+        switch (opts) {
+          case StructureOptions::kScope:
+            OutputScope(Type::kPair, st_string.append(key));
+            break;
+          case StructureOptions::kTree:
+            OutputTree(Type::kPair, unsigned(indent), key);
+            break;
+          case StructureOptions::kNone:
+            // not handled
+            break;
+        }
 
         parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":")").append(value).append("\""));
       }
