@@ -37,6 +37,8 @@ class Packages {
 
   void ReverseLookup(unsigned, bool);
 
+  std::vector<std::string> HeaderToJson(const std::string& header);
+
   auto GetFilename() const -> std::string { return filename_; }
   auto GetSize() const -> std::size_t { return headers_.size(); }
 

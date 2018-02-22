@@ -30,6 +30,7 @@ void Gui::MainMenu() {
   c.AddItem("View", "view", std::bind(&Gui::View, this, std::placeholders::_1));
   c.AddItem("Sort", "sort", std::bind(&Gui::Sort, this, std::placeholders::_1));
   c.AddItem("Compare", "compare", std::bind(&Gui::Compare, this, std::placeholders::_1));
+  c.AddItem("json", "json", std::bind(&Gui::Json, this, std::placeholders::_1));
   c.AddItem("Help", "help", std::bind(&Gui::Help, this, true));
   c.AddDiv();
   c.AddItem("Exit", "exit", nullptr, true);
@@ -89,6 +90,7 @@ void Gui::Help(bool is_interactive) const {
   cout << "\tSorted file will be dumped to [filename]." << '\n';
   cout << '\n';
   cout << "compare [filename]: Compares the headers of the currently loaded file with [filename]" << '\n';
+  cout << "json [header]: Serializes contents of [header] into JSON format, and dumps the package structure." << '\n';
   if (is_interactive) {
     cout << '\n';
     cout << "exit: Exit the application" << '\n';
@@ -277,6 +279,30 @@ void Gui::Compare(const std::string args) const {
     case PackageVer::kCurrent:
       Log::i("Invoking Packages::Compare(\"" + filename + "\"...)");
       packages_->Compare(filename);
+      break;
+    default:
+      // all cases covered
+      break;
+  }
+}
+
+void Gui::Json(const std::string args) const {
+  std::vector<std::string> argv = SplitString(args, " ");
+
+  std::string header;
+  for (auto&& arg : argv) {
+    header = arg;
+  }
+
+  if (header.empty()) {
+    cout << "Please supply a header name." << endl;
+    return;
+  }
+
+  switch (package_ver_) {
+    case PackageVer::kCurrent:
+      Log::i("Invoking Packages::HeaderToJson(\"" + header + "\")");
+      packages_->HeaderToJson(header);
       break;
     default:
       // all cases covered
