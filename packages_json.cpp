@@ -11,6 +11,48 @@
 using std::cout;
 using std::endl;
 
+namespace {
+enum struct Type {
+  kUnparseable,
+  kArray,
+  kEmptyArray,
+  kObject,
+  kAnonObject,
+  kEmptyObject,
+  kPair,
+  kEmptyPair
+};
+
+void OutputScope(Type t, const std::string& full_path) {
+  switch (t) {
+    case Type::kUnparseable:
+      cout << "UNPARSEABLE : " << full_path << "UNPARSEABLEcONTENTS" << endl;
+      break;
+    case Type::kEmptyArray:
+      cout << "EMPTY_ARRAY : " << full_path << "[]" << endl;
+      break;
+    case Type::kEmptyObject:
+      cout << "EMPTY_OBJECT: " << full_path << "{}" << endl;
+      break;
+    case Type::kArray:
+      cout << "ARRAY       : " << full_path << "[]" << endl;
+      break;
+    case Type::kAnonObject:
+      cout << "ANON_OBJECT : " << full_path << "{}" << endl;
+      break;
+    case Type::kObject:
+      cout << "OBJECT      : " << full_path << "{}" << endl;
+      break;
+    case Type::kEmptyPair:
+      cout << "EMPTY_PAIR  : " << full_path << endl;
+      break;
+    case Type::kPair:
+      cout << "PAIR        : " << full_path << endl;
+      break;
+  }
+}
+}  // namespace
+
 std::vector<std::string> Packages::HeaderToJson(const std::string& header) {
   if (headers_.find(header) == headers_.end()) {
     cout << "Cannot find header." << endl;
@@ -45,19 +87,19 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header) {
     }
 
     if (line.find("UNPARSEABLEcONTENTS") != std::string::npos) {
-      cout << "UNPARSEABLE : " << st_string << "UNPARSEABLEcONTENTS" << endl;
+      OutputScope(Type::kUnparseable, st_string);
       continue;
     }
 
     if (narray_token != std::string::npos) {
       std::string key = line.substr(0, barray_token);
-      cout << "EMPTY_ARRAY : " << st_string << key << "[]" << endl;
+      OutputScope(Type::kEmptyArray, st_string.append(key));
       parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":[],)"));
       continue;
     }
     if (nobject_token != std::string::npos) {
       std::string key = line.substr(0, bobject_token);
-      cout << "EMPTY_OBJECT: " << st_string << line.substr(0, barray_token) << "{}" << endl;
+      OutputScope(Type::kEmptyObject, st_string.append(key));
       parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":{},)"));
       continue;
     }
@@ -74,8 +116,7 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header) {
       }
     } else if (barray_token != std::string::npos) {
       std::string key = line.substr(0, barray_token);
-
-      cout << "ARRAY       : " << st_string << key << "[]" << endl;
+      OutputScope(Type::kArray, st_string.append(key));
       st.emplace_back('[', line.substr(0, barray_token) + "[]");
 
       parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":[)"));
@@ -93,7 +134,7 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header) {
         parsed.emplace_back(std::string(unsigned(indent), ' ').append("}"));
       }
     } else if (aobject_token) {
-      cout << "ANON_OBJECT : " << st_string << "{}" << endl;
+      OutputScope(Type::kAnonObject, st_string);
       st.emplace_back('{', "{}");
 
       parsed.emplace_back(std::string(unsigned(indent), ' ').append("{"));
@@ -102,8 +143,7 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header) {
       continue;
     } else if (bobject_token != std::string::npos) {
       std::string key = line.substr(0, bobject_token);
-
-      cout << "OBJECT      : " << st_string << key << "{}" << endl;
+      OutputScope(Type::kObject, st_string.append(key));
       st.emplace_back('{', line.substr(0, bobject_token).append("{}"));
 
       parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":{)"));
@@ -114,12 +154,12 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header) {
       std::string key = line.substr(0, entry_token);
 
       if (line.substr(entry_token + 1) == "\"\"") {
-        cout << "EMPTY_PAIR  : " << st_string << key << endl;
+        OutputScope(Type::kEmptyPair, st_string.append(key));
         parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":"")"));
       } else {
         std::string value = line.substr(entry_token + 1);
 
-        cout << "PAIR        : " << st_string << key << endl;
+        OutputScope(Type::kPair, st_string.append(key));
 
         parsed.emplace_back(std::string(unsigned(indent), ' ').append("\"").append(key).append(R"(":")").append(value).append("\""));
       }
