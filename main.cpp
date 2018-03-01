@@ -33,7 +33,7 @@ struct {
   std::vector<std::string> ni_args;
 } program_args;
 
-const std::string kBuildString = "0.11.0-beta.4";
+const std::string kBuildString = "0.11.0-rc";
 
 void Init();
 void ReadArgs(const std::vector<std::string>& args, std::string& filename);
@@ -197,7 +197,8 @@ auto main(int argc, char* argv[]) -> int {
     c.AddItem("View", "view", std::bind(&Gui::View, g, std::placeholders::_1));
     c.AddItem("Sort", "sort", std::bind(&Gui::Sort, g, std::placeholders::_1));
     c.AddItem("Compare", "compare", std::bind(&Gui::Compare, g, std::placeholders::_1));
-    c.AddItem("json-struct", "json-struct", std::bind(&Gui::Json, g, std::placeholders::_1));
+    c.AddItem("json-struct", "json-struct", std::bind(&Gui::JsonStructure, g, std::placeholders::_1));
+    c.AddItem("json-dump", "json-dump", std::bind(&Gui::JsonDump, g, std::placeholders::_1));
     c.AddItem("Help", "help", std::bind(&Gui::Help, g, false));
 
     Log::d("Invoking Cui::Parse()");

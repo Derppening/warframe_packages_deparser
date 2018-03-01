@@ -38,7 +38,8 @@ class Gui {
   void View(std::string args) const;
   void Sort(std::string args) const;
   void Compare(std::string args) const;
-  void Json(const std::string args) const;
+  void JsonStructure(const std::string args) const;
+  void JsonDump(std::string&& args) const;
 
  private:
   auto GetFileName() const -> std::string;

@@ -26,8 +26,17 @@ class Packages {
   };
 
   enum struct StructureOptions {
+    /**
+     * @brief Do not dump JSON.
+     */
     kNone,
+    /**
+     * @brief Dump JSON with C++ scope-like syntax.
+     */
     kScope,
+    /**
+     * @brief Dump JSON with a tree-like format.
+     */
     kTree
   };
 
@@ -43,7 +52,8 @@ class Packages {
 
   void ReverseLookup(unsigned, bool);
 
-  std::vector<std::string> HeaderToJson(const std::string& header, StructureOptions opts);
+  std::vector<std::string> HeaderToJson(const std::string& header, StructureOptions opts, std::vector<std::string>&& read_file);
+  void DumpJson(std::string&& outfile, unsigned notify_count);
 
   auto GetFilename() const -> std::string { return filename_; }
   auto GetSize() const -> std::size_t { return headers_.size(); }

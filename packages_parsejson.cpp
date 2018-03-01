@@ -1,13 +1,14 @@
+// Copyright (c) 2018 David Mak. All rights reserved.
+// Licensed under MIT.
+//
+// Implementations for JSON-parsing functions of Packages class.
+//
+
 #include "packages.h"
 
-#include <algorithm>
-#include <fstream>
 #include <iostream>
 #include <string>
-#include <utility>
 #include <vector>
-
-#include "util.h"
 
 using std::cout;
 using std::endl;
@@ -16,6 +17,7 @@ namespace {
 enum struct Type {
   kUnparseable,
   kArray,
+  kAnonArray,
   kEmptyArray,
   kObject,
   kAnonObject,
@@ -24,6 +26,12 @@ enum struct Type {
   kEmptyPair
 };
 
+/**
+ * @brief Output a package with C++ scope resolution operator format.
+ *
+ * @param t Type of the JSON element
+ * @param full_path Full path of the JSON element
+ */
 void OutputScope(Type t, const std::string& full_path) {
   switch (t) {
     case Type::kUnparseable:
@@ -34,6 +42,9 @@ void OutputScope(Type t, const std::string& full_path) {
       break;
     case Type::kEmptyObject:
       cout << "EMPTY_OBJECT: " << full_path << "{}" << endl;
+      break;
+    case Type::kAnonArray:
+      cout << "ANON_ARRAY  : " << full_path << "[]" << endl;
       break;
     case Type::kArray:
       cout << "ARRAY       : " << full_path << "[]" << endl;
@@ -53,6 +64,12 @@ void OutputScope(Type t, const std::string& full_path) {
   }
 }
 
+/**
+ * @brief Output a package with a tree format.
+ *
+ * @param t Type of the JSON element
+ * @param full_path Full path of the JSON element
+ */
 void OutputTree(Type t, const unsigned indent, const std::string& key) {
   std::string str_indent = std::string((indent - 2) * 2, ' ');
   if (indent > 2) {
@@ -88,7 +105,18 @@ void OutputTree(Type t, const unsigned indent, const std::string& key) {
 }
 }  // namespace
 
-std::vector<std::string> Packages::HeaderToJson(const std::string& header, StructureOptions opts) {
+/**
+ * @brief Convert a header into JSON format.
+ *
+ * @param header Header to dump
+ * @param opts How to output the structure
+ * @param read_file If set, read from this vector instead
+ *
+ * @return JSON-formatted header
+ */
+std::vector<std::string> Packages::HeaderToJson(const std::string& header,
+                                                StructureOptions opts,
+                                                std::vector<std::string>&& read_file) {
   if (headers_.find(header) == headers_.end()) {
     cout << "Cannot find header." << endl;
     return std::vector<std::string>();
@@ -326,9 +354,11 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header, Struc
   parsed.emplace_back("}");
 
   if (!st.empty()) {
-    std::cerr << "Unable to resolve all entries" << endl;
+    std::cerr << header << ": Unable to resolve all entries" << endl;
+    parsed.clear();
   } else if (indent != 0) {
-    std::cerr << "Unable to correctly indent all entries" << endl;
+    std::cerr << header << ": Unable to correctly indent all entries" << endl;
+    parsed.clear();
   }
 
   return parsed;

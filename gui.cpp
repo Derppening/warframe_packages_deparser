@@ -30,7 +30,8 @@ void Gui::MainMenu() {
   c.AddItem("View", "view", std::bind(&Gui::View, this, std::placeholders::_1));
   c.AddItem("Sort", "sort", std::bind(&Gui::Sort, this, std::placeholders::_1));
   c.AddItem("Compare", "compare", std::bind(&Gui::Compare, this, std::placeholders::_1));
-  c.AddItem("json-struct", "json-struct", std::bind(&Gui::Json, this, std::placeholders::_1));
+  c.AddItem("json-struct", "json-struct", std::bind(&Gui::JsonStructure, this, std::placeholders::_1));
+  c.AddItem("json-dump", "json-dump", std::bind(&Gui::JsonDump, this, std::placeholders::_1));
   c.AddItem("Help", "help", std::bind(&Gui::Help, this, true));
   c.AddDiv();
   c.AddItem("Exit", "exit", nullptr, true);
@@ -288,7 +289,7 @@ void Gui::Compare(const std::string args) const {
   }
 }
 
-void Gui::Json(const std::string args) const {
+void Gui::JsonStructure(const std::string args) const {
   std::vector<std::string> argv = SplitString(args, " ");
 
   std::string header;
@@ -309,7 +310,44 @@ void Gui::Json(const std::string args) const {
   switch (package_ver_) {
     case PackageVer::kCurrent:
       Log::i("Invoking Packages::HeaderToJson(\"" + header + "\")");
-      packages_->HeaderToJson(header, opt);
+      packages_->HeaderToJson(header, opt, std::vector<std::string>());
+      break;
+    default:
+      // all cases covered
+      break;
+  }
+}
+
+void Gui::JsonDump(std::string&& args) const {
+  std::vector<std::string> argv = SplitString(args, " ");
+
+  unsigned int count{1024};
+  std::string filename{"out.json"};
+
+  for (auto&& arg : argv) {
+    if (arg.substr(0, 6) == "count=") {
+      try {
+        count = static_cast<unsigned int>(std::stoul(arg.substr(6)));
+      } catch (std::invalid_argument& ex_ia) {
+        cerr << "Argument provided to [count] is not a number" << endl;
+        return;
+      }
+    } else if (arg.substr(0, 9) == "filename=") {
+      filename = arg.substr(9);
+    } else {
+      filename = arg;
+    }
+  }
+
+  if (filename.empty()) {
+    cout << "Output filename cannot be empty" << endl;
+    return;
+  }
+
+  switch (package_ver_) {
+    case PackageVer::kCurrent:
+      Log::i("Invoking Packages::DumpJson()");
+      packages_->DumpJson(std::move(filename), count);
       break;
     default:
       // all cases covered
