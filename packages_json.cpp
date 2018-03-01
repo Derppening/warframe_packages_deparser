@@ -68,6 +68,7 @@ void OutputTree(Type t, const unsigned indent, const std::string& key) {
       str = "[   ]";
       break;
     case Type::kArray:
+    case Type::kAnonArray:
       str = "[...]";
       break;
     case Type::kEmptyObject:
@@ -93,7 +94,12 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header, Struc
     return std::vector<std::string>();
   }
 
-  std::vector<std::string> lines = GetHeaderContents(header, true);
+  std::vector<std::string> lines;
+  if (read_file.empty()) {
+    lines = GetHeaderContents(header, true);
+  } else {
+    lines = std::move(read_file);
+  }
   std::vector<std::pair<char, std::string>> st;
   int indent = 0;
 
@@ -112,7 +118,8 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header, Struc
     std::string::size_type narray_token = line.find("[]");
     std::string::size_type nobject_token = line.find("{}");
     bool aobject_token = line == "{";
-    bool earray_token = line == "]";
+    bool aarray_token = line == "[";
+    bool earray_token = line == "]" || line == "],";
     bool eobject_token = line == "}" || line == "},";
 
     std::string st_string;
@@ -228,6 +235,24 @@ std::vector<std::string> Packages::HeaderToJson(const std::string& header, Struc
 
       st.emplace_back('{', "{}");
       parsed.emplace_back(std::string(unsigned(indent), ' ').append("{"));
+      indent += 2;
+
+      continue;
+    } else if (aarray_token) {
+      switch (opts) {
+        case StructureOptions::kScope:
+          OutputScope(Type::kAnonObject, st_string);
+          break;
+        case StructureOptions::kTree:
+          OutputTree(Type::kAnonObject, unsigned(indent), "");
+          break;
+        case StructureOptions::kNone:
+          // not handled
+          break;
+      }
+
+      st.emplace_back('[', "[]");
+      parsed.emplace_back(std::string(unsigned(indent), ' ').append("["));
       indent += 2;
 
       continue;
