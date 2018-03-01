@@ -91,6 +91,10 @@ void Gui::Help(bool is_interactive) const {
   cout << "\tSorted file will be dumped to [filename]." << '\n';
   cout << '\n';
   cout << "compare [filename]: Compares the headers of the currently loaded file with [filename]" << '\n';
+  cout << "json-dump [--filename=out.json] [count=1024]: Reformat and dumps the currently loaded file into JSON format." << '\n';
+  cout << "\tShow progress every [count] headers dumped." << '\n';
+  cout << "\tSorted file will be dumped to [filename]." << '\n';
+  cout << '\n';
   cout << "json-struct [--scope|--tree] [header]: Serializes contents of [header] into JSON format, and dumps the package structure." << '\n';
   cout << "\tBy default, this shows the package structure using \"::\"-delimited naming." << '\n';
   cout << "\tUse [--tree] to show the package in a tree-like structure." << '\n';

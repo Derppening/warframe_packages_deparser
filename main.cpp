@@ -33,7 +33,7 @@ struct {
   std::vector<std::string> ni_args;
 } program_args;
 
-const std::string kBuildString = "0.11.0-rc";
+const std::string kBuildString = "0.11.0-rc.1";
 
 void Init();
 void ReadArgs(const std::vector<std::string>& args, std::string& filename);
