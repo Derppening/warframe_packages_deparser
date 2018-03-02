@@ -158,11 +158,11 @@ void Gui::Find(std::string args, bool is_interactive) const {
       switch (mode) {
         case SearchMode::kDefault:
           Log::i("Invoking Packages::Find(\"" + find_s + "\"...)");
-          packages_->Find(find_s, false, max_count);
+          packages_->Find(std::move(find_s), false, max_count);
           break;
         case SearchMode::kFront:
           Log::i("Invoking Packages::Find(\"" + find_s + "\"...)");
-          packages_->Find(find_s, true, max_count);
+          packages_->Find(std::move(find_s), true, max_count);
           break;
         case SearchMode::kLine:
           Log::i("Invoking Packages::ReverseLookup(" + std::to_string(line) + "...)");

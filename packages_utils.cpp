@@ -55,7 +55,7 @@ void Packages::ParseFile(std::ifstream* const ifs) {
  *
  * @return All lines of the given header
  */
-auto Packages::GetHeaderContents(std::string header, bool inc_header) -> std::vector<std::string> {
+auto Packages::GetHeaderContents(const std::string& header, bool inc_header) -> std::vector<std::string> {
   Log::d("Packages::GetHeaderContents(" + header + ")");
 
   auto content = std::vector<std::string>();

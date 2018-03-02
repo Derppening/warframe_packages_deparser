@@ -26,7 +26,7 @@ using std::endl;
  * @param header Target header
  * @param is_raw Whether to output the contents in the raw format
  */
-void Packages::OutputHeader(std::string header, bool is_raw) {
+void Packages::OutputHeader(const std::string& header, bool is_raw) {
   // find the header. return if we can't find it
   auto search = headers_.find(header);
   if (search == headers_.end()) {
@@ -82,7 +82,7 @@ void Packages::OutputHeader(std::string header, bool is_raw) {
  * @param search_front If true, only return headers which starts from header
  * @param max_size Maximum matches before the application prompts the user for input.
  */
-void Packages::Find(std::string header, bool search_front, unsigned max_size) {
+void Packages::Find(std::string&& header, bool search_front, unsigned max_size) {
   std::transform(header.begin(), header.end(), header.begin(), ::tolower);
   auto matches = std::vector<std::string>();
 
@@ -135,7 +135,7 @@ void Packages::Find(std::string header, bool search_front, unsigned max_size) {
  *
  * @param cmp_filename Filename of the comparing file
  */
-void Packages::Compare(std::string cmp_filename) {
+void Packages::Compare(const std::string& cmp_filename) {
   Log::i("Packages::Compare(...): " + filename_ + " <-> " + cmp_filename);
 
   auto cmp_filestream = std::ifstream(cmp_filename);

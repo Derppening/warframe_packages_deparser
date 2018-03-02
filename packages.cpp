@@ -35,7 +35,7 @@ using std::getline;
  * @param ifs Input file stream
  * @param prettify_filename Prettify filename
  */
-Packages::Packages(const std::string& filename, std::ifstream&& ifs, std::string prettify_filename)
+Packages::Packages(const std::string& filename, std::ifstream&& ifs, std::string&& prettify_filename)
     : ifs_(std::move(ifs)), filename_(filename), headers_(std::map<std::string, unsigned>()) {
   if (!ifs_) {
     throw std::runtime_error("Cannot open file");

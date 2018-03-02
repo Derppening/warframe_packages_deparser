@@ -25,7 +25,7 @@ using std::endl;
  * @param opt_mask Bit mask of options to apply. See @c SortOptions
  * @param notify_count How often to output progress
  */
-void Packages::SortFile(std::string outfile, unsigned opt_mask, unsigned notify_count) {
+void Packages::SortFile(const std::string& outfile, unsigned opt_mask, unsigned notify_count) {
   Log::i("Packages::SortFile -> " + outfile);
 
   // initialize variables

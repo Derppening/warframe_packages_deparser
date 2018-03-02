@@ -40,17 +40,17 @@ class Packages {
     kTree
   };
 
-  Packages(const std::string& filename, std::ifstream&& ifs, std::string prettify_filename = "");
+  Packages(const std::string& filename, std::ifstream&& ifs, std::string&& prettify_filename = "");
 
-  void OutputHeader(std::string header, bool is_raw);
+  void OutputHeader(const std::string& header, bool is_raw);
 
-  void Find(std::string header, bool search_front, unsigned max_size);
+  void Find(std::string&& header, bool search_front, unsigned max_size);
 
-  void Compare(std::string);
+  void Compare(const std::string& cmp_filename);
 
-  void SortFile(std::string, unsigned, unsigned);
+  void SortFile(const std::string& outfile, unsigned opt_mask, unsigned notify_count);
 
-  void ReverseLookup(unsigned, bool);
+  void ReverseLookup(unsigned line, bool is_interactive);
 
   std::vector<std::string> HeaderToJson(const std::string& header, StructureOptions opts, std::vector<std::string>&& read_file);
   void DumpJson(std::string&& outfile, unsigned notify_count);
@@ -61,7 +61,7 @@ class Packages {
  private:
   void ParseFile(std::ifstream* ifs);
 
-  auto GetHeaderContents(std::string header, bool inc_header = false) -> std::vector<std::string>;
+  auto GetHeaderContents(const std::string& header, bool inc_header = false) -> std::vector<std::string>;
 
   std::ifstream ifs_;
   std::string filename_ = "";

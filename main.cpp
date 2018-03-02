@@ -13,6 +13,7 @@
 
 #include "cui.h"
 #include "gui.h"
+#include "init.h"
 #include "packages.h"
 #include "log.h"
 #include "util.h"
@@ -33,53 +34,7 @@ struct {
   std::vector<std::string> ni_args;
 } program_args;
 
-const std::string kBuildString = "0.11.0-rc.1";
-
-void Init();
-void ReadArgs(const std::vector<std::string>& args, std::string& filename);
-void OutputVersionInfo();
-void OutputHelp(const std::string& s);
-
-/**
- * @brief Performs initialization.
- */
-void Init() {
-  // initialize the logging class
-  Log::Init();
-  Log::Enable();
-}
-
-/**
- * @brief Outputs help text.
- *
- * @param s Name of the application
- */
-void OutputHelp(const std::string& s) {
-  std::string message;
-  message += "Usage: " + s + " [OPTION]... -- [MODE] [MODE_ARGS]...\n";
-  message += "  -D, --no-debug\t\tdisable logging\n";
-  message += "  -f, --file=[FILE]\tread Packages.txt from [FILE]\n";
-  message += "  -I, --no-interactive\tdisable interactive mode\n";
-  message += "  -p, --prettify=[FILE]\timport prettifying replacement pairs from [FILE]\n";
-  message += "      --help\t\tdisplay this help and exit\n";
-  message += "      --version\t\toutput version information and exit\n\n";
-  message += "MODE and MODE_ARGS will only be parsed if \'--no-interactive\' is provided.\n";
-  message += "For help on using interactive mode, provide \'help\' to MODE.\n";
-
-  cout << message << endl;
-}
-
-/**
- * @brief Outputs version information.
- */
-void OutputVersionInfo() {
-  std::string message;
-  message += "Warframe Package Deparser " + kBuildString + "\n";
-  message += "Copyright (C) 2017-2018 David Mak\n";
-  message += "Licensed under MIT.";
-
-  cout << message << endl;
-}
+void ReadArgs(const std::vector<std::string>& args, std::string* filename);
 
 /**
  * @brief Parse all arguments in the command line.
@@ -87,7 +42,7 @@ void OutputVersionInfo() {
  * @param args Vector of arguments
  * @param filename Filename to read the file from
  */
-void ReadArgs(const std::vector<std::string>& args, std::string& filename) {
+void ReadArgs(const std::vector<std::string>& args, std::string* const filename) {
   std::string file = "./Packages.txt";
   bool is_parse_ni_args = false;
 
@@ -131,7 +86,7 @@ void ReadArgs(const std::vector<std::string>& args, std::string& filename) {
     file.insert(0, "./");
   }
 
-  filename = file;
+  *filename = file;
 
   Log::SetFile("debug.log");
   Log::SetOverridePipe(Log::kFile);
@@ -157,7 +112,7 @@ auto main(int argc, char* argv[]) -> int {
   std::vector<std::string> argvec(argv, argv + argc);
 
   std::string filename{};
-  ReadArgs(argvec, filename);
+  ReadArgs(argvec, &filename);
 
   auto file_stream = std::ifstream(filename);
   std::unique_ptr<Packages> package = nullptr;
@@ -166,7 +121,7 @@ auto main(int argc, char* argv[]) -> int {
     switch (program_args.package_ver) {
       case Gui::PackageVer::kCurrent:
         Log::v("Attempting to create Packages");
-        package = std::make_unique<Packages>(filename, std::move(file_stream), program_args.prettify_src);
+        package = std::make_unique<Packages>(filename, std::move(file_stream), std::move(program_args.prettify_src));
         break;
     }
   } catch (std::runtime_error& ex_runtime) {
@@ -190,6 +145,8 @@ auto main(int argc, char* argv[]) -> int {
     if (program_args.ni_args.empty()) {
       Log::w("No interactive mode arguments! Quitting");
       cout << "No arguments provided for non-interactive mode. Exiting." << endl;
+
+      return 0;
     }
 
     Cui c(Cui::HintLevel::kNone);
